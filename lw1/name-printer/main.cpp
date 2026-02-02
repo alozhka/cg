@@ -71,34 +71,36 @@ void DrawLetterA(sf::RenderWindow& window, sf::Vector2f leftTop, sf::Color color
 void DrawLetterL(sf::RenderWindow& window, sf::Vector2f leftTop, sf::Color color)
 {
 	sf::RectangleShape aboveRect(sf::Vector2f(150, 50));
-	aboveRect.setPosition(leftTop);
+	aboveRect.setPosition(sf::Vector2f(leftTop.x + 50, leftTop.y));
 	aboveRect.setFillColor(color);
 	window.draw(aboveRect);
 
 	sf::RectangleShape leftRect(sf::Vector2f(50, 300));
-	leftRect.setPosition(leftTop);
+	leftRect.setPosition(sf::Vector2f(leftTop.x + 50, leftTop.y));
 	leftRect.setFillColor(color);
 	window.draw(leftRect);
 
 	sf::RectangleShape lowerRect(sf::Vector2f(100, 50));
-	lowerRect.setPosition(sf::Vector2f(leftTop.x - 50, leftTop.y + 250));
+	lowerRect.setPosition(sf::Vector2f(leftTop.x, leftTop.y + 250));
 	lowerRect.setFillColor(color);
 	window.draw(lowerRect);
 
 	sf::RectangleShape rightRect(sf::Vector2f(50, 300));
-	rightRect.setPosition(sf::Vector2f(leftTop.x + 100, leftTop.y));
+	rightRect.setPosition(sf::Vector2f(leftTop.x + 150, leftTop.y));
 	rightRect.setFillColor(color);
 	window.draw(rightRect);
 }
 
 void DrawInitials(sf::RenderWindow& window)
 {
-	sf::Vector2f leftTopC{ 50, 100 };
-	DrawLetterC(window, leftTopC, sf::Color::Black);
-	sf::Vector2f leftTopA{ 300, 100 };
-	DrawLetterA(window, leftTopA, sf::Color::Magenta);
-	sf::Vector2f leftTopL{ 600, 100 };
-	DrawLetterL(window, leftTopL, sf::Color::Cyan);
+	sf::Vector2f firstLetterPos{ 50, 100 };
+	sf::Vector2f secondLetterPos{ 550, 100 };
+	sf::Vector2f thirdLetterPos{ 300, 100 };
+
+	DrawLetterL(window, firstLetterPos, sf::Color::Cyan);
+	DrawLetterA(window, secondLetterPos, sf::Color::Magenta);
+	DrawLetterC(window, thirdLetterPos, sf::Color::Black);
+
 	window.display();
 }
 
