@@ -8,6 +8,7 @@ constexpr float BASE_Y = 100, AMPLITUDE = 50, PERIOD = 1.2;
 constexpr float ANGULAR_SPEED = 2 * std::numbers::pi / PERIOD;
 } // namespace
 
+int MainLoop(sf::RenderWindow& window, const std::function<void()>& onDraw);
 sf::RenderWindow CreateWindow();
 void DrawBouncingInitials(sf::RenderWindow& window, float timeInSeconds);
 
@@ -16,6 +17,17 @@ int main()
 	sf::RenderWindow window = CreateWindow();
 	sf::Clock clock;
 
+	std::function onDraw = [&] {
+		float time = clock.getElapsedTime().asSeconds();
+		window.clear(sf::Color::White);
+		DrawBouncingInitials(window, time);
+	};
+
+	return MainLoop(window, onDraw);
+}
+
+int MainLoop(sf::RenderWindow& window, const std::function<void()>& onDraw)
+{
 	while (window.isOpen())
 	{
 		while (const std::optional<sf::Event> event = window.pollEvent())
@@ -27,8 +39,7 @@ int main()
 			}
 		}
 
-		window.clear(sf::Color::White);
-		DrawBouncingInitials(window, clock.getElapsedTime().asSeconds());
+		onDraw();
 	}
 
 	return 0;
@@ -110,12 +121,12 @@ void DrawBouncingInitials(sf::RenderWindow& window, float timeInSeconds)
 	float y3 = BASE_Y + AMPLITUDE * std::sin((ANGULAR_SPEED + 0.3) * timeInSeconds + phase3);
 
 	sf::Vector2f firstLetterPos{ 50, y1 };
-	sf::Vector2f secondLetterPos{ 550, y2 };
-	sf::Vector2f thirdLetterPos{ 300, y3 };
+	sf::Vector2f secondLetterPos{ 300, y3 };
+	sf::Vector2f thirdLetterPos{ 550, y2 };
 
 	DrawLetterL(window, firstLetterPos, sf::Color::Cyan);
-	DrawLetterA(window, secondLetterPos, sf::Color::Magenta);
-	DrawLetterC(window, thirdLetterPos, sf::Color::Black);
+	DrawLetterC(window, secondLetterPos, sf::Color::Black);
+	DrawLetterA(window, thirdLetterPos, sf::Color::Magenta);
 
 	window.display();
 }
