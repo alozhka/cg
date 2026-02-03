@@ -1,16 +1,20 @@
-#include "SFML/Graphics/RectangleShape.hpp"
-
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
+#include <numbers>
+
+namespace
+{
+constexpr float BASE_Y = 100, AMPLITUDE = 50, PERIOD = 1.2;
+constexpr float ANGULAR_SPEED = 2 * std::numbers::pi / PERIOD;
+} // namespace
 
 sf::RenderWindow CreateWindow();
-void DrawInitials(sf::RenderWindow& window);
+void DrawBouncingInitials(sf::RenderWindow& window, float timeInSeconds);
 
 int main()
 {
 	sf::RenderWindow window = CreateWindow();
-	window.clear(sf::Color::White);
-
-	DrawInitials(window);
+	sf::Clock clock;
 
 	while (window.isOpen())
 	{
@@ -22,6 +26,9 @@ int main()
 				break;
 			}
 		}
+
+		window.clear(sf::Color::White);
+		DrawBouncingInitials(window, clock.getElapsedTime().asSeconds());
 	}
 
 	return 0;
@@ -91,11 +98,20 @@ void DrawLetterL(sf::RenderWindow& window, sf::Vector2f leftTop, sf::Color color
 	window.draw(rightRect);
 }
 
-void DrawInitials(sf::RenderWindow& window)
+void DrawBouncingInitials(sf::RenderWindow& window, float timeInSeconds)
 {
-	sf::Vector2f firstLetterPos{ 50, 100 };
-	sf::Vector2f secondLetterPos{ 550, 100 };
-	sf::Vector2f thirdLetterPos{ 300, 100 };
+	constexpr float phase1 = 0;
+	constexpr float phase2 = 2 * std::numbers::pi / 3;
+	constexpr float phase3 = 4 * std::numbers::pi / 3;
+
+	// y = y0 + A * sin(ωt + φ)
+	float y1 = BASE_Y + AMPLITUDE * std::sin(ANGULAR_SPEED * timeInSeconds + phase1);
+	float y2 = BASE_Y + AMPLITUDE * std::sin((ANGULAR_SPEED + 0.2) * timeInSeconds + phase2);
+	float y3 = BASE_Y + AMPLITUDE * std::sin((ANGULAR_SPEED + 0.3) * timeInSeconds + phase3);
+
+	sf::Vector2f firstLetterPos{ 50, y1 };
+	sf::Vector2f secondLetterPos{ 550, y2 };
+	sf::Vector2f thirdLetterPos{ 300, y3 };
 
 	DrawLetterL(window, firstLetterPos, sf::Color::Cyan);
 	DrawLetterA(window, secondLetterPos, sf::Color::Magenta);
@@ -112,6 +128,7 @@ sf::RenderWindow CreateWindow()
 		sf::VideoMode(sf::Vector2u(800, 600)),
 		"Initials",
 		sf::Style::Default,
-		sf::State::Windowed, settings
+		sf::State::Windowed,
+		settings
 	};
 }
