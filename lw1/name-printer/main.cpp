@@ -2,48 +2,26 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <numbers>
 
+int MainLoop(const std::function<void(sf::RenderWindow&)>& onDraw);
+void DrawBouncingInitials(sf::RenderWindow& window, float timeInSeconds);
+
+int main()
+{
+	sf::Clock clock;
+
+	std::function onDraw = [clock](sf::RenderWindow& window) {
+		float time = clock.getElapsedTime().asSeconds();
+		DrawBouncingInitials(window, time);
+	};
+
+	return MainLoop(onDraw);
+}
+
 namespace
 {
 constexpr float BASE_Y = 100, AMPLITUDE = 50, PERIOD = 1.2;
 constexpr float ANGULAR_SPEED = 2 * std::numbers::pi / PERIOD;
 } // namespace
-
-int MainLoop(sf::RenderWindow& window, const std::function<void()>& onDraw);
-sf::RenderWindow CreateWindow();
-void DrawBouncingInitials(sf::RenderWindow& window, float timeInSeconds);
-
-int main()
-{
-	sf::RenderWindow window = CreateWindow();
-	sf::Clock clock;
-
-	std::function onDraw = [&] {
-		float time = clock.getElapsedTime().asSeconds();
-		window.clear(sf::Color::White);
-		DrawBouncingInitials(window, time);
-	};
-
-	return MainLoop(window, onDraw);
-}
-
-int MainLoop(sf::RenderWindow& window, const std::function<void()>& onDraw)
-{
-	while (window.isOpen())
-	{
-		while (const std::optional<sf::Event> event = window.pollEvent())
-		{
-			if (event.has_value() && event->is<sf::Event::Closed>())
-			{
-				window.close();
-				break;
-			}
-		}
-
-		onDraw();
-	}
-
-	return 0;
-}
 
 void DrawLetterC(sf::RenderWindow& window, sf::Vector2f leftTop, sf::Color color)
 {
@@ -142,4 +120,25 @@ sf::RenderWindow CreateWindow()
 		sf::State::Windowed,
 		settings
 	};
+}
+
+int MainLoop(const std::function<void(sf::RenderWindow& window)>& onDraw)
+{
+	sf::RenderWindow window = CreateWindow();
+	while (window.isOpen())
+	{
+		while (const std::optional<sf::Event> event = window.pollEvent())
+		{
+			if (event.has_value() && event->is<sf::Event::Closed>())
+			{
+				window.close();
+				break;
+			}
+		}
+
+		window.clear(sf::Color::White);
+		onDraw(window);
+	}
+
+	return 0;
 }
