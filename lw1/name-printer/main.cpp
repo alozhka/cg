@@ -1,113 +1,11 @@
-#include <SFML/Graphics/RectangleShape.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <numbers>
+#include "BouncingObject.h"
+#include "Letters.h"
 
-int MainLoop(const std::function<void(sf::RenderWindow&)>& onDraw);
-void DrawBouncingInitials(sf::RenderWindow& window, float timeInSeconds);
+#include <SFML/Graphics.hpp>
+#include <SFML/System/Clock.hpp>
+#include <optional>
 
-int main()
-{
-	sf::Clock clock;
-
-	std::function onDraw = [clock](sf::RenderWindow& window) {
-		float time = clock.getElapsedTime().asSeconds();
-		DrawBouncingInitials(window, time);
-	};
-
-	return MainLoop(onDraw);
-}
-
-namespace
-{
-constexpr float BASE_Y = 100, AMPLITUDE = 50, PERIOD = 1.2;
-constexpr float ANGULAR_SPEED = 2 * std::numbers::pi / PERIOD;
-} // namespace
-
-void DrawLetterC(sf::RenderWindow& window, sf::Vector2f leftTop, sf::Color color)
-{
-	sf::RectangleShape leftRect(sf::Vector2f(50, 300));
-	leftRect.setPosition(leftTop);
-	leftRect.setFillColor(color);
-	window.draw(leftRect);
-
-	sf::RectangleShape aboveRect(sf::Vector2f(200, 50));
-	aboveRect.setPosition(leftTop);
-	aboveRect.setFillColor(color);
-	window.draw(aboveRect);
-
-	sf::RectangleShape lowerRect(sf::Vector2f(200, 50));
-	lowerRect.setPosition(sf::Vector2f(leftTop.x, leftTop.y + 250));
-	lowerRect.setFillColor(color);
-	window.draw(lowerRect);
-}
-
-void DrawLetterA(sf::RenderWindow& window, sf::Vector2f leftTop, sf::Color color)
-{
-	sf::RectangleShape leftRect(sf::Vector2f(50, 300));
-	leftRect.setPosition(leftTop);
-	leftRect.setFillColor(color);
-	window.draw(leftRect);
-
-	sf::RectangleShape rightRect(sf::Vector2f(50, 300));
-	rightRect.setPosition(sf::Vector2f(leftTop.x + 150, leftTop.y));
-	rightRect.setFillColor(color);
-	window.draw(rightRect);
-
-	sf::RectangleShape aboveRect(sf::Vector2f(150, 50));
-	aboveRect.setPosition(leftTop);
-	aboveRect.setFillColor(color);
-	window.draw(aboveRect);
-
-	sf::RectangleShape lowerRect(sf::Vector2f(150, 50));
-	lowerRect.setPosition(sf::Vector2f(leftTop.x, leftTop.y + 150));
-	lowerRect.setFillColor(color);
-	window.draw(lowerRect);
-}
-
-void DrawLetterL(sf::RenderWindow& window, sf::Vector2f leftTop, sf::Color color)
-{
-	sf::RectangleShape aboveRect(sf::Vector2f(150, 50));
-	aboveRect.setPosition(sf::Vector2f(leftTop.x + 50, leftTop.y));
-	aboveRect.setFillColor(color);
-	window.draw(aboveRect);
-
-	sf::RectangleShape leftRect(sf::Vector2f(50, 300));
-	leftRect.setPosition(sf::Vector2f(leftTop.x + 50, leftTop.y));
-	leftRect.setFillColor(color);
-	window.draw(leftRect);
-
-	sf::RectangleShape lowerRect(sf::Vector2f(100, 50));
-	lowerRect.setPosition(sf::Vector2f(leftTop.x, leftTop.y + 250));
-	lowerRect.setFillColor(color);
-	window.draw(lowerRect);
-
-	sf::RectangleShape rightRect(sf::Vector2f(50, 300));
-	rightRect.setPosition(sf::Vector2f(leftTop.x + 150, leftTop.y));
-	rightRect.setFillColor(color);
-	window.draw(rightRect);
-}
-
-void DrawBouncingInitials(sf::RenderWindow& window, float timeInSeconds)
-{
-	constexpr float phase1 = 0;
-	constexpr float phase2 = 2 * std::numbers::pi / 3;
-	constexpr float phase3 = 4 * std::numbers::pi / 3;
-
-	// y = y0 + A * sin(ωt + φ)
-	float y1 = BASE_Y + AMPLITUDE * std::sin(ANGULAR_SPEED * timeInSeconds + phase1);
-	float y2 = BASE_Y + AMPLITUDE * std::sin((ANGULAR_SPEED + 0.2) * timeInSeconds + phase2);
-	float y3 = BASE_Y + AMPLITUDE * std::sin((ANGULAR_SPEED + 0.3) * timeInSeconds + phase3);
-
-	sf::Vector2f firstLetterPos{ 50, y1 };
-	sf::Vector2f secondLetterPos{ 300, y3 };
-	sf::Vector2f thirdLetterPos{ 550, y2 };
-
-	DrawLetterL(window, firstLetterPos, sf::Color::Cyan);
-	DrawLetterC(window, secondLetterPos, sf::Color::Black);
-	DrawLetterA(window, thirdLetterPos, sf::Color::Magenta);
-
-	window.display();
-}
+constexpr float GROUND_Y = 450.0f;
 
 sf::RenderWindow CreateWindow()
 {
@@ -125,6 +23,7 @@ sf::RenderWindow CreateWindow()
 int MainLoop(const std::function<void(sf::RenderWindow& window)>& onDraw)
 {
 	sf::RenderWindow window = CreateWindow();
+
 	while (window.isOpen())
 	{
 		while (const std::optional<sf::Event> event = window.pollEvent())
@@ -138,7 +37,42 @@ int MainLoop(const std::function<void(sf::RenderWindow& window)>& onDraw)
 
 		window.clear(sf::Color::White);
 		onDraw(window);
+		window.display();
 	}
 
 	return 0;
+}
+
+void DrawLetters(sf::RenderWindow& window, const std::array<BouncingObject, 3>& letters)
+{
+	sf::Vector2f firstPos{ 50, letters[0].GetY() - Letters::LETTER_HEIGHT };
+	sf::Vector2f secondPos{ 300, letters[1].GetY() - Letters::LETTER_HEIGHT };
+	sf::Vector2f thirdPos{ 550, letters[2].GetY() - Letters::LETTER_HEIGHT };
+
+	Letters::DrawLetterL(window, firstPos, sf::Color::Cyan);
+	Letters::DrawLetterC(window, secondPos, sf::Color::Black);
+	Letters::DrawLetterA(window, thirdPos, sf::Color::Magenta);
+}
+
+int main()
+{
+	sf::Clock clock;
+	std::array<BouncingObject, 3> letters = {
+		BouncingObject({ 50, GROUND_Y }, -320.0f),
+		BouncingObject({ 300, GROUND_Y }, -280.0f),
+		BouncingObject({ 550, GROUND_Y }, -240.0f)
+	};
+
+	auto onDraw = [&clock, &letters](sf::RenderWindow& window) {
+		float elapsedTime = clock.getElapsedTime().asSeconds();
+
+		for (auto& letter : letters)
+		{
+			letter.update(elapsedTime);
+		}
+
+		DrawLetters(window, letters);
+	};
+
+	return MainLoop(onDraw);
 }

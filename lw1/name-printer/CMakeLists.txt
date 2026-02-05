@@ -19,6 +19,8 @@ set(SFML_BUILD_TESTS OFF)
 
 FetchContent_MakeAvailable(SFML)
 
-add_executable(name_printer main.cpp)
+add_executable(name_printer main.cpp
+        BouncingObject.h
+        Letters.h)
 
 target_link_libraries(name_printer SFML::Graphics)
