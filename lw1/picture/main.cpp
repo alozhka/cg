@@ -48,7 +48,36 @@ int main()
     cartman.setPosition(sf::Vector2f(400.f, 300.f));
     cartman.setScale(sf::Vector2f(1.5f, 1.5f));
 
+    bool isDragging = false;
+    sf::Vector2f lastMousePos;
+    bool wasMousePressed = false;
+
     auto onDraw = [&](sf::RenderWindow& window) {
+        sf::Vector2f currMousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+        bool isMousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
+
+        if (isMousePressed && !wasMousePressed)
+        {
+            if (cartman.getGlobalBounds().contains(currMousePos))
+            {
+                isDragging = true;
+                lastMousePos = currMousePos;
+            }
+        }
+        else if (!isMousePressed)
+        {
+            isDragging = false;
+        }
+
+        if (isDragging)
+        {
+            sf::Vector2f delta = currMousePos - lastMousePos;
+            cartman.move(delta);
+            lastMousePos = currMousePos;
+        }
+
+        wasMousePressed = isMousePressed;
+
         window.draw(cartman);
     };
 

@@ -10,6 +10,11 @@ public:
         initializeShapes();
     }
 
+    sf::FloatRect getGlobalBounds() const
+    {
+        return getTransform().transformRect(sf::FloatRect({-90.f, -100.f}, {180.f, 270.f}));
+    }
+
 private:
     // Body parts
     sf::CircleShape m_head;
