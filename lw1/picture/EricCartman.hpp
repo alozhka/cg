@@ -1,8 +1,8 @@
 #pragma once
-#include <SFML/Graphics.hpp>
+#include "DrawableObject.hpp"
 #include <SFML/System/Angle.hpp>
 
-class EricCartman : public sf::Drawable, public sf::Transformable
+class EricCartman : public DrawableObject
 {
 public:
     EricCartman()
@@ -10,49 +10,12 @@ public:
         initializeShapes();
     }
 
-    bool handleEvent(const sf::Event& event, const sf::RenderWindow& window)
-    {
-        if (const auto* mousePressed = event.getIf<sf::Event::MouseButtonPressed>())
-        {
-            if (mousePressed->button == sf::Mouse::Button::Left)
-            {
-                sf::Vector2f mousePos = window.mapPixelToCoords(mousePressed->position);
-                if (getGlobalBounds().contains(mousePos))
-                {
-                    m_isDragging = true;
-                    m_lastMousePos = mousePos;
-                    return true;
-                }
-            }
-        }
-        else if (const auto* mouseReleased = event.getIf<sf::Event::MouseButtonReleased>())
-        {
-            if (mouseReleased->button == sf::Mouse::Button::Left)
-            {
-                m_isDragging = false;
-            }
-        }
-        else if (const auto* mouseMoved = event.getIf<sf::Event::MouseMoved>())
-        {
-            if (m_isDragging)
-            {
-                sf::Vector2f currMousePos = window.mapPixelToCoords(mouseMoved->position);
-                sf::Vector2f delta = currMousePos - m_lastMousePos;
-                move(delta);
-                m_lastMousePos = currMousePos;
-                return true;
-            }
-        }
-        return false;
-    }
-
-private:
-
-    sf::FloatRect getGlobalBounds() const
+    sf::FloatRect getGlobalBounds() const override
     {
         return getTransform().transformRect(sf::FloatRect({-90.f, -100.f}, {180.f, 270.f}));
     }
 
+private:
     void initializeShapes()
     {
         // Colors

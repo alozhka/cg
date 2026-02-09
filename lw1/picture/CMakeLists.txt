@@ -19,6 +19,6 @@ set(SFML_BUILD_TESTS OFF)
 
 FetchContent_MakeAvailable(SFML)
 
-add_executable(picture main.cpp EricCartman.hpp)
+add_executable(picture main.cpp EricCartman.hpp DrawableObject.hpp)
 
 target_link_libraries(picture SFML::Graphics)
