@@ -3,15 +3,33 @@
 #include <string>
 #include <vector>
 
-class HangmanViewModel
+class HangmanViewModel : public IObserver
+	, public IObservable
 {
 public:
 	explicit HangmanViewModel(HangmanModel& model)
 		: m_model(model)
 	{
+		m_model.AddObserver(this);
 	}
 
-	void processInput(char letter)
+	HangmanViewModel(const HangmanViewModel& other)
+		: m_model(other.m_model)
+	{
+		m_model.AddObserver(this);
+	}
+
+	~HangmanViewModel() override
+	{
+		m_model.RemoveObserver(this);
+	}
+
+	void update() override
+	{
+		NotifyObservers();
+	}
+
+	void ProcessInput(char letter)
 	{
 		if (m_model.GetGameState() == HangmanModel::GameState::PLAYING)
 		{
@@ -19,8 +37,7 @@ public:
 		}
 	}
 
-	// Presentation logic: format the word for display
-	std::string getDisplayWord() const
+	std::string GetDisplayWord() const
 	{
 		std::string display;
 		const auto& word = m_model.getTargetWord();
@@ -47,7 +64,7 @@ public:
 
 	// Presentation logic: state of each letter for coloring
 	// Returns 0: unknown, 1: correct, 2: incorrect
-	std::vector<int> getAlphabetStates() const
+	std::vector<int> GetAlphabetStates() const
 	{
 		std::vector<int> states(26, 0);
 		const auto& word = m_model.getTargetWord();
@@ -73,7 +90,10 @@ public:
 		return states;
 	}
 
-	int getWrongGuesses() const { return m_model.GetWrongGuesses(); }
+	int getWrongGuesses() const
+	{
+		return m_model.GetWrongGuesses();
+	}
 
 	bool isGameOver() const
 	{

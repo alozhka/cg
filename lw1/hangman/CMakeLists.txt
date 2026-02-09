@@ -10,10 +10,10 @@ include_directories(src)
 
 add_executable(hangman
         main.cpp
-        src/view/AlphabetView.cpp
         src/view/Drawer.cpp
         src/view/GameView.h
         src/view/HangmanView.h
+        src/Observer.h
 )
 
 target_link_libraries(hangman SFML::Graphics)

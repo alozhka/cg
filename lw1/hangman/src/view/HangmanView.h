@@ -2,7 +2,7 @@
 #include "../viewModel/HangmanViewModel.hpp"
 #include "Drawer.hpp"
 
-class HangmanView
+class HangmanView : public IObserver
 {
 public:
 	HangmanView(
@@ -13,6 +13,17 @@ public:
 		, m_font(m_font)
 		, m_hangmanViewModel(hangmanViewModel)
 	{
+		m_hangmanViewModel.AddObserver(this);
+	}
+
+	~HangmanView() override
+	{
+		m_hangmanViewModel.RemoveObserver(this);
+	}
+
+	void update() override
+	{
+		Draw();
 	}
 
 	void Draw()
@@ -63,7 +74,7 @@ private:
 
 	void DrawWord() const
 	{
-		std::string word = m_hangmanViewModel.getDisplayWord();
+		std::string word = m_hangmanViewModel.GetDisplayWord();
 		float startX = 400;
 		float startY = 300;
 		float charSize = 20;

@@ -1,9 +1,10 @@
 #pragma once
+#include "../Observer.h"
 #include <algorithm>
 #include <string>
 #include <vector>
 
-class HangmanModel
+class HangmanModel : public IObservable
 {
 public:
 	enum class GameState
@@ -25,6 +26,7 @@ public:
 		m_guessedLetters.assign(26, false);
 		m_wrongGuesses = 0;
 		m_gameState = GameState::PLAYING;
+		NotifyObservers();
 	}
 
 	bool GuessLetter(char letter)
@@ -55,6 +57,7 @@ public:
 			{
 				m_gameState = GameState::LOST;
 			}
+			NotifyObservers();
 			return false;
 		}
 
@@ -62,6 +65,7 @@ public:
 		{
 			m_gameState = GameState::WON;
 		}
+		NotifyObservers();
 		return true;
 	}
 
