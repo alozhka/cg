@@ -1,7 +1,15 @@
 #pragma once
 #include "../model/HangmanModel.h"
+#include <map>
 #include <string>
 #include <vector>
+
+enum class LetterStatus
+{
+	NotGuessed,
+	Correct,
+	Incorrect
+};
 
 class HangmanViewModel
 {
@@ -32,7 +40,7 @@ public:
 	std::wstring GetDisplayWord() const
 	{
 		std::wstring display;
-		const auto& word = m_model.GetGuessedWord();
+		const auto& word = m_model.GetTargetWord();
 		for (wchar_t c : word)
 		{
 			if (HangmanModel::ALPHABET.find(c) != std::wstring::npos)
@@ -54,27 +62,28 @@ public:
 		return display;
 	}
 
-	std::vector<int> GetAlphabetStates() const
+	std::vector<std::pair<wchar_t, LetterStatus>> GetAlphabetStates() const
 	{
-		std::vector<int> states(HangmanModel::ALPHABET.size(), 0);
-		const auto& word = m_model.GetGuessedWord();
+		std::vector<std::pair<wchar_t, LetterStatus>> states;
+		const std::wstring& word = m_model.GetTargetWord();
+
 		for (size_t i = 0; i < HangmanModel::ALPHABET.size(); ++i)
 		{
 			wchar_t letter = HangmanModel::ALPHABET[i];
-			if (m_model.IsLetterGuessed(letter))
+			if (!m_model.IsLetterGuessed(letter))
 			{
-				if (word.find(letter) != std::wstring::npos)
-				{
-					states[i] = 1; // Correct
-				}
-				else
-				{
-					states[i] = 2; // Incorrect
-				}
+				states.emplace_back(letter, LetterStatus::NotGuessed);
 			}
 			else
 			{
-				states[i] = 0; // Unknown
+				if (word.find(letter) != std::wstring::npos)
+				{
+					states.emplace_back(letter, LetterStatus::Correct);
+				}
+				else
+				{
+					states.emplace_back(letter, LetterStatus::Incorrect);
+				}
 			}
 		}
 		return states;

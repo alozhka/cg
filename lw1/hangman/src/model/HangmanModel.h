@@ -18,63 +18,57 @@ public:
 
 	explicit HangmanModel(const std::wstring& targetWord)
 	{
-		startNewGame(targetWord);
+		StartNewGame(targetWord);
 	}
 
-	void startNewGame(const std::wstring& targetWord)
+	void StartNewGame(const std::wstring& targetWord)
 	{
 		m_word = targetWord;
 		std::ranges::transform(m_word, m_word.begin(), ::towupper);
+		m_lettersToGuess = UniqueLettersAmount(m_word);
 		m_guessedLetters.clear();
 		m_wrongGuesses = 0;
 		m_gameState = GameState::PLAYING;
 		NotifyObservers();
 	}
 
-	bool GuessLetter(wchar_t letter)
+	void GuessLetter(wchar_t letter)
 	{
 		if (m_gameState != GameState::PLAYING)
 		{
-			return false;
+			return;
 		}
 
 		letter = std::towupper(letter);
-
 		if (m_guessedLetters.contains(letter))
 		{
-			return false;
+			return;
 		}
 
 		m_guessedLetters.insert(letter);
 
-		// Check if letter is in the word
 		if (m_word.find(letter) == std::wstring::npos)
 		{
-			m_wrongGuesses++;
-			if (m_wrongGuesses >= MAX_WRONG_GUESSES)
-			{
-				m_gameState = GameState::LOST;
-			}
-			NotifyObservers();
-			return false;
+			ProcessCorrectLetter();
 		}
-
-		if (CheckWinCondition())
+		else
 		{
-			m_gameState = GameState::WON;
+			ProcessIncorrectLetter();
 		}
 		NotifyObservers();
-		return true;
 	}
 
-	const std::wstring& getTargetWord() const { return m_word; }
+	const std::wstring& GetTargetWord() const
+	{
+		return m_word;
+	}
 
 	bool IsLetterGuessed(wchar_t c) const
 	{
 		return m_guessedLetters.contains(c);
 	}
 
-	int GetWrongGuesses() const
+	size_t GetWrongGuesses() const
 	{
 		return m_wrongGuesses;
 	}
@@ -84,27 +78,42 @@ public:
 		return m_gameState;
 	}
 
-	std::wstring GetGuessedWord()
+private:
+	void ProcessCorrectLetter()
 	{
-		return m_word;
+		m_wrongGuesses++;
+		if (m_wrongGuesses >= MAX_WRONG_GUESSES)
+		{
+			m_gameState = GameState::LOST;
+		}
 	}
 
-private:
-	bool CheckWinCondition() const
+	void ProcessIncorrectLetter()
 	{
-		for (wchar_t c : m_word)
+		m_lettersToGuess--;
+		if (m_lettersToGuess <= 0)
 		{
-			if (!m_guessedLetters.contains(c))
+			m_gameState = GameState::WON;
+		}
+	}
+
+	static size_t UniqueLettersAmount(const std::wstring& word)
+	{
+		std::unordered_set<wchar_t> uniqueChars;
+		for (wchar_t c : word)
+		{
+			if (ALPHABET.find(c) != std::wstring::npos)
 			{
-				return false;
+				uniqueChars.insert(c);
 			}
 		}
-		return true;
+		return uniqueChars.size();
 	}
 
 	std::wstring m_word;
 	std::unordered_set<wchar_t> m_guessedLetters;
-	int m_wrongGuesses = 0;
+	size_t m_wrongGuesses = 0;
+	size_t m_lettersToGuess = 0;
 	GameState m_gameState = GameState::PLAYING;
-	static constexpr int MAX_WRONG_GUESSES = 7;
+	static constexpr size_t MAX_WRONG_GUESSES = 7;
 };
