@@ -8,6 +8,11 @@ public:
 
     virtual sf::FloatRect getGlobalBounds() const = 0;
 
+    virtual bool contains(const sf::Vector2f& point) const
+    {
+        return getGlobalBounds().contains(point);
+    }
+
     bool handleEvent(const sf::Event& event, const sf::RenderWindow& window)
     {
         if (const auto* mousePressed = event.getIf<sf::Event::MouseButtonPressed>())
@@ -34,7 +39,7 @@ private:
         if (mousePressed->button == sf::Mouse::Button::Left)
         {
             sf::Vector2f mousePos = window.mapPixelToCoords(mousePressed->position);
-            if (getGlobalBounds().contains(mousePos))
+            if (contains(mousePos))
             {
                 m_isDragging = true;
                 m_lastMousePos = mousePos;

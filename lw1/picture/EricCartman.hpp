@@ -17,6 +17,22 @@ public:
         );
     }
 
+    bool contains(const sf::Vector2f& point) const override
+    {
+        sf::Vector2f localPoint = getInverseTransform().transformPoint(point);
+
+        return isPointInsideCircle(m_head, localPoint) ||
+               isPointInsideCircle(m_stomach, localPoint) ||
+               isPointInsideRect(m_pants, localPoint) ||
+               isPointInsideRect(m_leftShoe, localPoint) ||
+               isPointInsideRect(m_rightShoe, localPoint) ||
+               isPointInsideCircle(m_hatTop, localPoint) ||
+               isPointInsideRect(m_hatBrim, localPoint) ||
+               isPointInsideCircle(m_hatPomPom, localPoint) ||
+               isPointInsideCircle(m_leftHand, localPoint) ||
+               isPointInsideCircle(m_rightHand, localPoint);
+    }
+
 private:
     void initializeShapes()
     {
@@ -177,6 +193,22 @@ private:
         // Hands (in front of body)
         target.draw(m_leftHand, states);
         target.draw(m_rightHand, states);
+    }
+
+    static bool isPointInsideCircle(const sf::CircleShape& circle, const sf::Vector2f& point)
+    {
+        sf::Vector2f localPoint = circle.getInverseTransform().transformPoint(point);
+        float radius = circle.getRadius();
+        // Default origin is (0,0), so center is at (radius, radius)
+        float dx = localPoint.x - radius;
+        float dy = localPoint.y - radius;
+        return (dx * dx + dy * dy) <= (radius * radius);
+    }
+
+    static bool isPointInsideRect(const sf::RectangleShape& rect, const sf::Vector2f& point)
+    {
+        sf::Vector2f localPoint = rect.getInverseTransform().transformPoint(point);
+        return rect.getLocalBounds().contains(localPoint);
     }
 
     bool m_isDragging = false;
