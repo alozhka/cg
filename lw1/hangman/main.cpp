@@ -1,4 +1,5 @@
 #include "src/view/GameView.h"
+#include <clocale>
 #include <iostream>
 
 sf::RenderWindow CreateWindow()
@@ -14,18 +15,28 @@ sf::RenderWindow CreateWindow()
 	};
 }
 
-int main()
+bool LoadFont(sf::Font& font)
 {
-	sf::RenderWindow window = CreateWindow();
-	sf::Font font;
-
 	if (!font.openFromFile("/System/Library/Fonts/Supplemental/Arial.ttf"))
 	{
 		std::cerr << "Failed to load font. Make sure a font is available at standard paths.\n";
+		return false;
+	}
+	return true;
+}
+
+int main()
+{
+	std::setlocale(LC_ALL, "ru_RU.UTF-8");
+	sf::RenderWindow window = CreateWindow();
+	sf::Font font;
+
+	if (!LoadFont(font))
+	{
 		return 1;
 	}
 
-	HangmanModel hangmanModel("Thatcher");
+	HangmanModel hangmanModel(L"ПРОГРАММА");
 	HangmanViewModel hangmanViewModel(hangmanModel);
 	GameView view(window, font, hangmanViewModel);
 	view.Run();

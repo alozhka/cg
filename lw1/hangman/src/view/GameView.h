@@ -1,7 +1,7 @@
 #pragma once
 #include "../viewModel/HangmanViewModel.hpp"
-#include "AlphabetView.hpp"
-#include "Drawer.hpp"
+#include "AlphabetView.h"
+#include "Drawer.h"
 #include "HangmanView.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -70,7 +70,7 @@ private:
 
 	void HandleClick(double x, double y)
 	{
-		std::optional<char> letter = m_alphabetView.GetLetterAt(x, y);
+		std::optional<wchar_t> letter = m_alphabetView.GetLetterAt(x, y);
 		if (letter)
 		{
 			m_hangmanViewModel.ProcessInput(*letter);

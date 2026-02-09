@@ -3,47 +3,39 @@
 #include <string>
 #include <vector>
 
-class HangmanViewModel : public IObserver
-	, public IObservable
+class HangmanViewModel
 {
 public:
 	explicit HangmanViewModel(HangmanModel& model)
 		: m_model(model)
 	{
-		m_model.AddObserver(this);
 	}
 
-	HangmanViewModel(const HangmanViewModel& other)
-		: m_model(other.m_model)
+	void AddObserver(IObserver* observer)
 	{
-		m_model.AddObserver(this);
+		m_model.AddObserver(observer);
 	}
 
-	~HangmanViewModel() override
+	void RemoveObserver(IObserver* observer)
 	{
-		m_model.RemoveObserver(this);
+		m_model.RemoveObserver(observer);
 	}
 
-	void update() override
-	{
-		NotifyObservers();
-	}
-
-	void ProcessInput(char letter)
+	void ProcessInput(uint32_t letter)
 	{
 		if (m_model.GetGameState() == HangmanModel::GameState::PLAYING)
 		{
-			m_model.GuessLetter(letter);
+			m_model.GuessLetter(static_cast<wchar_t>(letter));
 		}
 	}
 
-	std::string GetDisplayWord() const
+	std::wstring GetDisplayWord() const
 	{
-		std::string display;
+		std::wstring display;
 		const auto& word = m_model.getTargetWord();
-		for (char c : word)
+		for (wchar_t c : word)
 		{
-			if (c >= 'A' && c <= 'Z')
+			if (HangmanModel::ALPHABET.find(c) != std::wstring::npos)
 			{
 				if (m_model.IsLetterGuessed(c))
 				{
@@ -51,7 +43,7 @@ public:
 				}
 				else
 				{
-					display += '_';
+					display += L'_';
 				}
 			}
 			else
@@ -62,18 +54,16 @@ public:
 		return display;
 	}
 
-	// Presentation logic: state of each letter for coloring
-	// Returns 0: unknown, 1: correct, 2: incorrect
 	std::vector<int> GetAlphabetStates() const
 	{
-		std::vector<int> states(26, 0);
+		std::vector<int> states(HangmanModel::ALPHABET.size(), 0);
 		const auto& word = m_model.getTargetWord();
-		for (int i = 0; i < 26; ++i)
+		for (size_t i = 0; i < HangmanModel::ALPHABET.size(); ++i)
 		{
-			char letter = 'A' + i;
+			wchar_t letter = HangmanModel::ALPHABET[i];
 			if (m_model.IsLetterGuessed(letter))
 			{
-				if (word.find(letter) != std::string::npos)
+				if (word.find(letter) != std::wstring::npos)
 				{
 					states[i] = 1; // Correct
 				}
@@ -90,12 +80,12 @@ public:
 		return states;
 	}
 
-	int getWrongGuesses() const
+	int GetWrongGuesses() const
 	{
 		return m_model.GetWrongGuesses();
 	}
 
-	bool isGameOver() const
+	bool IsGameOver() const
 	{
 		return m_model.GetGameState() != HangmanModel::GameState::PLAYING;
 	}

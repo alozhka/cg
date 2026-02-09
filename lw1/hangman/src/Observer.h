@@ -4,11 +4,11 @@
 class IObserver
 {
 public:
-	virtual void update() = 0;
+	virtual void Update() = 0;
 	virtual ~IObserver() = default;
 };
 
-class IObservable
+class Observable
 {
 public:
 	void AddObserver(IObserver* observer)
@@ -25,10 +25,10 @@ public:
 	{
 		for (auto* observer : m_observers)
 		{
-			observer->update();
+			observer->Update();
 		}
 	}
-	virtual ~IObservable() = default;
+	virtual ~Observable() = default;
 
 private:
 	std::set<IObserver*> m_observers;

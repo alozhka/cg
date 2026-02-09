@@ -29,9 +29,9 @@ public:
 	void Draw()
 	{
 		auto alphabetStates = m_hangmanViewModel.GetAlphabetStates();
-		for (int i = 0; i < 26; ++i)
+		for (size_t i = 0; i < HangmanModel::ALPHABET.size(); ++i)
 		{
-			char c = 'A' + i;
+			wchar_t c = HangmanModel::ALPHABET[i];
 			float x = m_startX + (i % m_cols) * (m_boxSize + m_padding);
 			float y = m_startY + (i / m_cols) * (m_boxSize + m_padding);
 
@@ -42,11 +42,11 @@ public:
 			box.setPosition(sf::Vector2f(x, y));
 
 			if (isCorrect)
-				box.setFillColor(sf::Color(204, 255, 204)); // Light green
+				box.setFillColor(LIGHT_GREEN);
 			else if (isWrong)
-				box.setFillColor(sf::Color(255, 204, 204)); // Light red
+				box.setFillColor(LIGHT_RED);
 			else
-				box.setFillColor(sf::Color(230, 230, 230)); // Gray
+				box.setFillColor(GRAY);
 
 			box.setOutlineColor(sf::Color::Black);
 			box.setOutlineThickness(1.0f);
@@ -55,16 +55,11 @@ public:
 
 			// Draw char centered
 			sf::Text text(m_font);
-			text.setString(std::string(1, c));
+			text.setString(sf::String(c));
 			text.setCharacterSize(static_cast<unsigned int>(m_boxSize * 0.6f));
 			text.setFillColor(sf::Color::Black);
 
-			// Center text in box
 			sf::FloatRect bounds = text.getLocalBounds();
-			// In SFML 3, getLocalBounds() usually returns {left, top, width, height}.
-			// To center: pos = boxCenter - textCenter.
-			// boxCenter = x + boxSize/2, y + boxSize/2
-			// textCenter = bounds.left + bounds.width/2, bounds.top + bounds.height/2
 
 			float textCenterX = bounds.position.x + bounds.size.x / 2.0f;
 			float textCenterY = bounds.position.y + bounds.size.y / 2.0f;
@@ -78,26 +73,29 @@ public:
 		}
 	}
 
-	std::optional<char> GetLetterAt(double mouseX, double mouseY) const
+	std::optional<wchar_t> GetLetterAt(double mouseX, double mouseY) const
 	{
-		for (int i = 0; i < 26; ++i)
+		for (size_t i = 0; i < HangmanModel::ALPHABET.size(); ++i)
 		{
 			float x = m_startX + (i % m_cols) * (m_boxSize + m_padding);
 			float y = m_startY + (i / m_cols) * (m_boxSize + m_padding);
 
 			if (mouseX >= x && mouseX <= x + m_boxSize && mouseY >= y && mouseY <= y + m_boxSize)
 			{
-				return (char)('A' + i);
+				return HangmanModel::ALPHABET[i];
 			}
 		}
 		return std::nullopt;
 	}
 
 private:
+	HangmanViewModel& m_hangmanViewModel;
+	int m_cols = 11;
+	float m_startX, m_startY, m_boxSize, m_padding;
+
 	sf::RenderWindow& m_window;
 	const sf::Font& m_font;
-	HangmanViewModel& m_hangmanViewModel;
-	int m_cols = 13;
-
-	float m_startX, m_startY, m_boxSize, m_padding;
+	static constexpr sf::Color LIGHT_GREEN = sf::Color(204, 255, 204);
+	static constexpr sf::Color LIGHT_RED = sf::Color(255, 204, 204);
+	static constexpr sf::Color GRAY = sf::Color(230, 230, 230);
 };

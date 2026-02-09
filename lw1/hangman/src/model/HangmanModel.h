@@ -3,10 +3,13 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <cwctype>
 
-class HangmanModel : public IObservable
+class HangmanModel : public Observable
 {
 public:
+	static const inline std::wstring ALPHABET = L"АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ";
+
 	enum class GameState
 	{
 		PLAYING,
@@ -14,35 +17,36 @@ public:
 		LOST
 	};
 
-	explicit HangmanModel(const std::string& targetWord)
+	explicit HangmanModel(const std::wstring& targetWord)
 	{
 		startNewGame(targetWord);
 	}
 
-	void startNewGame(const std::string& targetWord)
+	void startNewGame(const std::wstring& targetWord)
 	{
 		m_word = targetWord;
-		std::ranges::transform(m_word, m_word.begin(), ::toupper);
-		m_guessedLetters.assign(26, false);
+		std::ranges::transform(m_word, m_word.begin(), ::towupper);
+		m_guessedLetters.assign(ALPHABET.size(), false);
 		m_wrongGuesses = 0;
 		m_gameState = GameState::PLAYING;
 		NotifyObservers();
 	}
 
-	bool GuessLetter(char letter)
+	bool GuessLetter(wchar_t letter)
 	{
 		if (m_gameState != GameState::PLAYING)
 		{
 			return false;
 		}
 
-		letter = static_cast<char>(std::toupper(letter));
-		if (letter < 'A' || letter > 'Z')
+		letter = std::towupper(letter);
+		auto it = ALPHABET.find(letter);
+		if (it == std::wstring::npos)
 		{
 			return false;
 		}
 
-		int index = letter - 'A';
+		size_t index = it;
 		if (m_guessedLetters[index])
 		{
 			return false;
@@ -50,7 +54,7 @@ public:
 
 		m_guessedLetters[index] = true;
 
-		if (m_word.find(letter) == std::string::npos)
+		if (m_word.find(letter) == std::wstring::npos)
 		{
 			m_wrongGuesses++;
 			if (m_wrongGuesses >= MAX_WRONG_GUESSES)
@@ -69,13 +73,14 @@ public:
 		return true;
 	}
 
-	const std::string& getTargetWord() const { return m_word; }
+	const std::wstring& getTargetWord() const { return m_word; }
 
-	bool IsLetterGuessed(char c) const
+	bool IsLetterGuessed(wchar_t c) const
 	{
-		if (c >= 'A' && c <= 'Z')
+		auto it = ALPHABET.find(c);
+		if (it != std::wstring::npos)
 		{
-			return m_guessedLetters[c - 'A'];
+			return m_guessedLetters[it];
 		}
 		return false;
 	}
@@ -86,18 +91,19 @@ public:
 private:
 	bool checkWinCondition() const
 	{
-		for (char c : m_word)
+		for (wchar_t c : m_word)
 		{
-			if (c >= 'A' && c <= 'Z')
+			if (ALPHABET.find(c) != std::wstring::npos)
 			{
-				if (!m_guessedLetters[c - 'A'])
+				size_t index = ALPHABET.find(c);
+				if (!m_guessedLetters[index])
 					return false;
 			}
 		}
 		return true;
 	}
 
-	std::string m_word;
+	std::wstring m_word;
 	std::vector<bool> m_guessedLetters;
 	int m_wrongGuesses = 0;
 	GameState m_gameState = GameState::PLAYING;

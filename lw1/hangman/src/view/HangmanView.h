@@ -1,6 +1,6 @@
 #pragma once
 #include "../viewModel/HangmanViewModel.hpp"
-#include "Drawer.hpp"
+#include "Drawer.h"
 
 class HangmanView : public IObserver
 {
@@ -21,7 +21,7 @@ public:
 		m_hangmanViewModel.RemoveObserver(this);
 	}
 
-	void update() override
+	void Update() override
 	{
 		Draw();
 	}
@@ -44,7 +44,7 @@ private:
 
 	void DrawHangman()
 	{
-		auto wrongGuesses = m_hangmanViewModel.getWrongGuesses();
+		auto wrongGuesses = m_hangmanViewModel.GetWrongGuesses();
 		float thickness = 2.0f;
 		if (wrongGuesses >= 1) // Head
 		{
@@ -74,7 +74,7 @@ private:
 
 	void DrawWord() const
 	{
-		std::string word = m_hangmanViewModel.GetDisplayWord();
+		std::wstring word = m_hangmanViewModel.GetDisplayWord();
 		float startX = 400;
 		float startY = 300;
 		float charSize = 20;
@@ -83,7 +83,7 @@ private:
 		for (size_t i = 0; i < word.length(); ++i)
 		{
 			sf::Text text(m_font);
-			text.setString(std::string(1, word[i]));
+			text.setString(sf::String(word[i]));
 			text.setCharacterSize(static_cast<unsigned int>(charSize));
 			text.setFillColor(sf::Color::Black);
 
