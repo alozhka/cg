@@ -10,40 +10,48 @@ public:
         initializeShapes();
     }
 
+    bool handleEvent(const sf::Event& event, const sf::RenderWindow& window)
+    {
+        if (const auto* mousePressed = event.getIf<sf::Event::MouseButtonPressed>())
+        {
+            if (mousePressed->button == sf::Mouse::Button::Left)
+            {
+                sf::Vector2f mousePos = window.mapPixelToCoords(mousePressed->position);
+                if (getGlobalBounds().contains(mousePos))
+                {
+                    m_isDragging = true;
+                    m_lastMousePos = mousePos;
+                    return true;
+                }
+            }
+        }
+        else if (const auto* mouseReleased = event.getIf<sf::Event::MouseButtonReleased>())
+        {
+            if (mouseReleased->button == sf::Mouse::Button::Left)
+            {
+                m_isDragging = false;
+            }
+        }
+        else if (const auto* mouseMoved = event.getIf<sf::Event::MouseMoved>())
+        {
+            if (m_isDragging)
+            {
+                sf::Vector2f currMousePos = window.mapPixelToCoords(mouseMoved->position);
+                sf::Vector2f delta = currMousePos - m_lastMousePos;
+                move(delta);
+                m_lastMousePos = currMousePos;
+                return true;
+            }
+        }
+        return false;
+    }
+
+private:
+
     sf::FloatRect getGlobalBounds() const
     {
         return getTransform().transformRect(sf::FloatRect({-90.f, -100.f}, {180.f, 270.f}));
     }
-
-private:
-    // Body parts
-    sf::CircleShape m_head;
-    sf::RectangleShape m_body; // Or circle/convex for fatness
-    sf::CircleShape m_stomach; // To make him round
-
-    // Hat
-    sf::CircleShape m_hatPomPom;
-    sf::CircleShape m_hatTop; // Half circle
-    sf::RectangleShape m_hatBrim;
-
-    // Face
-    sf::CircleShape m_leftEye;
-    sf::CircleShape m_rightEye;
-    sf::CircleShape m_leftPupil;
-    sf::CircleShape m_rightPupil;
-    sf::RectangleShape m_mouth; // Simple line for now, maybe a curve
-    sf::CircleShape m_chin; // Double chin effect?
-
-    // Limbs
-    sf::CircleShape m_leftHand;
-    sf::CircleShape m_rightHand;
-    sf::RectangleShape m_pants;
-    sf::RectangleShape m_leftShoe;
-    sf::RectangleShape m_rightShoe;
-
-    // Coat details
-    sf::CircleShape m_buttons[3];
-    sf::RectangleShape m_coatSplit; // Vertical line
 
     void initializeShapes()
     {
@@ -137,7 +145,7 @@ private:
         m_chin.setOutlineColor(sf::Color(200, 160, 120)); // Darker skin tone
         m_chin.setOutlineThickness(2.f);
         m_chin.setPosition(sf::Vector2f(-22.f, 35.f));
-        // Only want the bottom arc... this is tricky with primitives. 
+        // Only want the bottom arc... this is tricky with primitives.
         // Let's skip the complex chin for now and focus on the main shapes.
 
         // --- Hands ---
@@ -195,8 +203,8 @@ private:
         // target.draw(m_chin, states);
 
         // Hat
-        // We need to clip the hat top so it doesn't cover the whole face, 
-        // but since we drew the head first, we can just draw the hat top 
+        // We need to clip the hat top so it doesn't cover the whole face,
+        // but since we drew the head first, we can just draw the hat top
         // but wait... the hat sits ON the head.
         // The hat shape I made is a circle. I should probably use a custom shape or just position it higher.
         // Let's adjust the hat top to be higher up.
@@ -209,4 +217,36 @@ private:
         target.draw(m_leftHand, states);
         target.draw(m_rightHand, states);
     }
+
+    bool m_isDragging = false;
+    sf::Vector2f m_lastMousePos;
+
+    // Body parts
+    sf::CircleShape m_head;
+    sf::RectangleShape m_body; // Or circle/convex for fatness
+    sf::CircleShape m_stomach; // To make him round
+
+    // Hat
+    sf::CircleShape m_hatPomPom;
+    sf::CircleShape m_hatTop; // Half circle
+    sf::RectangleShape m_hatBrim;
+
+    // Face
+    sf::CircleShape m_leftEye;
+    sf::CircleShape m_rightEye;
+    sf::CircleShape m_leftPupil;
+    sf::CircleShape m_rightPupil;
+    sf::RectangleShape m_mouth; // Simple line for now, maybe a curve
+    sf::CircleShape m_chin; // Double chin effect?
+
+    // Limbs
+    sf::CircleShape m_leftHand;
+    sf::CircleShape m_rightHand;
+    sf::RectangleShape m_pants;
+    sf::RectangleShape m_leftShoe;
+    sf::RectangleShape m_rightShoe;
+
+    // Coat details
+    sf::CircleShape m_buttons[3];
+    sf::RectangleShape m_coatSplit; // Vertical line
 };

@@ -19,7 +19,13 @@ sf::RenderWindow CreateWindow()
     };
 }
 
-int MainLoop(const std::function<void(sf::RenderWindow& window)>& onDraw)
+using DrawCallback = std::function<void(sf::RenderWindow& window)>;
+using EventCallback = std::function<void(const sf::Event& event, sf::RenderWindow& window)>;
+
+int MainLoop(
+    const DrawCallback& onDraw,
+    const EventCallback& onEvent
+)
 {
     sf::RenderWindow window = CreateWindow();
 
@@ -27,10 +33,14 @@ int MainLoop(const std::function<void(sf::RenderWindow& window)>& onDraw)
     {
         while (const std::optional<sf::Event> event = window.pollEvent())
         {
-            if (event.has_value() && event->is<sf::Event::Closed>())
+            if (event.has_value())
             {
-                window.close();
-                break;
+                if (event->is<sf::Event::Closed>())
+                {
+                    window.close();
+                    break;
+                }
+                onEvent(*event, window);
             }
         }
 
@@ -48,38 +58,15 @@ int main()
     cartman.setPosition(sf::Vector2f(400.f, 300.f));
     cartman.setScale(sf::Vector2f(1.5f, 1.5f));
 
-    bool isDragging = false;
-    sf::Vector2f lastMousePos;
-    bool wasMousePressed = false;
+    auto onEvent = [&](const sf::Event& event, sf::RenderWindow& window)
+    {
+        cartman.handleEvent(event, window);
+    };
 
-    auto onDraw = [&](sf::RenderWindow& window) {
-        sf::Vector2f currMousePos = window.mapPixelToCoords(sf::Mouse::getPosition(window));
-        bool isMousePressed = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
-
-        if (isMousePressed && !wasMousePressed)
-        {
-            if (cartman.getGlobalBounds().contains(currMousePos))
-            {
-                isDragging = true;
-                lastMousePos = currMousePos;
-            }
-        }
-        else if (!isMousePressed)
-        {
-            isDragging = false;
-        }
-
-        if (isDragging)
-        {
-            sf::Vector2f delta = currMousePos - lastMousePos;
-            cartman.move(delta);
-            lastMousePos = currMousePos;
-        }
-
-        wasMousePressed = isMousePressed;
-
+    auto onDraw = [&](sf::RenderWindow& window)
+    {
         window.draw(cartman);
     };
 
-    return MainLoop(onDraw);
+    return MainLoop(onDraw, onEvent);
 }
