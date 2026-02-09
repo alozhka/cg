@@ -1,44 +1,23 @@
 #include "GameView.hpp"
 #include "Drawer.hpp"
-#define GL_SILENCE_DEPRECATION
-#include <GLFW/glfw3.h>
 
-GameView::GameView(HangmanViewModel& viewModel, int width, int height)
+GameView::GameView(HangmanViewModel& viewModel, const sf::Font& font)
 	: m_viewModel(viewModel)
-	, m_width(width)
-	, m_height(height)
-	, m_alphabetView(50.0f, 450.0f, 30.0f, 10.0f)
+	, m_font(font)
+	, m_alphabetView(font, 50.0f, 450.0f, 30.0f, 10.0f)
 {
 }
 
-void GameView::setWindowSize(int width, int height)
+void GameView::draw(sf::RenderTarget& target)
 {
-	m_width = width;
-	m_height = height;
+	DrawGallows(target);
+	DrawHangman(target, m_viewModel.getWrongGuesses());
+	DrawWord(target, m_viewModel.getDisplayWord());
+
+	m_alphabetView.draw(target, m_viewModel.getAlphabetStates());
 }
 
-void GameView::draw()
-{
-	// Setup 2D projection
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, m_width, m_height, 0, -1, 1);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	// Clear background
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	// Draw game elements
-	drawGallows();
-	drawHangman(m_viewModel.getWrongGuesses());
-	drawWord(m_viewModel.getDisplayWord());
-	
-	m_alphabetView.draw(m_viewModel.getAlphabetStates());
-}
-
-void GameView::handleClick(double x, double y)
+void GameView::HandleClick(double x, double y)
 {
 	std::optional<char> letter = m_alphabetView.getLetterAt(x, y);
 	if (letter)
@@ -47,55 +26,44 @@ void GameView::handleClick(double x, double y)
 	}
 }
 
-void GameView::drawGallows() const
+void GameView::DrawGallows(sf::RenderTarget& target)
 {
-	glColor3f(0.0f, 0.0f, 0.0f);
-	glLineWidth(3.0f);
-
-	// Base
-	Drawer::drawLine(50, 400, 150, 400);
-	// Pole
-	Drawer::drawLine(100, 400, 100, 100);
-	// Top
-	Drawer::drawLine(100, 100, 250, 100);
-	// Rope
-	Drawer::drawLine(250, 100, 250, 150);
-
-	glLineWidth(1.0f);
+	Drawer::drawLine(target, 50, 400, 150, 400, 3.0f);
+	Drawer::drawLine(target, 100, 400, 100, 100, 3.0f);
+	Drawer::drawLine(target, 100, 100, 250, 100, 3.0f);
+	Drawer::drawLine(target, 250, 100, 250, 150, 3.0f);
 }
 
-void GameView::drawHangman(int wrongGuesses) const
+void GameView::DrawHangman(sf::RenderTarget& target, int wrongGuesses)
 {
-	glColor3f(0.0f, 0.0f, 0.0f);
-	glLineWidth(2.0f);
-
+	float thickness = 2.0f;
 	if (wrongGuesses >= 1)
 	{ // Head
-		Drawer::drawCircle(250, 170, 20, 20);
+		Drawer::drawCircle(target, 250, 170, 20, 20, thickness);
 	}
 	if (wrongGuesses >= 2)
 	{ // Body
-		Drawer::drawLine(250, 190, 250, 270);
+		Drawer::drawLine(target, 250, 190, 250, 270, thickness);
 	}
 	if (wrongGuesses >= 3)
 	{ // Left Arm
-		Drawer::drawLine(250, 210, 220, 240);
+		Drawer::drawLine(target, 250, 210, 220, 240, thickness);
 	}
 	if (wrongGuesses >= 4)
 	{ // Right Arm
-		Drawer::drawLine(250, 210, 280, 240);
+		Drawer::drawLine(target, 250, 210, 280, 240, thickness);
 	}
 	if (wrongGuesses >= 5)
 	{ // Left Leg
-		Drawer::drawLine(250, 270, 230, 310);
+		Drawer::drawLine(target, 250, 270, 230, 310, thickness);
 	}
 	if (wrongGuesses >= 6)
 	{ // Right Leg
-		Drawer::drawLine(250, 270, 270, 310);
+		Drawer::drawLine(target, 250, 270, 270, 310, thickness);
 	}
 }
 
-void GameView::drawWord(const std::string& word) const
+void GameView::DrawWord(sf::RenderTarget& target, const std::string& word) const
 {
 	float startX = 400;
 	float startY = 300;
@@ -104,6 +72,17 @@ void GameView::drawWord(const std::string& word) const
 
 	for (size_t i = 0; i < word.length(); ++i)
 	{
-		Drawer::drawChar(word[i], startX + i * spacing, startY, charSize, false, false);
+		sf::Text text(m_font);
+		text.setString(std::string(1, word[i]));
+		text.setCharacterSize(static_cast<unsigned int>(charSize));
+		text.setFillColor(sf::Color::Black);
+
+		sf::FloatRect bounds = text.getLocalBounds();
+		float textCenterX = bounds.position.x + bounds.size.x / 2.0f;
+		float textCenterY = bounds.position.y + bounds.size.y / 2.0f;
+
+		text.setPosition(sf::Vector2f(startX + i * spacing - textCenterX + charSize / 2.0f, startY - textCenterY + charSize / 2.0f));
+
+		target.draw(text);
 	}
 }

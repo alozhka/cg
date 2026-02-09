@@ -1,16 +1,19 @@
 #pragma once
+#include <SFML/Graphics.hpp>
 #include <vector>
 #include <optional>
 
 class AlphabetView
 {
 public:
-	AlphabetView(float startX, float startY, float boxSize, float padding);
+	AlphabetView(const sf::Font& font, float startX, float startY, float boxSize, float padding);
 
-	void draw(const std::vector<int>& alphabetStates) const;
-	std::optional<char> getLetterAt(double x, double y) const;
+	void draw(sf::RenderTarget& target, const std::vector<int>& alphabetStates) const;
+
+	std::optional<char> getLetterAt(double mouseX, double mouseY) const;
 
 private:
+	const sf::Font& m_font;
 	float m_startX;
 	float m_startY;
 	float m_boxSize;

@@ -1,101 +1,111 @@
 #pragma once
 #include "HangmanViewModel.hpp"
 #include "view/GameView.hpp"
-#include <GLFW/glfw3.h>
+#include <SFML/Graphics.hpp>
 #include <iostream>
+#include <optional>
 #include <string>
 
 class WindowManager
 {
 public:
-	WindowManager(int width, int height, const std::string& title)
+	WindowManager(unsigned int width, unsigned int height, const std::string& title)
 		: m_width(width)
 		, m_height(height)
 		, m_title(title)
 		, m_viewModel("HANGMAN")
-		, m_view(m_viewModel, width, height)
+		, m_view(m_viewModel, m_font)
 	{
 	}
 
 	bool init()
 	{
-		if (!glfwInit())
+		if (!m_font.openFromFile("/System/Library/Fonts/Supplemental/Arial.ttf"))
 		{
-			std::cerr << "Failed to initialize GLFW" << std::endl;
+			std::cerr << "Failed to load font. Make sure a font is available at standard paths.\n";
 			return false;
 		}
 
-		m_window = glfwCreateWindow(
-			m_width,
-			m_height,
-			m_title.c_str(),
-			nullptr,
-			nullptr);
-		if (!m_window)
+		m_window = CreateWindow();
+		if (!m_window.isOpen())
 		{
-			std::cerr << "Failed to create GLFW window\n";
-			glfwTerminate();
+			std::cerr << "Failed to create SFML window\n";
 			return false;
 		}
 
-		glfwMakeContextCurrent(m_window);
-		glfwSetWindowUserPointer(m_window, this);
-
-		glfwSetMouseButtonCallback(m_window, MouseButtonWindowProc);
-		glfwSetFramebufferSizeCallback(m_window, ResizeWindowProc);
-
+		m_window.setFramerateLimit(60);
 		return true;
 	}
 
 	void run()
 	{
-		while (!glfwWindowShouldClose(m_window))
+		while (m_window.isOpen())
 		{
-			m_view.draw();
-
-			glfwSwapBuffers(m_window);
-			glfwPollEvents();
+			ProcessEvents();
+			m_window.clear(sf::Color::White);
+			m_view.draw(m_window);
+			m_window.display();
 		}
-
-		glfwTerminate();
 	}
 
 private:
-	static void MouseButtonWindowProc(GLFWwindow* window, int button, int action, int mods)
+	void ProcessEvents()
 	{
-		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+		while (std::optional<sf::Event> event = m_window.pollEvent())
 		{
-			HandleLeftButtonPress(window);
+			if (event->is<sf::Event::Closed>())
+			{
+				m_window.close();
+			}
+			if (const auto* resizedEvent = event->getIf<sf::Event::Resized>())
+			{
+				HandleResizedEvent(resizedEvent);
+			}
+			if (const auto* buttonPressedEvent = event->getIf<sf::Event::MouseButtonPressed>())
+			{
+				HandleButtonPressed(buttonPressedEvent);
+			}
 		}
 	}
 
-	static void ResizeWindowProc(GLFWwindow* window, int width, int height)
+	void HandleResizedEvent(const sf::Event::Resized* event)
 	{
-		glViewport(0, 0, width, height);
-		auto* wm = static_cast<WindowManager*>(glfwGetWindowUserPointer(window));
-		if (wm)
+		sf::FloatRect visibleArea(
+			sf::Vector2f(0, 0),
+			{ static_cast<float>(event->size.x),
+				static_cast<float>(event->size.y) });
+		m_window.setView(sf::View(visibleArea));
+	}
+
+	void HandleButtonPressed(const sf::Event::MouseButtonPressed* event)
+	{
+		if (event->button == sf::Mouse::Button::Left)
 		{
-			wm->m_view.setWindowSize(width, height);
+			sf::Vector2i mousePos = sf::Mouse::getPosition(m_window);
+			sf::Vector2f worldPos = m_window.mapPixelToCoords(mousePos);
+			m_view.HandleClick(worldPos.x, worldPos.y);
 		}
 	}
 
-	static void HandleLeftButtonPress(GLFWwindow* window)
+	static sf::RenderWindow CreateWindow()
 	{
-		double xpos, ypos;
-		glfwGetCursorPos(window, &xpos, &ypos);
-
-		auto* wm = static_cast<WindowManager*>(glfwGetWindowUserPointer(window));
-		if (wm)
-		{
-			wm->m_view.handleClick(xpos, ypos);
-		}
+		sf::ContextSettings settings;
+		settings.antiAliasingLevel = 16;
+		return sf::RenderWindow{
+			sf::VideoMode(sf::Vector2u(800, 600)),
+			"The Hangman Game",
+			sf::Style::Default,
+			sf::State::Windowed,
+			settings
+		};
 	}
 
-	GLFWwindow* m_window = nullptr;
-	int m_width;
-	int m_height;
+	sf::RenderWindow m_window;
+	unsigned int m_width;
+	unsigned int m_height;
 	std::string m_title;
 
+	sf::Font m_font;
 	HangmanViewModel m_viewModel;
 	GameView m_view;
 };

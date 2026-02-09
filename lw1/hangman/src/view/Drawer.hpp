@@ -1,10 +1,10 @@
 #pragma once
+#include <SFML/Graphics.hpp>
 #include <string>
 
 class Drawer
 {
 public:
-	static void drawLine(float x1, float y1, float x2, float y2);
-	static void drawCircle(float cx, float cy, float r, int segments);
-	static void drawChar(char c, float x, float y, float size, bool isCorrect, bool isWrong);
+	static void drawLine(sf::RenderTarget& target, float x1, float y1, float x2, float y2, float thickness = 1.0f, sf::Color color = sf::Color::Black);
+	static void drawCircle(sf::RenderTarget& target, float cx, float cy, float r, int segments, float thickness = 1.0f, sf::Color color = sf::Color::Black);
 };

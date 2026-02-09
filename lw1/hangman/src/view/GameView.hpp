@@ -1,27 +1,25 @@
 #pragma once
 #include "HangmanViewModel.hpp"
 #include "AlphabetView.hpp"
+#include <SFML/Graphics.hpp>
 #include <optional>
 #include <string>
 
 class GameView
 {
 public:
-	GameView(HangmanViewModel& viewModel, int width, int height);
+	GameView(HangmanViewModel& viewModel, const sf::Font& font);
 
-	void setWindowSize(int width, int height);
+	void draw(sf::RenderTarget& target);
 
-	void draw();
-
-	void handleClick(double x, double y);
+	void HandleClick(double x, double y);
 
 private:
 	HangmanViewModel& m_viewModel;
+	const sf::Font& m_font;
 	AlphabetView m_alphabetView;
-	int m_width;
-	int m_height;
 
-	void drawGallows() const;
-	void drawHangman(int wrongGuesses) const;
-	void drawWord(const std::string& word) const;
+	static void DrawGallows(sf::RenderTarget& target) ;
+	static void DrawHangman(sf::RenderTarget& target, int wrongGuesses) ;
+	void DrawWord(sf::RenderTarget& target, const std::string& word) const;
 };

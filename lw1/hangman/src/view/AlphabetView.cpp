@@ -1,17 +1,16 @@
 #include "AlphabetView.hpp"
-#include "Drawer.hpp"
-#define GL_SILENCE_DEPRECATION
-#include <GLFW/glfw3.h>
+#include <iostream>
 
-AlphabetView::AlphabetView(float startX, float startY, float boxSize, float padding)
-	: m_startX(startX)
+AlphabetView::AlphabetView(const sf::Font& font, float startX, float startY, float boxSize, float padding)
+	: m_font(font)
+	, m_startX(startX)
 	, m_startY(startY)
 	, m_boxSize(boxSize)
 	, m_padding(padding)
 {
 }
 
-void AlphabetView::draw(const std::vector<int>& alphabetStates) const
+void AlphabetView::draw(sf::RenderTarget& target, const std::vector<int>& alphabetStates) const
 {
 	for (int i = 0; i < 26; ++i)
 	{
@@ -22,32 +21,43 @@ void AlphabetView::draw(const std::vector<int>& alphabetStates) const
 		bool isCorrect = (alphabetStates[i] == 1);
 		bool isWrong = (alphabetStates[i] == 2);
 
-		// Draw box background/border
+		sf::RectangleShape box(sf::Vector2f(m_boxSize, m_boxSize));
+		box.setPosition(sf::Vector2f(x, y));
+
 		if (isCorrect)
-			glColor3f(0.8f, 1.0f, 0.8f); // Light green
+			box.setFillColor(sf::Color(204, 255, 204)); // Light green
 		else if (isWrong)
-			glColor3f(1.0f, 0.8f, 0.8f); // Light red
+			box.setFillColor(sf::Color(255, 204, 204)); // Light red
 		else
-			glColor3f(0.9f, 0.9f, 0.9f); // Gray
+			box.setFillColor(sf::Color(230, 230, 230)); // Gray
 
-		glBegin(GL_QUADS);
-		glVertex2f(x, y);
-		glVertex2f(x + m_boxSize, y);
-		glVertex2f(x + m_boxSize, y + m_boxSize);
-		glVertex2f(x, y + m_boxSize);
-		glEnd();
+		box.setOutlineColor(sf::Color::Black);
+		box.setOutlineThickness(1.0f);
 
-		// Draw border
-		glColor3f(0.0f, 0.0f, 0.0f);
-		glBegin(GL_LINE_LOOP);
-		glVertex2f(x, y);
-		glVertex2f(x + m_boxSize, y);
-		glVertex2f(x + m_boxSize, y + m_boxSize);
-		glVertex2f(x, y + m_boxSize);
-		glEnd();
+		target.draw(box);
 
 		// Draw char centered
-		Drawer::drawChar(c, x + 5, y + 5, m_boxSize - 10, isCorrect, isWrong);
+		sf::Text text(m_font);
+		text.setString(std::string(1, c));
+		text.setCharacterSize(static_cast<unsigned int>(m_boxSize * 0.6f));
+		text.setFillColor(sf::Color::Black);
+		
+		// Center text in box
+		sf::FloatRect bounds = text.getLocalBounds();
+		// In SFML 3, getLocalBounds() usually returns {left, top, width, height}.
+		// To center: pos = boxCenter - textCenter.
+		// boxCenter = x + boxSize/2, y + boxSize/2
+		// textCenter = bounds.left + bounds.width/2, bounds.top + bounds.height/2
+		
+		float textCenterX = bounds.position.x + bounds.size.x / 2.0f;
+		float textCenterY = bounds.position.y + bounds.size.y / 2.0f;
+		
+		float boxCenterX = x + m_boxSize / 2.0f;
+		float boxCenterY = y + m_boxSize / 2.0f;
+
+		text.setPosition(sf::Vector2f(boxCenterX - textCenterX, boxCenterY - textCenterY));
+
+		target.draw(text);
 	}
 }
 
