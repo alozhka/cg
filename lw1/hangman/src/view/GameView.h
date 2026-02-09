@@ -1,16 +1,18 @@
 #pragma once
+#include "../viewModel/HangmanViewModel.hpp"
 #include "AlphabetView.hpp"
 #include "Drawer.hpp"
-#include "HangmanViewModel.hpp"
+#include "HangmanView.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 
-class HangmanView
+class GameView
 {
 public:
-	HangmanView(sf::RenderWindow& window, const sf::Font& font, HangmanViewModel& hangmanViewModel)
+	GameView(sf::RenderWindow& window, const sf::Font& font, HangmanViewModel& hangmanViewModel)
 		: m_window(window)
 		, m_alphabetView(font, 50.0f, 450.0f, 30.0f, 10.0f)
+		, m_hangmanView(m_window, font, hangmanViewModel)
 		, m_hangmanViewModel(hangmanViewModel)
 	{
 	}
@@ -92,7 +94,7 @@ private:
 			float textCenterX = bounds.position.x + bounds.size.x / 2.0f;
 			float textCenterY = bounds.position.y + bounds.size.y / 2.0f;
 
-			text.setPosition({startX + i * spacing - textCenterX + charSize / 2.0f, startY - textCenterY + charSize / 2.0f});
+			text.setPosition({ startX + i * spacing - textCenterX + charSize / 2.0f, startY - textCenterY + charSize / 2.0f });
 
 			m_window.draw(text);
 		}
@@ -147,6 +149,8 @@ private:
 
 	sf::RenderWindow& m_window;
 	sf::Font m_font;
+
 	AlphabetView m_alphabetView;
+	HangmanView m_hangmanView;
 	HangmanViewModel& m_hangmanViewModel;
 };

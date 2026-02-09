@@ -1,4 +1,4 @@
-#include "HangmanView.h"
+#include "src/view/GameView.h"
 #include <iostream>
 
 sf::RenderWindow CreateWindow()
@@ -27,7 +27,7 @@ int main()
 
 	HangmanModel hangmanModel("Thatcher");
 	HangmanViewModel hangmanViewModel(hangmanModel);
-	HangmanView view(window, font, hangmanViewModel);
+	GameView view(window, font, hangmanViewModel);
 	view.Run();
 	return 0;
 }

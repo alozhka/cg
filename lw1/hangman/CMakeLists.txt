@@ -12,7 +12,8 @@ add_executable(hangman
         main.cpp
         src/view/AlphabetView.cpp
         src/view/Drawer.cpp
-        src/HangmanView.h
+        src/view/GameView.h
+        src/view/HangmanView.h
 )
 
 target_link_libraries(hangman SFML::Graphics)

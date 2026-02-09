@@ -1,5 +1,5 @@
 #pragma once
-#include "HangmanModel.h"
+#include "../model/HangmanModel.h"
 #include <string>
 #include <vector>
 
