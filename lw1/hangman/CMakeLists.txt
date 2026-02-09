@@ -12,10 +12,12 @@ find_package(glfw3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
 
 include_directories(src/view)
+include_directories(src)
 
 add_executable(hangman 
     main.cpp
     src/view/GameView.cpp
+    # Add other sources if they are cpp files
 )
 
 # Link GLFW and OpenGL

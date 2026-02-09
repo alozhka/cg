@@ -1,0 +1,85 @@
+#pragma once
+#include "HangmanModel.h"
+#include <string>
+#include <vector>
+
+class HangmanViewModel
+{
+public:
+	HangmanViewModel(const std::string& word)
+		: m_model(word)
+	{
+	}
+
+	void processInput(char letter)
+	{
+		if (m_model.GetGameState() == HangmanModel::GameState::PLAYING)
+		{
+			m_model.guessLetter(letter);
+		}
+	}
+
+	// Presentation logic: format the word for display
+	std::string getDisplayWord() const
+	{
+		std::string display;
+		const auto& word = m_model.getTargetWord();
+		for (char c : word)
+		{
+			if (c >= 'A' && c <= 'Z')
+			{
+				if (m_model.IsLetterGuessed(c))
+				{
+					display += c;
+				}
+				else
+				{
+					display += '_';
+				}
+			}
+			else
+			{
+				display += c;
+			}
+		}
+		return display;
+	}
+
+	// Presentation logic: state of each letter for coloring
+	// Returns 0: unknown, 1: correct, 2: incorrect
+	std::vector<int> getAlphabetStates() const
+	{
+		std::vector<int> states(26, 0);
+		const auto& word = m_model.getTargetWord();
+		for (int i = 0; i < 26; ++i)
+		{
+			char letter = 'A' + i;
+			if (m_model.IsLetterGuessed(letter))
+			{
+				if (word.find(letter) != std::string::npos)
+				{
+					states[i] = 1; // Correct
+				}
+				else
+				{
+					states[i] = 2; // Incorrect
+				}
+			}
+			else
+			{
+				states[i] = 0; // Unknown
+			}
+		}
+		return states;
+	}
+
+	int getWrongGuesses() const { return m_model.GetWrongGuesses(); }
+
+	bool isGameOver() const
+	{
+		return m_model.GetGameState() != HangmanModel::GameState::PLAYING;
+	}
+
+private:
+	HangmanModel m_model;
+};
