@@ -1,4 +1,5 @@
 #pragma once
+#include "../model/WordRepository.h"
 #include "../viewModel/HangmanViewModel.hpp"
 #include "AlphabetView.h"
 #include "Drawer.h"
@@ -57,7 +58,7 @@ private:
 	{
 		if (event->code == sf::Keyboard::Key::Enter && m_hangmanViewModel.IsGameOver())
 		{
-			m_hangmanViewModel.RestartGame(L"ПРОГРАММА");
+			m_hangmanViewModel.RestartGame();
 		}
 	}
 

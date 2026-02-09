@@ -1,3 +1,4 @@
+#include "src/model/WordRepository.h"
 #include "src/view/GameView.h"
 #include <clocale>
 #include <iostream>
@@ -25,18 +26,34 @@ bool LoadFont(sf::Font& font)
 	return true;
 }
 
+bool InitializeWords(WordRepository& wordRepository)
+{
+	if (!wordRepository.LoadFromFile("data/words.txt"))
+	{
+		std::cerr << "Failed to load words." << std::endl;
+		return false;
+	}
+	return true;
+}
+
 int main()
 {
 	std::setlocale(LC_ALL, "ru_RU.UTF-8");
 	sf::RenderWindow window = CreateWindow();
 	sf::Font font;
+	WordRepository wordRepository;
 
 	if (!LoadFont(font))
 	{
 		return 1;
 	}
 
-	HangmanModel hangmanModel(L"ПРОГРАММА");
+	if (!InitializeWords(wordRepository))
+	{
+		return 1;
+	}
+
+	HangmanModel hangmanModel(wordRepository);
 	HangmanViewModel hangmanViewModel(hangmanModel);
 	GameView view(window, font, hangmanViewModel);
 	view.Run();

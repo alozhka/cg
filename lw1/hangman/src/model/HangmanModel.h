@@ -16,15 +16,19 @@ public:
 		LOST
 	};
 
-	explicit HangmanModel(const std::wstring& targetWord)
+	explicit HangmanModel(WordRepository& wordRepository)
+		: m_wordRepository(wordRepository)
 	{
-		StartNewGame(targetWord);
+		StartNewGame();
 	}
 
-	void StartNewGame(const std::wstring& targetWord)
+	void StartNewGame()
 	{
-		m_word = targetWord;
-		std::ranges::transform(m_word, m_word.begin(), ::towupper);
+		WordEntry entry = m_wordRepository.GetRandomWord();
+		m_word = entry.word;
+		m_hint = entry.hint;
+
+		std::ranges::transform(m_word, m_word.begin(), towupper);
 		m_lettersToGuess = UniqueLettersAmount(m_word);
 		m_guessedLetters.clear();
 		m_wrongGuesses = 0;
@@ -61,6 +65,11 @@ public:
 	const std::wstring& GetTargetWord() const
 	{
 		return m_word;
+	}
+
+	const std::wstring& GetHint() const
+	{
+		return m_hint;
 	}
 
 	bool IsLetterGuessed(wchar_t c) const
@@ -111,9 +120,12 @@ private:
 	}
 
 	std::wstring m_word;
+	std::wstring m_hint;
 	std::unordered_set<wchar_t> m_guessedLetters;
 	size_t m_wrongGuesses = 0;
 	size_t m_lettersToGuess = 0;
 	GameState m_gameState = GameState::PLAYING;
 	static constexpr size_t MAX_WRONG_GUESSES = 7;
+
+	WordRepository& m_wordRepository;
 };

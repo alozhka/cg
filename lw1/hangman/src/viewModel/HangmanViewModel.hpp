@@ -37,15 +37,20 @@ public:
 		}
 	}
 
-	void RestartGame(const std::wstring& word)
+	void RestartGame()
 	{
-		m_model.StartNewGame(word);
+		m_model.StartNewGame();
+	}
+
+	std::wstring GetHint() const
+	{
+		return m_model.GetHint();
 	}
 
 	std::wstring GetDisplayWord() const
 	{
 		std::wstring display;
-		const auto& word = m_model.GetTargetWord();
+		const std::wstring& word = m_model.GetTargetWord();
 		for (wchar_t c : word)
 		{
 			if (HangmanModel::ALPHABET.find(c) != std::wstring::npos)

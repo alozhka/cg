@@ -31,10 +31,24 @@ public:
 		DrawGallows();
 		DrawHangman();
 		DrawWord();
+		DrawHint();
 		DrawGameOverMessage();
 	}
 
 private:
+	void DrawHint()
+	{
+		std::wstring hint = m_hangmanViewModel.GetHint();
+		sf::Text text(m_font);
+		text.setString(sf::String(L"Подсказка: " + hint));
+		text.setCharacterSize(20);
+		text.setFillColor(sf::Color::Black);
+
+		text.setPosition({ (m_window.getSize().x) / 8.0f, 570.0f });
+
+		m_window.draw(text);
+	}
+
 	void DrawGameOverMessage()
 	{
 		if (m_hangmanViewModel.IsGameOver())
