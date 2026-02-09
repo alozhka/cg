@@ -6,7 +6,7 @@
 class HangmanViewModel
 {
 public:
-	HangmanViewModel(const std::string& word)
+	explicit HangmanViewModel(const std::string& word)
 		: m_model(word)
 	{
 	}
@@ -15,7 +15,7 @@ public:
 	{
 		if (m_model.GetGameState() == HangmanModel::GameState::PLAYING)
 		{
-			m_model.guessLetter(letter);
+			m_model.GuessLetter(letter);
 		}
 	}
 

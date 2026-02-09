@@ -1,5 +1,4 @@
 #pragma once
-#define GL_SILENCE_DEPRECATION
 #include "HangmanViewModel.hpp"
 #include "view/GameView.hpp"
 #include <GLFW/glfw3.h>
@@ -34,7 +33,7 @@ public:
 			nullptr);
 		if (!m_window)
 		{
-			std::cerr << "Failed to create GLFW window" << std::endl;
+			std::cerr << "Failed to create GLFW window\n";
 			glfwTerminate();
 			return false;
 		}

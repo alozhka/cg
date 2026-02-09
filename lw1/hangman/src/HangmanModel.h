@@ -13,7 +13,7 @@ public:
 		LOST
 	};
 
-	explicit HangmanModel(const std::string& targetWord = "HANGMAN")
+	explicit HangmanModel(const std::string& targetWord)
 	{
 		startNewGame(targetWord);
 	}
@@ -27,7 +27,7 @@ public:
 		m_gameState = GameState::PLAYING;
 	}
 
-	bool guessLetter(char letter)
+	bool GuessLetter(char letter)
 	{
 		if (m_gameState != GameState::PLAYING)
 		{

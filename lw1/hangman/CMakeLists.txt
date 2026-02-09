@@ -17,7 +17,8 @@ include_directories(src)
 add_executable(hangman 
     main.cpp
     src/view/GameView.cpp
-    # Add other sources if they are cpp files
+    src/view/AlphabetView.cpp
+    src/view/Drawer.cpp
 )
 
 # Link GLFW and OpenGL
