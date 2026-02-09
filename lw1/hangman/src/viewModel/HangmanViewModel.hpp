@@ -37,6 +37,11 @@ public:
 		}
 	}
 
+	void RestartGame(const std::wstring& word)
+	{
+		m_model.StartNewGame(word);
+	}
+
 	std::wstring GetDisplayWord() const
 	{
 		std::wstring display;
@@ -101,7 +106,7 @@ public:
 
 	bool IsGameWon() const
 	{
-		return m_model.GetGameState() != HangmanModel::GameState::WON;
+		return m_model.GetGameState() == HangmanModel::GameState::WON;
 	}
 
 private:

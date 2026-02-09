@@ -46,6 +46,18 @@ private:
 			{
 				HandleButtonPressed(buttonPressedEvent);
 			}
+			if (const auto* keyEvent = event->getIf<sf::Event::KeyPressed>())
+			{
+				HandleKeyPressed(keyEvent);
+			}
+		}
+	}
+
+	void HandleKeyPressed(const sf::Event::KeyPressed* event)
+	{
+		if (event->code == sf::Keyboard::Key::Enter && m_hangmanViewModel.IsGameOver())
+		{
+			m_hangmanViewModel.RestartGame(L"ПРОГРАММА");
 		}
 	}
 

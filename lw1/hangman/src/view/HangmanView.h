@@ -31,9 +31,39 @@ public:
 		DrawGallows();
 		DrawHangman();
 		DrawWord();
+		DrawGameOverMessage();
 	}
 
 private:
+	void DrawGameOverMessage()
+	{
+		if (m_hangmanViewModel.IsGameOver())
+		{
+			sf::Text text(m_font);
+			std::wstring message;
+			sf::Color color;
+
+			if (m_hangmanViewModel.IsGameWon())
+			{
+				message = L"Вы выиграли! Нажмите Enter, чтобы сыграть ещё раз";
+				color = sf::Color::Green;
+			}
+			else
+			{
+				message = L"Вы проиграли! Нажмите Enter, чтобы сыграть ещё раз";
+				color = sf::Color::Red;
+			}
+
+			text.setString(sf::String(message));
+			text.setCharacterSize(24);
+			text.setFillColor(color);
+
+			text.setPosition({ static_cast<float>(m_window.getSize().x) / 8.0f, 50.0f });
+
+			m_window.draw(text);
+		}
+	}
+
 	void DrawGallows()
 	{
 		Drawer::DrawLine(m_window, 50, 400, 150, 400, 3.0f);
@@ -91,7 +121,9 @@ private:
 			float textCenterX = bounds.position.x + bounds.size.x / 2.0f;
 			float textCenterY = bounds.position.y + bounds.size.y / 2.0f;
 
-			text.setPosition({ startX + i * spacing - textCenterX + charSize / 2.0f, startY - textCenterY + charSize / 2.0f });
+			text.setPosition(
+				{ startX + i * spacing - textCenterX + charSize / 2.0f,
+					startY - textCenterY + charSize / 2.0f });
 
 			m_window.draw(text);
 		}
