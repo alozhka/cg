@@ -6,8 +6,8 @@
 class HangmanViewModel
 {
 public:
-	explicit HangmanViewModel(const std::string& word)
-		: m_model(word)
+	explicit HangmanViewModel(HangmanModel& model)
+		: m_model(model)
 	{
 	}
 
@@ -81,5 +81,5 @@ public:
 	}
 
 private:
-	HangmanModel m_model;
+	HangmanModel& m_model;
 };

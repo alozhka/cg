@@ -1,17 +1,33 @@
-#include "WindowManager.hpp"
+#include "HangmanView.h"
 #include <iostream>
+
+sf::RenderWindow CreateWindow()
+{
+	sf::ContextSettings settings;
+	settings.antiAliasingLevel = 16;
+	return sf::RenderWindow{
+		sf::VideoMode(sf::Vector2u(800, 600)),
+		"The Hangman Game",
+		sf::Style::Default,
+		sf::State::Windowed,
+		settings
+	};
+}
 
 int main()
 {
-	WindowManager wm(800, 600, "Hangman Game");
-	if (wm.init())
+	sf::RenderWindow window = CreateWindow();
+	sf::Font font;
+
+	if (!font.openFromFile("/System/Library/Fonts/Supplemental/Arial.ttf"))
 	{
-		wm.run();
+		std::cerr << "Failed to load font. Make sure a font is available at standard paths.\n";
+		return 1;
 	}
-	else
-	{
-		std::cerr << "Failed to initialize game" << std::endl;
-		return -1;
-	}
+
+	HangmanModel hangmanModel("Thatcher");
+	HangmanViewModel hangmanViewModel(hangmanModel);
+	HangmanView view(window, font, hangmanViewModel);
+	view.Run();
 	return 0;
 }

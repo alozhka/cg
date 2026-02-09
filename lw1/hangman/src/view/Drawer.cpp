@@ -3,7 +3,7 @@
 #include <numbers>
 #include <vector>
 
-void Drawer::drawLine(sf::RenderTarget& target, float x1, float y1, float x2, float y2, float thickness, sf::Color color)
+void Drawer::DrawLine(sf::RenderTarget& target, float x1, float y1, float x2, float y2, float thickness, sf::Color color)
 {
 	float length = std::hypot(x2 - x1, y2 - y1);
 	sf::RectangleShape line(sf::Vector2f(length, thickness));
