@@ -88,7 +88,7 @@ private:
 
 	void DrawHangman()
 	{
-		auto wrongGuesses = m_hangmanViewModel.GetWrongGuesses();
+		size_t wrongGuesses = m_hangmanViewModel.GetWrongGuesses();
 		float thickness = 2.0f;
 		if (wrongGuesses >= 1) // Head
 		{

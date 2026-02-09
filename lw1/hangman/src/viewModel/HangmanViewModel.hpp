@@ -99,7 +99,7 @@ public:
 		return states;
 	}
 
-	int GetWrongGuesses() const
+	size_t GetWrongGuesses() const
 	{
 		return m_model.GetWrongGuesses();
 	}

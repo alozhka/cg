@@ -125,7 +125,7 @@ private:
 	size_t m_wrongGuesses = 0;
 	size_t m_lettersToGuess = 0;
 	GameState m_gameState = GameState::PLAYING;
-	static constexpr size_t MAX_WRONG_GUESSES = 7;
+	static constexpr size_t MAX_WRONG_GUESSES = 6;
 
 	WordRepository& m_wordRepository;
 };
