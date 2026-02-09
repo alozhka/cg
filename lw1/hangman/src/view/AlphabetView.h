@@ -53,7 +53,6 @@ public:
 
 			m_window.draw(box);
 
-			// Draw char centered
 			sf::Text text(m_font);
 			text.setString(sf::String(c));
 			text.setCharacterSize(static_cast<unsigned int>(m_boxSize * 0.6f));

@@ -2,8 +2,7 @@
 #include "../Observer.h"
 #include <algorithm>
 #include <string>
-#include <vector>
-#include <cwctype>
+#include <unordered_set>
 
 class HangmanModel : public Observable
 {
@@ -26,7 +25,7 @@ public:
 	{
 		m_word = targetWord;
 		std::ranges::transform(m_word, m_word.begin(), ::towupper);
-		m_guessedLetters.assign(ALPHABET.size(), false);
+		m_guessedLetters.clear();
 		m_wrongGuesses = 0;
 		m_gameState = GameState::PLAYING;
 		NotifyObservers();
@@ -40,20 +39,15 @@ public:
 		}
 
 		letter = std::towupper(letter);
-		auto it = ALPHABET.find(letter);
-		if (it == std::wstring::npos)
+
+		if (m_guessedLetters.contains(letter))
 		{
 			return false;
 		}
 
-		size_t index = it;
-		if (m_guessedLetters[index])
-		{
-			return false;
-		}
+		m_guessedLetters.insert(letter);
 
-		m_guessedLetters[index] = true;
-
+		// Check if letter is in the word
 		if (m_word.find(letter) == std::wstring::npos)
 		{
 			m_wrongGuesses++;
@@ -65,7 +59,7 @@ public:
 			return false;
 		}
 
-		if (checkWinCondition())
+		if (CheckWinCondition())
 		{
 			m_gameState = GameState::WON;
 		}
@@ -77,34 +71,39 @@ public:
 
 	bool IsLetterGuessed(wchar_t c) const
 	{
-		auto it = ALPHABET.find(c);
-		if (it != std::wstring::npos)
-		{
-			return m_guessedLetters[it];
-		}
-		return false;
+		return m_guessedLetters.contains(c);
 	}
 
-	int GetWrongGuesses() const { return m_wrongGuesses; }
-	GameState GetGameState() const { return m_gameState; }
+	int GetWrongGuesses() const
+	{
+		return m_wrongGuesses;
+	}
+
+	GameState GetGameState() const
+	{
+		return m_gameState;
+	}
+
+	std::wstring GetGuessedWord()
+	{
+		return m_word;
+	}
 
 private:
-	bool checkWinCondition() const
+	bool CheckWinCondition() const
 	{
 		for (wchar_t c : m_word)
 		{
-			if (ALPHABET.find(c) != std::wstring::npos)
+			if (!m_guessedLetters.contains(c))
 			{
-				size_t index = ALPHABET.find(c);
-				if (!m_guessedLetters[index])
-					return false;
+				return false;
 			}
 		}
 		return true;
 	}
 
 	std::wstring m_word;
-	std::vector<bool> m_guessedLetters;
+	std::unordered_set<wchar_t> m_guessedLetters;
 	int m_wrongGuesses = 0;
 	GameState m_gameState = GameState::PLAYING;
 	static constexpr int MAX_WRONG_GUESSES = 7;

@@ -32,7 +32,7 @@ public:
 	std::wstring GetDisplayWord() const
 	{
 		std::wstring display;
-		const auto& word = m_model.getTargetWord();
+		const auto& word = m_model.GetGuessedWord();
 		for (wchar_t c : word)
 		{
 			if (HangmanModel::ALPHABET.find(c) != std::wstring::npos)
@@ -57,7 +57,7 @@ public:
 	std::vector<int> GetAlphabetStates() const
 	{
 		std::vector<int> states(HangmanModel::ALPHABET.size(), 0);
-		const auto& word = m_model.getTargetWord();
+		const auto& word = m_model.GetGuessedWord();
 		for (size_t i = 0; i < HangmanModel::ALPHABET.size(); ++i)
 		{
 			wchar_t letter = HangmanModel::ALPHABET[i];
@@ -88,6 +88,11 @@ public:
 	bool IsGameOver() const
 	{
 		return m_model.GetGameState() != HangmanModel::GameState::PLAYING;
+	}
+
+	bool IsGameWon() const
+	{
+		return m_model.GetGameState() != HangmanModel::GameState::WON;
 	}
 
 private:
