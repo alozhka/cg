@@ -3,12 +3,20 @@ project(hangman)
 
 set(CMAKE_CXX_STANDARD 20)
 
-find_package(glfw3 3.4 REQUIRED)
+# Add Homebrew prefix for Apple Silicon if needed
+if (APPLE)
+    list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew")
+endif()
+
+find_package(glfw3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
 
-add_executable(hangman main.cpp
-        src/HangmanModel.h)
+include_directories(src/view)
+
+add_executable(hangman 
+    main.cpp
+    src/view/GameView.cpp
+)
 
 # Link GLFW and OpenGL
-# The target name provided by glfw3Config.cmake is usually 'glfw'
 target_link_libraries(hangman glfw OpenGL::GL)
