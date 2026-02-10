@@ -6,9 +6,9 @@
 
 enum class LetterStatus
 {
-	NotGuessed,
-	Correct,
-	Incorrect
+	NotGuessed = 0,
+	Correct = 1,
+	Incorrect = 2
 };
 
 class HangmanViewModel
@@ -31,7 +31,7 @@ public:
 
 	void ProcessInput(uint32_t letter)
 	{
-		if (m_model.GetGameState() == HangmanModel::GameState::PLAYING)
+		if (m_model.GetGameState() == HangmanModel::GameState::Playing)
 		{
 			m_model.GuessLetter(static_cast<wchar_t>(letter));
 		}
@@ -106,12 +106,12 @@ public:
 
 	bool IsGameOver() const
 	{
-		return m_model.GetGameState() != HangmanModel::GameState::PLAYING;
+		return m_model.GetGameState() != HangmanModel::GameState::Playing;
 	}
 
 	bool IsGameWon() const
 	{
-		return m_model.GetGameState() == HangmanModel::GameState::WON;
+		return m_model.GetGameState() == HangmanModel::GameState::Won;
 	}
 
 private:

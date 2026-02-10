@@ -11,9 +11,9 @@ public:
 
 	enum class GameState
 	{
-		PLAYING,
-		WON,
-		LOST
+		Playing = 0,
+		Won = 1,
+		Lost = 2
 	};
 
 	explicit HangmanModel(WordRepository& wordRepository)
@@ -32,13 +32,13 @@ public:
 		m_lettersToGuess = UniqueLettersAmount(m_word);
 		m_guessedLetters.clear();
 		m_wrongGuesses = 0;
-		m_gameState = GameState::PLAYING;
+		m_gameState = GameState::Playing;
 		NotifyObservers();
 	}
 
 	void GuessLetter(wchar_t letter)
 	{
-		if (m_gameState != GameState::PLAYING)
+		if (m_gameState != GameState::Playing)
 		{
 			return;
 		}
@@ -93,7 +93,7 @@ private:
 		m_wrongGuesses++;
 		if (m_wrongGuesses >= MAX_WRONG_GUESSES)
 		{
-			m_gameState = GameState::LOST;
+			m_gameState = GameState::Lost;
 		}
 	}
 
@@ -102,7 +102,7 @@ private:
 		m_lettersToGuess--;
 		if (m_lettersToGuess <= 0)
 		{
-			m_gameState = GameState::WON;
+			m_gameState = GameState::Won;
 		}
 	}
 
@@ -124,7 +124,7 @@ private:
 	std::unordered_set<wchar_t> m_guessedLetters;
 	size_t m_wrongGuesses = 0;
 	size_t m_lettersToGuess = 0;
-	GameState m_gameState = GameState::PLAYING;
+	GameState m_gameState = GameState::Playing;
 	static constexpr size_t MAX_WRONG_GUESSES = 6;
 
 	WordRepository& m_wordRepository;
