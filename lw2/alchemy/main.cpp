@@ -1,5 +1,6 @@
 #include "src/view/GameView.h"
 
+#include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
 sf::RenderWindow CreateWindow()
@@ -7,7 +8,7 @@ sf::RenderWindow CreateWindow()
 	sf::ContextSettings settings;
 	settings.antiAliasingLevel = 16;
 	return sf::RenderWindow{
-		sf::VideoMode(sf::Vector2u(800, 600)),
+		sf::VideoMode(sf::Vector2u(1024, 700)),
 		"The Alchemy",
 		sf::Style::Default,
 		sf::State::Windowed,
@@ -18,8 +19,9 @@ sf::RenderWindow CreateWindow()
 int main()
 {
 	sf::RenderWindow window = CreateWindow();
-	GameView view(window);
+	const sf::Font font("/System/Library/Fonts/Geneva.ttf");
 
+	GameView view(window, font);
 	view.Run();
 
 	return 0;
