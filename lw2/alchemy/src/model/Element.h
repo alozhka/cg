@@ -23,7 +23,7 @@ inline std::wstring ElementTypeName(ElementType type)
 	case ElementType::Water:
 		return L"Вода";
 	default:
-		throw std::invalid_argument("Invalid element type");
+		return L"???";
 	}
 }
 

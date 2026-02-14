@@ -18,6 +18,6 @@ add_executable(alchemy main.cpp
         src/view/Colors.h
         src/AlchemyViewModel.h
         src/shared/Uuid.h
-        src/view/ElementCard.h)
+        src/view/ElementCardView.h)
 
 target_link_libraries(alchemy SFML::Graphics)

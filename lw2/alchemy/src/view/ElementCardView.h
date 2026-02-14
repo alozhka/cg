@@ -12,7 +12,7 @@
 
 #include <optional>
 
-class ElementCard
+class ElementCardView
 {
 public:
 	static constexpr float Width = 100.f;
@@ -24,7 +24,7 @@ public:
 	static constexpr unsigned int LabelFontSize = 12;
 	static constexpr unsigned int PlaceholderFontSize = 28;
 
-	ElementCard(const sf::Font& font, const ElementSlot& slot, sf::Vector2f position)
+	ElementCardView(const sf::Font& font, const ElementSlot& slot, sf::Vector2f position)
 		: m_font(font)
 		, m_slot(slot)
 		, m_position(position)
@@ -109,9 +109,7 @@ private:
 
 	void DrawLabel(sf::RenderWindow& window) const
 	{
-		std::wstring displayName = m_slot.isDiscovered ? m_slot.name : L"???";
-
-		sf::Text label(m_font, displayName, LabelFontSize);
+		sf::Text label(m_font, m_slot.name, LabelFontSize);
 		label.setFillColor(m_colors.LabelText);
 
 		auto textBounds = label.getLocalBounds();

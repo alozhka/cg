@@ -2,7 +2,7 @@
 
 #include "AlchemyViewModel.h"
 #include "Colors.h"
-#include "view/ElementCard.h"
+#include "ElementCardView.h"
 
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -60,13 +60,13 @@ private:
 	int CalculateColumnCount() const
 	{
 		float availableWidth = m_rect.size.x - GridSidePadding * 2.f;
-		int columns = static_cast<int>((availableWidth + GridGap) / (ElementCard::Width + GridGap));
+		int columns = static_cast<int>((availableWidth + GridGap) / (ElementCardView::Width + GridGap));
 		return std::max(columns, 1);
 	}
 
 	sf::Vector2f CalculateGridOrigin(int columns) const
 	{
-		float totalGridWidth = static_cast<float>(columns) * ElementCard::Width
+		float totalGridWidth = static_cast<float>(columns) * ElementCardView::Width
 			+ static_cast<float>(columns - 1) * GridGap;
 
 		return {
@@ -81,8 +81,8 @@ private:
 		int row = static_cast<int>(index) / columns;
 
 		return {
-			gridOrigin.x + static_cast<float>(col) * (ElementCard::Width + GridGap),
-			gridOrigin.y + static_cast<float>(row) * (ElementCard::Height + GridGap),
+			gridOrigin.x + static_cast<float>(col) * (ElementCardView::Width + GridGap),
+			gridOrigin.y + static_cast<float>(row) * (ElementCardView::Height + GridGap),
 		};
 	}
 
@@ -103,7 +103,7 @@ private:
 	}
 
 	AlchemyViewModel& m_alchemyViewModel;
-	std::vector<ElementCard> m_cards;
+	std::vector<ElementCardView> m_cards;
 
 	sf::RenderWindow& m_window;
 	const sf::Font& m_font;
