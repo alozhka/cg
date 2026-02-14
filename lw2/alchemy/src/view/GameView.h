@@ -9,10 +9,14 @@
 class GameView final : IObserver
 {
 public:
-	explicit GameView(sf::RenderWindow& window, const sf::Font& font)
+	explicit GameView(sf::RenderWindow& window, const sf::Font& font, AlchemyViewModel& alchemyViewModel)
 		: m_window(window)
 		, m_font(font)
-		, m_discoveredPanel(window, font, { { 0, 0 }, { PANEL_WIDTH, static_cast<float>(window.getSize().y) } })
+		, m_discoveredPanel(
+			  window,
+			  font,
+			  { { 0, 0 }, { PANEL_WIDTH, static_cast<float>(window.getSize().y) } },
+			  alchemyViewModel)
 	{
 	}
 

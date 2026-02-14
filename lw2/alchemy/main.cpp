@@ -21,7 +21,9 @@ int main()
 	sf::RenderWindow window = CreateWindow();
 	const sf::Font font("/System/Library/Fonts/Geneva.ttf");
 
-	GameView view(window, font);
+	AlchemyModel alchemy;
+	AlchemyViewModel alchemyViewModel{ alchemy };
+	GameView view(window, font, alchemyViewModel);
 	view.Run();
 
 	return 0;

@@ -1,21 +1,58 @@
 #pragma once
+#include "Element.h"
+
+#include <functional>
 #include <map>
-#include <vector>
+#include <optional>
+#include <unordered_set>
+#include <utility>
+
+struct ElementTypeHash
+{
+	std::size_t operator()(ElementType type) const noexcept
+	{
+		return std::hash<int>{}(static_cast<int>(type));
+	}
+};
 
 class RecipeBook
 {
 public:
-	void AddRecipe(const std::string& name1, const std::string& name2, const std::string& result)
+	void AddRecipe(ElementType first, ElementType second, ElementType result)
 	{
-		m_recipes[{ name1, name2 }] = result;
-		m_recipes[{ name2, name1 }] = result;
+		m_recipes[MakeKey(first, second)] = result;
 	}
 
-	std::string FindRecipeResult(const std::string& name1, const std::string& name2)
+	std::optional<ElementType> FindRecipeResult(ElementType first, ElementType second) const
 	{
-		return m_recipes[{ name1, name2 }];
+		auto it = m_recipes.find(MakeKey(first, second));
+		if (it != m_recipes.end())
+		{
+			return it->second;
+		}
+		return std::nullopt;
+	}
+
+	static const std::unordered_set<ElementType, ElementTypeHash>& ListElements()
+	{
+		return m_elements;
 	}
 
 private:
-	std::map<std::pair<std::string, std::string>, std::string> m_recipes{};
+	static std::pair<ElementType, ElementType> MakeKey(ElementType first, ElementType second)
+	{
+		if (first > second)
+		{
+			return { second, first };
+		}
+		return { first, second };
+	}
+
+	std::map<std::pair<ElementType, ElementType>, ElementType> m_recipes{};
+	inline static std::unordered_set<ElementType, ElementTypeHash> m_elements{
+		ElementType::Earth,
+		ElementType::Water,
+		ElementType::Air,
+		ElementType::Fire,
+	};
 };

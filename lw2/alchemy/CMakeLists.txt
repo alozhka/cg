@@ -12,10 +12,12 @@ add_executable(alchemy main.cpp
         src/shared/Observable.h
         src/model/AlchemyModel.h
         src/model/Element.h
-        src/model/ConcreteElements.h
         src/model/RecipeBook.h
         src/view/GameView.h
         src/view/DiscoveredPanel.h
-        src/view/Colors.h)
+        src/view/Colors.h
+        src/AlchemyViewModel.h
+        src/shared/Uuid.h
+        src/view/ElementCard.h)
 
 target_link_libraries(alchemy SFML::Graphics)
