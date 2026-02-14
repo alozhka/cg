@@ -47,16 +47,14 @@ private:
 	void InitCards()
 	{
 		m_cards.clear();
+		std::vector<ElementSlot> elements = m_alchemyViewModel.ListElementsStatuses();
 
-		const auto elements = m_alchemyViewModel.ListElementsStatuses();
-
-		float availableWidth = m_rect.size.x - GridPadding * 2.f;
+		float availableWidth = m_rect.size.x - GridPadding * 2;
 		int columns = static_cast<int>((availableWidth + GridGap) / (ElementCard::Width + GridGap));
 		if (columns < 1)
 			columns = 1;
 
-		float totalGridWidth = static_cast<float>(columns) * ElementCard::Width
-			+ static_cast<float>(columns - 1) * GridGap;
+		float totalGridWidth = columns * ElementCard::Width + (columns - 1) * GridGap;
 		float offsetX = m_rect.position.x + (m_rect.size.x - totalGridWidth) / 2.f;
 		float offsetY = m_rect.position.y + GridStartY;
 
@@ -65,8 +63,8 @@ private:
 			int col = static_cast<int>(i) % columns;
 			int row = static_cast<int>(i) / columns;
 
-			float x = offsetX + static_cast<float>(col) * (ElementCard::Width + GridGap);
-			float y = offsetY + static_cast<float>(row) * (ElementCard::Height + GridGap);
+			float x = offsetX + col * (ElementCard::Width + GridGap);
+			float y = offsetY + row * (ElementCard::Height + GridGap);
 
 			m_cards.emplace_back(m_font, elements[i], sf::Vector2f{ x, y });
 		}

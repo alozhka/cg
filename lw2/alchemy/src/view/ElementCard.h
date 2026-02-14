@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AlchemyViewModel.h"
+#include "Colors.h"
 
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -18,35 +19,27 @@ public:
 	static constexpr float Height = 120.f;
 	static constexpr float ImageSize = 64.f;
 	static constexpr float ImageTopMargin = 10.f;
-	static constexpr float TextTopMargin = 80.f;
-	static constexpr unsigned int FontSize = 12;
+	static constexpr float LabelTopMargin = 80.f;
+	static constexpr float OutlineThickness = 1.f;
+	static constexpr unsigned int LabelFontSize = 12;
+	static constexpr unsigned int PlaceholderFontSize = 28;
 
 	ElementCard(const sf::Font& font, const ElementSlot& slot, sf::Vector2f position)
 		: m_font(font)
 		, m_slot(slot)
 		, m_position(position)
+		, m_colors(slot.isDiscovered ? Colors::DiscoveredCard : Colors::UndiscoveredCard)
 	{
-		LoadTexture();
+		if (m_slot.imagePath.has_value())
+		{
+			m_texture.emplace(m_slot.imagePath.value());
+			m_texture->setSmooth(true);
+		}
 	}
 
 	void Draw(sf::RenderWindow& window) const
 	{
-		sf::RectangleShape card({ Width, Height });
-		card.setPosition(m_position);
-
-		if (m_slot.isDiscovered)
-		{
-			card.setFillColor(sf::Color(220, 235, 255));
-			card.setOutlineColor(sf::Color(100, 150, 220));
-		}
-		else
-		{
-			card.setFillColor(sf::Color(215, 215, 215));
-			card.setOutlineColor(sf::Color(180, 180, 180));
-		}
-		card.setOutlineThickness(1.f);
-		window.draw(card);
-
+		DrawBackground(window);
 		DrawImage(window);
 		DrawLabel(window);
 	}
@@ -59,78 +52,87 @@ public:
 	const ElementSlot& GetSlot() const { return m_slot; }
 
 private:
-	void LoadTexture()
+	void DrawBackground(sf::RenderWindow& window) const
 	{
-		if (!m_slot.imagePath.has_value())
-			return;
-
-		m_texture.emplace(m_slot.imagePath.value());
-		m_texture->setSmooth(true);
+		sf::RectangleShape card({ Width, Height });
+		card.setPosition(m_position);
+		card.setFillColor(m_colors.CardFill);
+		card.setOutlineColor(m_colors.CardOutline);
+		card.setOutlineThickness(OutlineThickness);
+		window.draw(card);
 	}
 
 	void DrawImage(sf::RenderWindow& window) const
 	{
-		float imageX = m_position.x + (Width - ImageSize) / 2.f;
-		float imageY = m_position.y + ImageTopMargin;
+		sf::Vector2f imagePos = GetImagePosition();
 
 		if (m_texture.has_value())
 		{
-			sf::Sprite sprite(*m_texture);
-			auto texSize = m_texture->getSize();
-			float scaleX = ImageSize / static_cast<float>(texSize.x);
-			float scaleY = ImageSize / static_cast<float>(texSize.y);
-			sprite.setScale({ scaleX, scaleY });
-			sprite.setPosition({ imageX, imageY });
-			window.draw(sprite);
+			DrawTextureSprite(window, imagePos);
 		}
 		else
 		{
-			// Плейсхолдер — серый квадрат с "?"
-			sf::RectangleShape placeholder({ ImageSize, ImageSize });
-			placeholder.setPosition({ imageX, imageY });
-			placeholder.setFillColor(
-				m_slot.isDiscovered ? sf::Color(200, 215, 240) : sf::Color(195, 195, 195));
-			placeholder.setOutlineColor(
-				m_slot.isDiscovered ? sf::Color(140, 170, 210) : sf::Color(165, 165, 165));
-			placeholder.setOutlineThickness(1.f);
-			window.draw(placeholder);
-
-			sf::Text questionMark(m_font, "?", 28);
-			questionMark.setFillColor(
-				m_slot.isDiscovered ? sf::Color(100, 140, 200) : sf::Color(150, 150, 150));
-			auto bounds = questionMark.getLocalBounds();
-			questionMark.setPosition({
-				imageX + (ImageSize - bounds.size.x) / 2.f,
-				imageY + (ImageSize - bounds.size.y) / 2.f - 4.f,
-			});
-			window.draw(questionMark);
+			DrawPlaceholder(window, imagePos);
 		}
+	}
+
+	void DrawTextureSprite(sf::RenderWindow& window, sf::Vector2f imagePos) const
+	{
+		sf::Sprite sprite(*m_texture);
+		auto texSize = m_texture->getSize();
+		sprite.setScale({
+			ImageSize / static_cast<float>(texSize.x),
+			ImageSize / static_cast<float>(texSize.y),
+		});
+		sprite.setPosition(imagePos);
+		window.draw(sprite);
+	}
+
+	void DrawPlaceholder(sf::RenderWindow& window, sf::Vector2f imagePos) const
+	{
+		sf::RectangleShape placeholder({ ImageSize, ImageSize });
+		placeholder.setPosition(imagePos);
+		placeholder.setFillColor(m_colors.PlaceholderFill);
+		placeholder.setOutlineColor(m_colors.PlaceholderOutline);
+		placeholder.setOutlineThickness(OutlineThickness);
+		window.draw(placeholder);
+
+		sf::Text symbol(m_font, "?", PlaceholderFontSize);
+		symbol.setFillColor(m_colors.PlaceholderText);
+		auto bounds = symbol.getLocalBounds();
+		symbol.setPosition({
+			imagePos.x + (ImageSize - bounds.size.x) / 2.f,
+			imagePos.y + (ImageSize - bounds.size.y) / 2.f - 4.f,
+		});
+		window.draw(symbol);
 	}
 
 	void DrawLabel(sf::RenderWindow& window) const
 	{
-		sf::Text label(m_font, "", FontSize);
+		std::string displayName = m_slot.isDiscovered ? m_slot.name : "???";
 
-		if (m_slot.isDiscovered)
-		{
-			label.setString(sf::String::fromUtf8(m_slot.name.begin(), m_slot.name.end()));
-			label.setFillColor(sf::Color(30, 30, 30));
-		}
-		else
-		{
-			label.setString("???");
-			label.setFillColor(sf::Color(140, 140, 140));
-		}
+		sf::Text label(m_font, displayName, LabelFontSize);
+		label.setFillColor(m_colors.LabelText);
 
 		auto textBounds = label.getLocalBounds();
-		float textX = m_position.x + (Width - textBounds.size.x) / 2.f;
-		float textY = m_position.y + TextTopMargin;
-		label.setPosition({ textX, textY });
+		label.setPosition({
+			m_position.x + (Width - textBounds.size.x) / 2.f,
+			m_position.y + LabelTopMargin,
+		});
 		window.draw(label);
+	}
+
+	sf::Vector2f GetImagePosition() const
+	{
+		return {
+			m_position.x + (Width - ImageSize) / 2.f,
+			m_position.y + ImageTopMargin,
+		};
 	}
 
 	const sf::Font& m_font;
 	ElementSlot m_slot;
 	sf::Vector2f m_position;
+	Colors::CardColorScheme m_colors;
 	std::optional<sf::Texture> m_texture;
 };
