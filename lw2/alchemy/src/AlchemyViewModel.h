@@ -5,7 +5,7 @@
 
 struct ElementSlot
 {
-	std::string name;
+	std::wstring name;
 	bool isDiscovered;
 	std::optional<std::string> imagePath;
 };

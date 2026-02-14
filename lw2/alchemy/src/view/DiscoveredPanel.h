@@ -12,15 +12,16 @@
 class DiscoveredPanel
 {
 public:
-	DiscoveredPanel(sf::RenderWindow& window, const sf::Font& font, sf::FloatRect rect, AlchemyViewModel& alchemyViewModel)
-		: m_alchemyViewModel(alchemyViewModel)
-		, m_window(window)
+	DiscoveredPanel(sf::RenderWindow& window, const sf::Font& font, sf::FloatRect rect, AlchemyViewModel& viewModel)
+		: m_window(window)
 		, m_font(font)
 		, m_rect(rect)
-		, m_titleText(font, L"Элементы", 20)
+		, m_alchemyViewModel(viewModel)
+		, m_titleText(font, L"Открытые элементы", TitleFontSize)
 	{
-		InitView();
-		InitCards();
+		SetupBackground();
+		SetupTitle();
+		RebuildCards();
 	}
 
 	void Draw()
@@ -34,51 +35,69 @@ public:
 		}
 	}
 
-	void Rebuild()
-	{
-		InitCards();
-	}
-
-private:
-	static constexpr float GridPadding = 10.f;
-	static constexpr float GridGap = 8.f;
-	static constexpr float GridStartY = 45.f;
-
-	void InitCards()
+	void RebuildCards()
 	{
 		m_cards.clear();
-		std::vector<ElementSlot> elements = m_alchemyViewModel.ListElementsStatuses();
 
-		float availableWidth = m_rect.size.x - GridPadding * 2;
-		int columns = static_cast<int>((availableWidth + GridGap) / (ElementCard::Width + GridGap));
-		if (columns < 1)
-			columns = 1;
-
-		float totalGridWidth = columns * ElementCard::Width + (columns - 1) * GridGap;
-		float offsetX = m_rect.position.x + (m_rect.size.x - totalGridWidth) / 2.f;
-		float offsetY = m_rect.position.y + GridStartY;
+		const auto elements = m_alchemyViewModel.ListElementsStatuses();
+		int columns = CalculateColumnCount();
+		sf::Vector2f gridOrigin = CalculateGridOrigin(columns);
 
 		for (size_t i = 0; i < elements.size(); ++i)
 		{
-			int col = static_cast<int>(i) % columns;
-			int row = static_cast<int>(i) / columns;
-
-			float x = offsetX + col * (ElementCard::Width + GridGap);
-			float y = offsetY + row * (ElementCard::Height + GridGap);
-
-			m_cards.emplace_back(m_font, elements[i], sf::Vector2f{ x, y });
+			sf::Vector2f position = GetCellPosition(gridOrigin, i, columns);
+			m_cards.emplace_back(m_font, elements[i], position);
 		}
 	}
 
-	void InitView()
+private:
+	static constexpr unsigned int TitleFontSize = 20;
+	static constexpr float TitleTopMargin = 10.f;
+	static constexpr float GridTopMargin = 45.f;
+	static constexpr float GridSidePadding = 10.f;
+	static constexpr float GridGap = 8.f;
+
+	int CalculateColumnCount() const
+	{
+		float availableWidth = m_rect.size.x - GridSidePadding * 2.f;
+		int columns = static_cast<int>((availableWidth + GridGap) / (ElementCard::Width + GridGap));
+		return std::max(columns, 1);
+	}
+
+	sf::Vector2f CalculateGridOrigin(int columns) const
+	{
+		float totalGridWidth = static_cast<float>(columns) * ElementCard::Width
+			+ static_cast<float>(columns - 1) * GridGap;
+
+		return {
+			m_rect.position.x + (m_rect.size.x - totalGridWidth) / 2.f,
+			m_rect.position.y + GridTopMargin,
+		};
+	}
+
+	static sf::Vector2f GetCellPosition(sf::Vector2f gridOrigin, size_t index, int columns)
+	{
+		int col = static_cast<int>(index) % columns;
+		int row = static_cast<int>(index) / columns;
+
+		return {
+			gridOrigin.x + static_cast<float>(col) * (ElementCard::Width + GridGap),
+			gridOrigin.y + static_cast<float>(row) * (ElementCard::Height + GridGap),
+		};
+	}
+
+	void SetupBackground()
 	{
 		m_background.setPosition(m_rect.position);
 		m_background.setSize(m_rect.size);
 		m_background.setFillColor(Colors::LightGray);
+	}
 
+	void SetupTitle()
+	{
 		float textWidth = m_titleText.getLocalBounds().size.x;
-		float centeredX = m_rect.position.x + (m_rect.size.x - textWidth) / 2;
-		m_titleText.setPosition({ centeredX, m_rect.position.y + 10 });
+		float centeredX = m_rect.position.x + (m_rect.size.x - textWidth) / 2.f;
+		m_titleText.setPosition({ centeredX, m_rect.position.y + TitleTopMargin });
 		m_titleText.setFillColor(sf::Color::Black);
 		m_titleText.setStyle(sf::Text::Bold);
 	}

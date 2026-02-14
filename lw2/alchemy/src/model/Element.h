@@ -10,15 +10,20 @@ enum class ElementType
 	Water = 3,
 };
 
-inline std::string ElementTypeName(ElementType type)
+inline std::wstring ElementTypeName(ElementType type)
 {
 	switch (type)
 	{
-	case ElementType::Fire: return "Огонь";
-	case ElementType::Air: return "Воздух";
-	case ElementType::Earth: return "Земля";
-	case ElementType::Water: return "Вода";
-	default: return "???";
+	case ElementType::Fire:
+		return L"Огонь";
+	case ElementType::Air:
+		return L"Воздух";
+	case ElementType::Earth:
+		return L"Земля";
+	case ElementType::Water:
+		return L"Вода";
+	default:
+		throw std::invalid_argument("Invalid element type");
 	}
 }
 

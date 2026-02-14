@@ -109,7 +109,7 @@ private:
 
 	void DrawLabel(sf::RenderWindow& window) const
 	{
-		std::string displayName = m_slot.isDiscovered ? m_slot.name : "???";
+		std::wstring displayName = m_slot.isDiscovered ? m_slot.name : L"???";
 
 		sf::Text label(m_font, displayName, LabelFontSize);
 		label.setFillColor(m_colors.LabelText);
