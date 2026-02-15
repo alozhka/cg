@@ -32,6 +32,12 @@ public:
 		return result;
 	}
 
+	void InsertElement(std::wstring typeName)
+	{
+		ElementType elementType = ConvertToElementType(typeName);
+		m_alchemy.InsertElement(elementType);
+	}
+
 private:
 	AlchemyModel& m_alchemy;
 };

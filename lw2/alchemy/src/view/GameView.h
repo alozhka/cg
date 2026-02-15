@@ -42,7 +42,24 @@ private:
 			{
 				m_window.close();
 			}
+			if (const auto* mousePressed = event->getIf<sf::Event::MouseButtonReleased>())
+			{
+				HandleMouseReleased(mousePressed);
+			}
 		}
+	}
+
+	void HandleMouseReleased(const sf::Event::MouseButtonReleased* event)
+	{
+		if (event->button == sf::Mouse::Button::Left)
+		{
+			HandleClick(event->position);
+		}
+	}
+
+	void HandleClick(sf::Vector2i pos)
+	{
+		m_discoveredPanel.HandleClick(pos);
 	}
 
 	void OnUpdate() override

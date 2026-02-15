@@ -27,6 +27,28 @@ inline std::wstring ElementTypeName(ElementType type)
 	}
 }
 
+inline ElementType ConvertToElementType(const std::wstring& type)
+{
+	if (type == L"Огонь")
+	{
+		return ElementType::Fire;
+	}
+	if (type == L"Воздух")
+	{
+		return ElementType::Air;
+	}
+	if (type == L"Земля")
+	{
+		return ElementType::Earth;
+	}
+	if (type == L"Вода")
+	{
+		return ElementType::Water;
+	}
+
+	throw std::invalid_argument("Unsupported element type");
+}
+
 class Element
 {
 public:
@@ -35,6 +57,11 @@ public:
 		, m_type(type)
 		, m_pos(pos)
 	{
+	}
+
+	std::string GetId() const
+	{
+		return m_id;
 	}
 
 private:

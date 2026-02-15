@@ -13,10 +13,10 @@ class DiscoveredPanel
 {
 public:
 	DiscoveredPanel(sf::RenderWindow& window, const sf::Font& font, sf::FloatRect rect, AlchemyViewModel& viewModel)
-		: m_window(window)
+		: m_alchemyViewModel(viewModel)
+		, m_window(window)
 		, m_font(font)
 		, m_rect(rect)
-		, m_alchemyViewModel(viewModel)
 		, m_titleText(font, L"Открытые элементы", TitleFontSize)
 	{
 		SetupBackground();
@@ -50,12 +50,36 @@ public:
 		}
 	}
 
+	void HandleClick(sf::Vector2i pos)
+	{
+		std::optional<std::wstring> newElement = GetPressedElementAt(pos);
+		if (newElement.has_value())
+		{
+			m_alchemyViewModel.InsertElement(*newElement);
+		}
+	}
+
 private:
 	static constexpr unsigned int TitleFontSize = 20;
 	static constexpr float TitleTopMargin = 10.f;
 	static constexpr float GridTopMargin = 45.f;
 	static constexpr float GridSidePadding = 10.f;
 	static constexpr float GridGap = 8.f;
+
+	std::optional<std::wstring> GetPressedElementAt(sf::Vector2i pos) const
+	{
+		sf::Vector2f point(static_cast<float>(pos.x), static_cast<float>(pos.y));
+
+		for (const auto& card : m_cards)
+		{
+			const auto& slot = card.GetSlot();
+			if (slot.isDiscovered && card.GetBounds().contains(point))
+			{
+				return slot.name;
+			}
+		}
+		return std::nullopt;
+	}
 
 	int CalculateColumnCount() const
 	{
