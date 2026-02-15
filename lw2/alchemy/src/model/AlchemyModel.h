@@ -3,10 +3,10 @@
 #include "shared/Observable.h"
 #include "shared/Uuid.h"
 
-#include <iostream>
+#include <ranges>
 #include <unordered_set>
 
-class AlchemyModel : Observable
+class AlchemyModel : public Observable
 {
 public:
 	AlchemyModel()
@@ -27,6 +27,17 @@ public:
 		Element element{ Uuid::Generate(), type, DEFAULT_ELEMENT_POS };
 		m_elements.emplace(element.GetId(), element);
 		Notify();
+	}
+
+	std::vector<Element> ListElementsOnWorkspace() const
+	{
+		std::vector<Element> elements;
+		for (const Element& element : m_elements | std::views::values)
+		{
+			elements.push_back(element);
+		}
+
+		return elements;
 	}
 
 private:

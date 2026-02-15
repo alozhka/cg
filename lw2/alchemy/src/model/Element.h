@@ -64,6 +64,16 @@ public:
 		return m_id;
 	}
 
+	ElementType GetType() const
+	{
+		return m_type;
+	}
+
+	sf::Vector2f GetPosition() const
+	{
+		return m_pos;
+	}
+
 private:
 	std::string m_id;
 	ElementType m_type;

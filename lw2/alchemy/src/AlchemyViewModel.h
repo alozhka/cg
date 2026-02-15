@@ -18,6 +18,16 @@ public:
 	{
 	}
 
+	void AddObserver(IObserver* observer)
+	{
+		m_alchemy.AddObserver(observer);
+	}
+
+	void RemoveObserver(IObserver* observer)
+	{
+		m_alchemy.RemoveObserver(observer);
+	}
+
 	std::vector<ElementSlot> ListElementsStatuses() const
 	{
 		std::unordered_set<ElementType> discoveredElements = m_alchemy.ListDiscoveredElements();
@@ -32,10 +42,33 @@ public:
 		return result;
 	}
 
-	void InsertElement(std::wstring typeName)
+	void InsertElement(const std::wstring& typeName)
 	{
 		ElementType elementType = ConvertToElementType(typeName);
 		m_alchemy.InsertElement(elementType);
+	}
+
+	struct WorkspaceElementData
+	{
+		std::string id;
+		std::wstring name;
+		sf::Vector2f position;
+	};
+
+	std::vector<WorkspaceElementData> ListWorkspaceElements() const
+	{
+		std::vector<Element> elements = m_alchemy.ListElementsOnWorkspace();
+		std::vector<WorkspaceElementData> results;
+		results.reserve(elements.size());
+
+		for (const auto& element : elements)
+		{
+			results.emplace_back(
+				element.GetId(),
+				ElementTypeName(element.GetType()),
+				element.GetPosition());
+		}
+		return results;
 	}
 
 private:
