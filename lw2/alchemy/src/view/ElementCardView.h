@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AlchemyViewModel.h"
+#include "../viewModel/AlchemyViewModel.h"
 #include "Colors.h"
 
 #include <SFML/Graphics/Font.hpp>

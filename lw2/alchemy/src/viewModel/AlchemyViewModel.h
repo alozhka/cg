@@ -1,7 +1,7 @@
 #pragma once
-#include "model/AlchemyModel.h"
-#include "model/Element.h"
-#include "model/RecipeBook.h"
+#include "../model/AlchemyModel.h"
+#include "../model/Element.h"
+#include "../model/RecipeBook.h"
 
 struct ElementSlot
 {
@@ -46,6 +46,11 @@ public:
 	{
 		ElementType elementType = ConvertToElementType(typeName);
 		m_alchemy.InsertElement(elementType);
+	}
+
+	void MoveElement(const std::string& id, sf::Vector2f newPos)
+	{
+		m_alchemy.MoveElement(id, newPos);
 	}
 
 	struct WorkspaceElementData

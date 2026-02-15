@@ -16,7 +16,7 @@ add_executable(alchemy main.cpp
         src/view/GameView.h
         src/view/DiscoveredPanel.h
         src/view/Colors.h
-        src/AlchemyViewModel.h
+        src/viewModel/AlchemyViewModel.h
         src/shared/Uuid.h
         src/view/ElementCardView.h
         src/view/WorkspaceArea.h)

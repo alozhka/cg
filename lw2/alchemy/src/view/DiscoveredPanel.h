@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AlchemyViewModel.h"
+#include "../viewModel/AlchemyViewModel.h"
 #include "Colors.h"
 #include "ElementCardView.h"
 
@@ -50,7 +50,7 @@ public:
 		}
 	}
 
-	void HandleClick(sf::Vector2i pos)
+	void HandleClick(sf::Vector2f pos)
 	{
 		std::optional<std::wstring> newElement = GetPressedElementAt(pos);
 		if (newElement.has_value())
@@ -66,14 +66,12 @@ private:
 	static constexpr float GridSidePadding = 10.f;
 	static constexpr float GridGap = 8.f;
 
-	std::optional<std::wstring> GetPressedElementAt(sf::Vector2i pos) const
+	std::optional<std::wstring> GetPressedElementAt(sf::Vector2f pos) const
 	{
-		sf::Vector2f point(static_cast<float>(pos.x), static_cast<float>(pos.y));
-
 		for (const auto& card : m_cards)
 		{
 			const auto& slot = card.GetSlot();
-			if (slot.isDiscovered && card.GetBounds().contains(point))
+			if (slot.isDiscovered && card.GetBounds().contains(pos))
 			{
 				return slot.name;
 			}

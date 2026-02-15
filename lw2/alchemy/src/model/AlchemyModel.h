@@ -29,6 +29,16 @@ public:
 		Notify();
 	}
 
+	void MoveElement(const std::string& id, sf::Vector2f newPos)
+	{
+		auto it = m_elements.find(id);
+		if (it != m_elements.end())
+		{
+			it->second.SetPosition(newPos);
+			Notify();
+		}
+	}
+
 	std::vector<Element> ListElementsOnWorkspace() const
 	{
 		std::vector<Element> elements;

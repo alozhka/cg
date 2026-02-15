@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AlchemyViewModel.h"
+#include "../viewModel/AlchemyViewModel.h"
 #include "Colors.h"
 #include "ElementCardView.h"
 
@@ -9,7 +9,10 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Text.hpp>
 
-class WorkspaceArea : public IObserver
+#include <optional>
+#include <ranges>
+
+class WorkspaceArea
 {
 public:
 	WorkspaceArea(sf::RenderWindow& window, const sf::Font& font, sf::FloatRect rect, AlchemyViewModel& viewModel)
@@ -21,7 +24,6 @@ public:
 	{
 		SetupBackground();
 		SetupTitle();
-		m_viewModel.AddObserver(this);
 	}
 
 	void Draw()
@@ -31,10 +33,91 @@ public:
 		DrawElements();
 	}
 
-private:
-	void OnUpdate() override
+	void HandleMousePressed(sf::Vector2f pos)
 	{
-		Draw();
+		if (!m_rect.contains(pos))
+		{
+			return;
+		}
+
+		std::optional<std::string> elementId = FindElementAt(pos);
+		if (!elementId.has_value())
+		{
+			return;
+		}
+
+		sf::Vector2f elementPos = FindElementPosition(*elementId);
+		m_dragState = DragState{
+			.elementId = *elementId,
+			.offset = pos - PositionToAbsolute(elementPos),
+			.currentRelativePos = elementPos,
+		};
+	}
+
+	void HandleMouseMoved(sf::Vector2f mousePos)
+	{
+		if (!IsDragging())
+		{
+			return;
+		}
+
+		sf::Vector2f newAbsPos = mousePos - m_dragState->offset;
+		sf::Vector2f clampedAbsPos = ClampToWorkspace(newAbsPos);
+
+		m_dragState->currentRelativePos = AbsoluteToPosition(clampedAbsPos);
+	}
+
+	void HandleMouseReleased()
+	{
+		if (!IsDragging())
+		{
+			return;
+		}
+
+		m_viewModel.MoveElement(m_dragState->elementId, m_dragState->currentRelativePos);
+		m_dragState.reset();
+	}
+
+	bool IsDragging() const
+	{
+		return m_dragState.has_value();
+	}
+
+private:
+	struct DragState
+	{
+		std::string elementId;
+		sf::Vector2f offset;
+		sf::Vector2f currentRelativePos;
+	};
+
+	std::optional<std::string> FindElementAt(sf::Vector2f absolutePos) const
+	{
+		auto items = m_viewModel.ListWorkspaceElements();
+
+		// Перебираем с конца — верхний элемент первый
+		for (auto& item : std::ranges::reverse_view(items))
+		{
+			sf::Vector2f absItemPos = PositionToAbsolute(item.position);
+			sf::FloatRect bounds{ absItemPos, { ElementCardView::Width, ElementCardView::Height } };
+
+			if (bounds.contains(absolutePos))
+			{
+				return item.id;
+			}
+		}
+		return std::nullopt;
+	}
+
+	sf::Vector2f FindElementPosition(const std::string& id) const
+	{
+		auto items = m_viewModel.ListWorkspaceElements();
+		for (const auto& item : items)
+		{
+			if (item.id == id)
+				return item.position;
+		}
+		return {};
 	}
 
 	void DrawElements()
@@ -42,15 +125,40 @@ private:
 		auto items = m_viewModel.ListWorkspaceElements();
 		for (const auto& item : items)
 		{
+			sf::Vector2f drawPos = item.position;
+
+			if (m_dragState.has_value() && m_dragState->elementId == item.id)
+			{
+				drawPos = m_dragState->currentRelativePos;
+			}
+
 			ElementSlot slot{ item.name, true, std::nullopt };
-			ElementCardView card(m_font, slot, PositionToAbsolute(item.position));
+			ElementCardView card(m_font, slot, PositionToAbsolute(drawPos));
 			card.Draw(m_window);
 		}
+	}
+
+	sf::Vector2f ClampToWorkspace(sf::Vector2f absPos) const
+	{
+		float minX = m_rect.position.x;
+		float minY = m_rect.position.y;
+		float maxX = m_rect.position.x + m_rect.size.x - ElementCardView::Width;
+		float maxY = m_rect.position.y + m_rect.size.y - ElementCardView::Height;
+
+		return {
+			std::clamp(absPos.x, minX, maxX),
+			std::clamp(absPos.y, minY, maxY),
+		};
 	}
 
 	sf::Vector2f PositionToAbsolute(sf::Vector2f pos) const
 	{
 		return { pos.x + m_rect.position.x, pos.y + m_rect.position.y };
+	}
+
+	sf::Vector2f AbsoluteToPosition(sf::Vector2f absPos) const
+	{
+		return { absPos.x - m_rect.position.x, absPos.y - m_rect.position.y };
 	}
 
 	void SetupBackground()
@@ -79,4 +187,6 @@ private:
 
 	sf::RectangleShape m_background;
 	sf::Text m_titleText;
+
+	std::optional<DragState> m_dragState;
 };

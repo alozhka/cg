@@ -74,6 +74,11 @@ public:
 		return m_pos;
 	}
 
+	void SetPosition(sf::Vector2f pos)
+	{
+		m_pos = pos;
+	}
+
 private:
 	std::string m_id;
 	ElementType m_type;
