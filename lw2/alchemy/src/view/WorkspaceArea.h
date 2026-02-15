@@ -2,6 +2,7 @@
 
 #include "../viewModel/AlchemyViewModel.h"
 #include "Colors.h"
+#include "DeleteButtonView.h"
 #include "ElementCardView.h"
 
 #include <SFML/Graphics/Font.hpp>
@@ -16,11 +17,12 @@ class WorkspaceArea
 {
 public:
 	WorkspaceArea(sf::RenderWindow& window, const sf::Font& font, sf::FloatRect rect, AlchemyViewModel& viewModel)
-		: m_window(window)
+		: m_viewModel(viewModel)
+		, m_window(window)
 		, m_font(font)
 		, m_rect(rect)
-		, m_viewModel(viewModel)
 		, m_titleText(font, L"Поле для экспериментов", TitleFontSize)
+		, m_deleteButton(font, rect)
 	{
 		SetupBackground();
 		SetupTitle();
@@ -31,6 +33,7 @@ public:
 		m_window.draw(m_background);
 		m_window.draw(m_titleText);
 		DrawElements();
+		DrawDeleteButton();
 	}
 
 	void HandleMousePressed(sf::Vector2f pos)
@@ -49,8 +52,8 @@ public:
 		sf::Vector2f elementPos = FindElementPosition(*elementId);
 		m_dragState = DragState{
 			.elementId = *elementId,
-			.offset = pos - PositionToAbsolute(elementPos),
-			.currentRelativePos = elementPos,
+			.offset = pos - LocalPositionToAbsolute(elementPos),
+			.currentMousePos = pos,
 		};
 	}
 
@@ -61,10 +64,7 @@ public:
 			return;
 		}
 
-		sf::Vector2f newAbsPos = mousePos - m_dragState->offset;
-		sf::Vector2f clampedAbsPos = ClampToWorkspace(newAbsPos);
-
-		m_dragState->currentRelativePos = AbsoluteToPosition(clampedAbsPos);
+		m_dragState->currentMousePos = mousePos;
 	}
 
 	void HandleMouseReleased()
@@ -74,7 +74,14 @@ public:
 			return;
 		}
 
-		m_viewModel.MoveElement(m_dragState->elementId, m_dragState->currentRelativePos);
+		if (IsCursorOverDeleteButton())
+		{
+			m_viewModel.RemoveElement(m_dragState->elementId);
+		}
+		else
+		{
+			m_viewModel.MoveElement(m_dragState->elementId, GetDraggedElementPosition());
+		}
 		m_dragState.reset();
 	}
 
@@ -88,8 +95,19 @@ private:
 	{
 		std::string elementId;
 		sf::Vector2f offset;
-		sf::Vector2f currentRelativePos;
+		sf::Vector2f currentMousePos;
 	};
+
+	sf::Vector2f GetDraggedElementPosition() const
+	{
+		sf::Vector2f absPos = ClampToWorkspace(m_dragState->currentMousePos - m_dragState->offset);
+		return AbsolutePositionToLocal(absPos);
+	}
+
+	bool IsCursorOverDeleteButton() const
+	{
+		return m_deleteButton.Contains(m_dragState->currentMousePos);
+	}
 
 	std::optional<std::string> FindElementAt(sf::Vector2f absolutePos) const
 	{
@@ -98,7 +116,7 @@ private:
 		// Перебираем с конца — верхний элемент первый
 		for (auto& item : std::ranges::reverse_view(items))
 		{
-			sf::Vector2f absItemPos = PositionToAbsolute(item.position);
+			sf::Vector2f absItemPos = LocalPositionToAbsolute(item.position);
 			sf::FloatRect bounds{ absItemPos, { ElementCardView::Width, ElementCardView::Height } };
 
 			if (bounds.contains(absolutePos))
@@ -129,11 +147,11 @@ private:
 
 			if (m_dragState.has_value() && m_dragState->elementId == item.id)
 			{
-				drawPos = m_dragState->currentRelativePos;
+				drawPos = GetDraggedElementPosition();
 			}
 
 			ElementSlot slot{ item.name, true, std::nullopt };
-			ElementCardView card(m_font, slot, PositionToAbsolute(drawPos));
+			ElementCardView card(m_font, slot, LocalPositionToAbsolute(drawPos));
 			card.Draw(m_window);
 		}
 	}
@@ -151,14 +169,23 @@ private:
 		};
 	}
 
-	sf::Vector2f PositionToAbsolute(sf::Vector2f pos) const
+	sf::Vector2f LocalPositionToAbsolute(sf::Vector2f pos) const
 	{
 		return { pos.x + m_rect.position.x, pos.y + m_rect.position.y };
 	}
 
-	sf::Vector2f AbsoluteToPosition(sf::Vector2f absPos) const
+	sf::Vector2f AbsolutePositionToLocal(sf::Vector2f absPos) const
 	{
 		return { absPos.x - m_rect.position.x, absPos.y - m_rect.position.y };
+	}
+
+	void DrawDeleteButton()
+	{
+		if (IsDragging())
+		{
+			bool hovered = IsCursorOverDeleteButton();
+			m_deleteButton.Draw(m_window, hovered);
+		}
 	}
 
 	void SetupBackground()
@@ -180,13 +207,13 @@ private:
 	static constexpr unsigned int TitleFontSize = 20;
 	static constexpr float TitleTopMargin = 10.f;
 
+	AlchemyViewModel& m_viewModel;
+
 	sf::RenderWindow& m_window;
 	const sf::Font& m_font;
 	sf::FloatRect m_rect;
-	AlchemyViewModel& m_viewModel;
-
 	sf::RectangleShape m_background;
 	sf::Text m_titleText;
-
+	DeleteButtonView m_deleteButton;
 	std::optional<DragState> m_dragState;
 };

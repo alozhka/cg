@@ -32,4 +32,22 @@ constexpr CardColorScheme UndiscoveredCard{
 	.PlaceholderText = { 150, 150, 150 },
 	.LabelText = { 140, 140, 140 },
 };
+struct DeleteButtonColorScheme
+{
+	sf::Color Fill;
+	sf::Color Outline;
+	sf::Color Icon;
+};
+
+constexpr DeleteButtonColorScheme DeleteButtonNormal{
+	.Fill = { 230, 230, 230 },
+	.Outline = { 180, 180, 180 },
+	.Icon = { 150, 150, 150 },
+};
+
+constexpr DeleteButtonColorScheme DeleteButtonHovered{
+	.Fill = { 255, 200, 200 },
+	.Outline = { 220, 80, 80 },
+	.Icon = { 200, 50, 50 },
+};
 } // namespace Colors

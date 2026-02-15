@@ -39,6 +39,14 @@ public:
 		}
 	}
 
+	void RemoveElement(const std::string& id)
+	{
+		if (m_elements.erase(id))
+		{
+			Notify();
+		}
+	}
+
 	std::vector<Element> ListElementsOnWorkspace() const
 	{
 		std::vector<Element> elements;

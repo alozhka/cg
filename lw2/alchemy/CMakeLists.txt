@@ -19,6 +19,7 @@ add_executable(alchemy main.cpp
         src/viewModel/AlchemyViewModel.h
         src/shared/Uuid.h
         src/view/ElementCardView.h
+        src/view/DeleteButtonView.h
         src/view/WorkspaceArea.h)
 
 target_link_libraries(alchemy SFML::Graphics)

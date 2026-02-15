@@ -53,6 +53,11 @@ public:
 		m_alchemy.MoveElement(id, newPos);
 	}
 
+	void RemoveElement(const std::string& id)
+	{
+		m_alchemy.RemoveElement(id);
+	}
+
 	struct WorkspaceElementData
 	{
 		std::string id;
