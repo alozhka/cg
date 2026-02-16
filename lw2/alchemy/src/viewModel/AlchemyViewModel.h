@@ -43,9 +43,13 @@ public:
 		m_alchemy.RemoveElement(id);
 	}
 
-	void MergeElements(const std::string& sourceId, const std::string& targetId)
+	void MergeElements(const std::string& sourceId, const std::string& targetId, sf::Vector2f dropPos)
 	{
-		m_alchemy.TryCombineElements(sourceId, targetId);
+		bool elementCombined = m_alchemy.TryCombineElements(sourceId, targetId, dropPos);
+		if (!elementCombined)
+		{
+			m_alchemy.MoveElement(sourceId, dropPos);
+		}
 	}
 
 	void BringToFront(const std::string& id)

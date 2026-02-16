@@ -82,7 +82,7 @@ public:
 		}
 		else if (std::optional<std::string> targetId = FindDropTargetElement())
 		{
-			m_viewModel.MergeElements(m_dragState->elementId, *targetId);
+			m_viewModel.MergeElements(m_dragState->elementId, *targetId, GetDraggedElementPosition());
 		}
 		else
 		{
