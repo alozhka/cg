@@ -69,7 +69,8 @@ public:
 		for (ElementType el : allElements)
 		{
 			bool discovered = discoveredElements.contains(el);
-			result.push_back({ ElementTypeToString(el), el, discovered, nullptr });
+			std::wstring name = discovered ? ElementTypeToString(el) : L"???";
+			result.push_back({ name, el, discovered, nullptr });
 		}
 		return result;
 	}

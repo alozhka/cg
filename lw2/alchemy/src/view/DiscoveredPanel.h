@@ -53,7 +53,10 @@ public:
 
 		for (size_t i = 0; i < elements.size(); ++i)
 		{
-			elements[i].texture = m_textureCache.Get(elements[i].type);
+			if (elements[i].isDiscovered)
+			{
+				elements[i].texture = m_textureCache.Get(elements[i].type);
+			}
 			sf::Vector2f position = GetCellPosition(gridOrigin, i, columns);
 			const auto& colors = elements[i].isDiscovered ? Colors::DiscoveredCard : Colors::UndiscoveredCard;
 			m_cards.emplace_back(m_font, elements[i], position, colors);
