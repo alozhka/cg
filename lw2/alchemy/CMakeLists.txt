@@ -20,6 +20,9 @@ add_executable(alchemy main.cpp
         src/shared/Uuid.h
         src/view/ElementCardView.h
         src/view/DeleteButtonView.h
-        src/view/WorkspaceArea.h)
+        src/view/WorkspaceArea.h
+        src/view/TextureCache.h)
 
 target_link_libraries(alchemy SFML::Graphics)
+
+file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})

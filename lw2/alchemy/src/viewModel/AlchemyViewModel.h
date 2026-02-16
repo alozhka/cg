@@ -2,11 +2,14 @@
 #include "../model/AlchemyModel.h"
 #include "../model/Element.h"
 
+#include <SFML/Graphics/Texture.hpp>
+
 struct ElementSlot
 {
 	std::wstring name;
+	ElementType type;
 	bool isDiscovered;
-	std::optional<std::string> imagePath;
+	const sf::Texture* texture;
 };
 
 class AlchemyViewModel
@@ -66,7 +69,7 @@ public:
 		for (ElementType el : allElements)
 		{
 			bool discovered = discoveredElements.contains(el);
-			result.push_back({ ElementTypeToString(el), discovered, std::nullopt });
+			result.push_back({ ElementTypeToString(el), el, discovered, nullptr });
 		}
 		return result;
 	}
@@ -74,7 +77,7 @@ public:
 	struct WorkspaceElementData
 	{
 		std::string id;
-		std::wstring name;
+		ElementSlot slot;
 		sf::Vector2f position;
 	};
 
@@ -86,10 +89,8 @@ public:
 
 		for (const auto& element : elements)
 		{
-			results.emplace_back(
-				element.GetId(),
-				ElementTypeToString(element.GetType()),
-				element.GetPosition());
+			ElementSlot slot{ ElementTypeToString(element.GetType()), element.GetType(), true, nullptr };
+			results.push_back({ element.GetId(), slot, element.GetPosition() });
 		}
 		return results;
 	}

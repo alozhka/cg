@@ -75,6 +75,55 @@ static std::wstring ElementTypeToString(ElementType type)
 	}
 }
 
+static std::string ElementTypeToImageFilename(ElementType type)
+{
+	switch (type)
+	{
+	case ElementType::Fire:
+		return "fire.png";
+	case ElementType::Earth:
+		return "earth.png";
+	case ElementType::Water:
+		return "water.png";
+	case ElementType::Air:
+		return "air.png";
+	case ElementType::Steam:
+		return "steam.png";
+	case ElementType::Lava:
+		return "lava.png";
+	case ElementType::Dust:
+		return "dust.png";
+	case ElementType::Gunpowder:
+		return "gunpowder.png";
+	case ElementType::Mud:
+		return "mud.png";
+	case ElementType::Energy:
+		return "energy.png";
+	case ElementType::Rain:
+		return "rain.png";
+	case ElementType::Metal:
+		return "metal.png";
+	case ElementType::Brick:
+		return "brick.png";
+	case ElementType::Plant:
+		return "plant.png";
+	case ElementType::Swamp:
+		return "swamp.png";
+	case ElementType::Glass:
+		return "glass.png";
+	case ElementType::Storm:
+		return "storm.png";
+	case ElementType::Life:
+		return "life.png";
+	case ElementType::Golem:
+		return "golem.png";
+	case ElementType::Phoenix:
+		return "phoenix.png";
+	default:
+		return "unknown.png";
+	}
+}
+
 static ElementType ConvertToElementType(const std::wstring& type)
 {
 	if (type == L"Огонь")

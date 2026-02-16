@@ -23,7 +23,7 @@ int main()
 
 	AlchemyModel alchemy;
 	AlchemyViewModel alchemyViewModel{ alchemy };
-	GameView view(window, font, alchemyViewModel);
+	GameView view(window, font, alchemyViewModel, "assets/images");
 	view.Run();
 
 	return 0;

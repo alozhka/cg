@@ -4,6 +4,7 @@
 #include "Colors.h"
 #include "DeleteButtonView.h"
 #include "ElementCardView.h"
+#include "TextureCache.h"
 
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -16,8 +17,14 @@
 class WorkspaceArea
 {
 public:
-	WorkspaceArea(sf::RenderWindow& window, const sf::Font& font, sf::FloatRect rect, AlchemyViewModel& viewModel)
+	WorkspaceArea(
+		sf::RenderWindow& window,
+		const sf::Font& font,
+		sf::FloatRect rect,
+		AlchemyViewModel& viewModel,
+		TextureCache& textureCache)
 		: m_viewModel(viewModel)
+		, m_textureCache(textureCache)
 		, m_window(window)
 		, m_font(font)
 		, m_rect(rect)
@@ -159,13 +166,13 @@ private:
 		auto items = m_viewModel.ListWorkspaceElements();
 		std::optional<std::string> dropTargetId = IsDragging() ? FindDropTargetElement() : std::nullopt;
 
-		for (const auto& item : items)
+		for (auto& item : items)
 		{
+			item.slot.texture = m_textureCache.Get(item.slot.type);
 			sf::Vector2f drawPos = GetElementDrawPosition(item);
 			Colors::CardColorScheme colors = GetElementColorScheme(item, dropTargetId);
 
-			ElementSlot slot{ item.name, true, std::nullopt };
-			ElementCardView card(m_font, slot, LocalPositionToAbsolute(drawPos), colors);
+			ElementCardView card(m_font, item.slot, LocalPositionToAbsolute(drawPos), colors);
 			card.Draw(m_window);
 		}
 	}
@@ -246,6 +253,7 @@ private:
 	static constexpr float TitleTopMargin = 10.f;
 
 	AlchemyViewModel& m_viewModel;
+	TextureCache& m_textureCache;
 
 	sf::RenderWindow& m_window;
 	const sf::Font& m_font;

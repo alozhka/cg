@@ -1,6 +1,7 @@
 #pragma once
 #include "shared/IObserver.h"
 #include "view/DiscoveredPanel.h"
+#include "view/TextureCache.h"
 #include "view/WorkspaceArea.h"
 
 #include <SFML/Graphics/Font.hpp>
@@ -10,19 +11,26 @@
 class GameView final : IObserver
 {
 public:
-	explicit GameView(sf::RenderWindow& window, const sf::Font& font, AlchemyViewModel& alchemyViewModel)
+	explicit GameView(
+		sf::RenderWindow& window,
+		const sf::Font& font,
+		AlchemyViewModel& alchemyViewModel,
+		const std::string& assetsDir)
 		: m_window(window)
 		, m_font(font)
+		, m_iconTextureCache(assetsDir)
 		, m_discoveredPanel(
 			  window,
 			  font,
 			  { { 0, 0 }, { PANEL_WIDTH, static_cast<float>(window.getSize().y) } },
-			  alchemyViewModel)
+			  alchemyViewModel,
+			  m_iconTextureCache)
 		, m_workspaceArea(
 			  window,
 			  font,
 			  { { PANEL_WIDTH, 0 }, { static_cast<float>(window.getSize().x) - PANEL_WIDTH, static_cast<float>(window.getSize().y) } },
-			  alchemyViewModel)
+			  alchemyViewModel,
+			  m_iconTextureCache)
 		, m_alchemyViewModel(alchemyViewModel)
 	{
 		m_alchemyViewModel.AddObserver(this);
@@ -122,6 +130,7 @@ private:
 
 	sf::RenderWindow& m_window;
 	const sf::Font& m_font;
+	TextureCache m_iconTextureCache;
 
 	DiscoveredPanel m_discoveredPanel;
 	WorkspaceArea m_workspaceArea;

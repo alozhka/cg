@@ -59,7 +59,7 @@ public:
 		}
 	}
 
-	bool TryCombineElements(const std::string& id1, const std::string& id2, sf::Vector2f dropPos)
+	bool TryCombineElements(const std::string& id1, const std::string& id2, sf::Vector2f resultPos)
 	{
 		auto it1 = m_elements.find(id1);
 		auto it2 = m_elements.find(id2);
@@ -81,7 +81,7 @@ public:
 		m_elements.erase(it1);
 		m_elements.erase(it2);
 
-		Element combinedElement{ Uuid::Generate(), *combinedType, dropPos, m_nextZOrder++ };
+		Element combinedElement{ Uuid::Generate(), *combinedType, resultPos, m_nextZOrder++ };
 		m_elements.emplace(combinedElement.GetId(), combinedElement);
 		m_discoveredElements.insert(*combinedType);
 		Notify();

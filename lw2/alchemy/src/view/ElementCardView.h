@@ -10,8 +10,6 @@
 #include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
 
-#include <optional>
-
 class ElementCardView
 {
 public:
@@ -24,17 +22,16 @@ public:
 	static constexpr unsigned int LabelFontSize = 12;
 	static constexpr unsigned int PlaceholderFontSize = 28;
 
-	ElementCardView(const sf::Font& font, const ElementSlot& slot, sf::Vector2f position, const Colors::CardColorScheme& colors)
+	ElementCardView(
+		const sf::Font& font,
+		const ElementSlot& slot,
+		sf::Vector2f position,
+		const Colors::CardColorScheme& colors)
 		: m_font(font)
 		, m_slot(slot)
 		, m_position(position)
 		, m_colors(colors)
 	{
-		if (m_slot.imagePath.has_value())
-		{
-			m_texture.emplace(m_slot.imagePath.value());
-			m_texture->setSmooth(true);
-		}
 	}
 
 	void Draw(sf::RenderWindow& window) const
@@ -66,7 +63,7 @@ private:
 	{
 		sf::Vector2f imagePos = GetImagePosition();
 
-		if (m_texture.has_value())
+		if (m_slot.texture != nullptr)
 		{
 			DrawTextureSprite(window, imagePos);
 		}
@@ -78,8 +75,8 @@ private:
 
 	void DrawTextureSprite(sf::RenderWindow& window, sf::Vector2f imagePos) const
 	{
-		sf::Sprite sprite(*m_texture);
-		auto texSize = m_texture->getSize();
+		sf::Sprite sprite(*m_slot.texture);
+		auto texSize = m_slot.texture->getSize();
 		sprite.setScale({
 			ImageSize / static_cast<float>(texSize.x),
 			ImageSize / static_cast<float>(texSize.y),
@@ -132,5 +129,4 @@ private:
 	ElementSlot m_slot;
 	sf::Vector2f m_position;
 	Colors::CardColorScheme m_colors;
-	std::optional<sf::Texture> m_texture;
 };
