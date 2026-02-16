@@ -4,7 +4,6 @@
 #include "Colors.h"
 #include "DeleteButtonView.h"
 #include "ElementCardView.h"
-#include "TextureCache.h"
 
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -17,14 +16,9 @@
 class WorkspaceArea
 {
 public:
-	WorkspaceArea(
-		sf::RenderWindow& window,
-		const sf::Font& font,
-		sf::FloatRect rect,
-		AlchemyViewModel& viewModel,
-		TextureCache& textureCache)
+	WorkspaceArea(sf::RenderWindow& window, const sf::Font& font, sf::FloatRect rect,
+		AlchemyViewModel& viewModel)
 		: m_viewModel(viewModel)
-		, m_textureCache(textureCache)
 		, m_window(window)
 		, m_font(font)
 		, m_rect(rect)
@@ -166,18 +160,14 @@ private:
 		auto items = m_viewModel.ListWorkspaceElements();
 		std::optional<std::string> dropTargetId = IsDragging() ? FindDropTargetElement() : std::nullopt;
 
-		for (auto& item : items)
+		for (const auto& item : items)
 		{
-			item.slot.texture = m_textureCache.Get(item.slot.type);
-			sf::Vector2f drawPos = GetElementDrawPosition(item);
-			Colors::CardColorScheme colors = GetElementColorScheme(item, dropTargetId);
-
-			ElementCardView card(m_font, item.slot, LocalPositionToAbsolute(drawPos), colors);
+			ElementCardView card = CreateElementCard(item, dropTargetId);
 			card.Draw(m_window);
 		}
 	}
 
-	sf::Vector2f GetElementDrawPosition(const AlchemyViewModel::WorkspaceElementData& item) const
+	sf::Vector2f GetElementDrawPosition(const WorkspaceElementData& item) const
 	{
 		if (m_dragState.has_value() && m_dragState->elementId == item.id)
 		{
@@ -186,8 +176,17 @@ private:
 		return item.position;
 	}
 
+	ElementCardView CreateElementCard(
+		const WorkspaceElementData& item,
+		const std::optional<std::string>& dropTargetId)
+	{
+		sf::Vector2f drawPos = GetElementDrawPosition(item);
+		Colors::CardColorScheme colors = GetElementColorScheme(item, dropTargetId);
+		return ElementCardView{ m_font, item.slot, LocalPositionToAbsolute(drawPos), colors };
+	}
+
 	Colors::CardColorScheme GetElementColorScheme(
-		const AlchemyViewModel::WorkspaceElementData& item,
+		const WorkspaceElementData& item,
 		const std::optional<std::string>& dropTargetId) const
 	{
 		if (m_dragState.has_value() && m_dragState->elementId == item.id)
@@ -253,7 +252,6 @@ private:
 	static constexpr float TitleTopMargin = 10.f;
 
 	AlchemyViewModel& m_viewModel;
-	TextureCache& m_textureCache;
 
 	sf::RenderWindow& m_window;
 	const sf::Font& m_font;

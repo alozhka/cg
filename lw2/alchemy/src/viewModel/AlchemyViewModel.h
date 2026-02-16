@@ -1,22 +1,30 @@
 #pragma once
 #include "../model/AlchemyModel.h"
 #include "../model/Element.h"
+#include "../view/TextureCache.h"
 
 #include <SFML/Graphics/Texture.hpp>
 
 struct ElementSlot
 {
 	std::wstring name;
-	ElementType type;
 	bool isDiscovered;
 	const sf::Texture* texture;
+};
+
+struct WorkspaceElementData
+{
+	std::string id;
+	ElementSlot slot;
+	sf::Vector2f position;
 };
 
 class AlchemyViewModel
 {
 public:
-	explicit AlchemyViewModel(AlchemyModel& m_alchemy)
-		: m_alchemy(m_alchemy)
+	AlchemyViewModel(AlchemyModel& alchemy, const std::string& assetsDir)
+		: m_alchemy(alchemy)
+		, m_textureCache(assetsDir)
 	{
 	}
 
@@ -60,7 +68,7 @@ public:
 		m_alchemy.BringToFront(id);
 	}
 
-	std::vector<ElementSlot> ListElementsStatuses() const
+	std::vector<ElementSlot> ListElementsStatuses()
 	{
 		std::unordered_set<ElementType> discoveredElements = m_alchemy.ListDiscoveredElements();
 		const auto& allElements = m_alchemy.ListAllElements();
@@ -70,19 +78,13 @@ public:
 		{
 			bool discovered = discoveredElements.contains(el);
 			std::wstring name = discovered ? ElementTypeToString(el) : L"???";
-			result.push_back({ name, el, discovered, nullptr });
+			const sf::Texture* texture = discovered ? m_textureCache.Get(el) : nullptr;
+			result.push_back({ name, discovered, texture });
 		}
 		return result;
 	}
 
-	struct WorkspaceElementData
-	{
-		std::string id;
-		ElementSlot slot;
-		sf::Vector2f position;
-	};
-
-	std::vector<WorkspaceElementData> ListWorkspaceElements() const
+	std::vector<WorkspaceElementData> ListWorkspaceElements()
 	{
 		std::vector<Element> elements = m_alchemy.ListElementsOnWorkspace();
 		std::vector<WorkspaceElementData> results;
@@ -90,7 +92,8 @@ public:
 
 		for (const auto& element : elements)
 		{
-			ElementSlot slot{ ElementTypeToString(element.GetType()), element.GetType(), true, nullptr };
+			const sf::Texture* texture = m_textureCache.Get(element.GetType());
+			ElementSlot slot{ ElementTypeToString(element.GetType()), true, texture };
 			results.push_back({ element.GetId(), slot, element.GetPosition() });
 		}
 		return results;
@@ -98,4 +101,5 @@ public:
 
 private:
 	AlchemyModel& m_alchemy;
+	TextureCache m_textureCache;
 };

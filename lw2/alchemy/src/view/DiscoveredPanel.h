@@ -3,7 +3,6 @@
 #include "../viewModel/AlchemyViewModel.h"
 #include "Colors.h"
 #include "ElementCardView.h"
-#include "TextureCache.h"
 
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -13,14 +12,9 @@
 class DiscoveredPanel
 {
 public:
-	DiscoveredPanel(
-		sf::RenderWindow& window,
-		const sf::Font& font,
-		sf::FloatRect rect,
-		AlchemyViewModel& viewModel,
-		TextureCache& textureCache)
+	DiscoveredPanel(sf::RenderWindow& window, const sf::Font& font, sf::FloatRect rect,
+		AlchemyViewModel& viewModel)
 		: m_alchemyViewModel(viewModel)
-		, m_textureCache(textureCache)
 		, m_window(window)
 		, m_font(font)
 		, m_rect(rect)
@@ -53,10 +47,6 @@ public:
 
 		for (size_t i = 0; i < elements.size(); ++i)
 		{
-			if (elements[i].isDiscovered)
-			{
-				elements[i].texture = m_textureCache.Get(elements[i].type);
-			}
 			sf::Vector2f position = GetCellPosition(gridOrigin, i, columns);
 			const auto& colors = elements[i].isDiscovered ? Colors::DiscoveredCard : Colors::UndiscoveredCard;
 			m_cards.emplace_back(m_font, elements[i], position, colors);
@@ -138,7 +128,6 @@ private:
 	}
 
 	AlchemyViewModel& m_alchemyViewModel;
-	TextureCache& m_textureCache;
 	std::vector<ElementCardView> m_cards;
 
 	sf::RenderWindow& m_window;

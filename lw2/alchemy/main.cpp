@@ -22,8 +22,8 @@ int main()
 	const sf::Font font("/System/Library/Fonts/Geneva.ttf");
 
 	AlchemyModel alchemy;
-	AlchemyViewModel alchemyViewModel{ alchemy };
-	GameView view(window, font, alchemyViewModel, "assets/images");
+	AlchemyViewModel alchemyViewModel(alchemy, "assets/images");
+	GameView view(window, font, alchemyViewModel);
 	view.Run();
 
 	return 0;
