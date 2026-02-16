@@ -6,19 +6,16 @@
 
 #include <ranges>
 #include <unordered_set>
+#include <vector>
 
 class AlchemyModel : public Observable
 {
 public:
 	AlchemyModel()
 	{
-		AddDefaultElements();
+		AddAllElements();
+		AddDefaultDiscoveredElements();
 		AddRecipes();
-	}
-
-	std::unordered_set<ElementType> ListDiscoveredElements() const
-	{
-		return m_discoveredElements;
 	}
 
 	void InsertElement(ElementType type)
@@ -79,6 +76,16 @@ public:
 		Notify();
 	}
 
+	const std::vector<ElementType>& ListAllElements() const
+	{
+		return m_allElements;
+	}
+
+	std::unordered_set<ElementType> ListDiscoveredElements() const
+	{
+		return m_discoveredElements;
+	}
+
 	std::vector<Element> ListElementsOnWorkspace() const
 	{
 		std::vector<Element> elements;
@@ -91,7 +98,33 @@ public:
 	}
 
 private:
-	void AddDefaultElements()
+	void AddAllElements()
+	{
+		m_allElements = {
+			ElementType::Fire,
+			ElementType::Earth,
+			ElementType::Water,
+			ElementType::Air,
+			ElementType::Steam,
+			ElementType::Lava,
+			ElementType::Dust,
+			ElementType::Gunpowder,
+			ElementType::Mud,
+			ElementType::Energy,
+			ElementType::Rain,
+			ElementType::Metal,
+			ElementType::Brick,
+			ElementType::Plant,
+			ElementType::Swamp,
+			ElementType::Glass,
+			ElementType::Storm,
+			ElementType::Life,
+			ElementType::Golem,
+			ElementType::Phoenix,
+		};
+	}
+
+	void AddDefaultDiscoveredElements()
 	{
 		m_discoveredElements.emplace(ElementType::Earth);
 		m_discoveredElements.emplace(ElementType::Water);
@@ -122,6 +155,7 @@ private:
 	static constexpr sf::Vector2f DEFAULT_ELEMENT_POS = { 50, 50 };
 
 	RecipeBook m_recipeBook{};
+	std::vector<ElementType> m_allElements{};
 	std::unordered_set<ElementType> m_discoveredElements{};
 	std::unordered_map<std::string, Element> m_elements{};
 };

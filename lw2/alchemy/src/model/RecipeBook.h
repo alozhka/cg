@@ -2,16 +2,17 @@
 #include "Element.h"
 
 #include <functional>
-#include <map>
 #include <optional>
-#include <unordered_set>
+#include <unordered_map>
 #include <utility>
 
-struct ElementTypeHash
+struct ElementPairHash
 {
-	std::size_t operator()(ElementType type) const noexcept
+	std::size_t operator()(const std::pair<ElementType, ElementType>& pair) const noexcept
 	{
-		return std::hash<int>{}(static_cast<int>(type));
+		auto h1 = std::hash<int>{}(static_cast<int>(pair.first));
+		auto h2 = std::hash<int>{}(static_cast<int>(pair.second));
+		return h1 ^ (h2 << 16);
 	}
 };
 
@@ -33,11 +34,6 @@ public:
 		return std::nullopt;
 	}
 
-	static const std::unordered_set<ElementType, ElementTypeHash>& ListElements()
-	{
-		return m_elements;
-	}
-
 private:
 	static std::pair<ElementType, ElementType> MakeKey(ElementType first, ElementType second)
 	{
@@ -48,29 +44,5 @@ private:
 		return { first, second };
 	}
 
-	// TODO: на ordered map
-	std::map<std::pair<ElementType, ElementType>, ElementType> m_recipes{};
-	// TODO: на вектор
-	inline static std::unordered_set<ElementType, ElementTypeHash> m_elements{
-		ElementType::Earth,
-		ElementType::Water,
-		ElementType::Air,
-		ElementType::Fire,
-		ElementType::Steam,
-		ElementType::Lava,
-		ElementType::Dust,
-		ElementType::Gunpowder,
-		ElementType::Mud,
-		ElementType::Energy,
-		ElementType::Rain,
-		ElementType::Metal,
-		ElementType::Brick,
-		ElementType::Plant,
-		ElementType::Swamp,
-		ElementType::Glass,
-		ElementType::Storm,
-		ElementType::Life,
-		ElementType::Golem,
-		ElementType::Phoenix,
-	};
+	std::unordered_map<std::pair<ElementType, ElementType>, ElementType, ElementPairHash> m_recipes{};
 };

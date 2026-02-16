@@ -1,7 +1,6 @@
 #pragma once
 #include "../model/AlchemyModel.h"
 #include "../model/Element.h"
-#include "../model/RecipeBook.h"
 
 struct ElementSlot
 {
@@ -52,7 +51,7 @@ public:
 	std::vector<ElementSlot> ListElementsStatuses() const
 	{
 		std::unordered_set<ElementType> discoveredElements = m_alchemy.ListDiscoveredElements();
-		const auto& allElements = RecipeBook::ListElements();
+		const auto& allElements = m_alchemy.ListAllElements();
 
 		std::vector<ElementSlot> result;
 		for (ElementType el : allElements)
