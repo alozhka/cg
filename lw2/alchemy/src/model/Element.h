@@ -8,6 +8,7 @@ enum class ElementType
 	Air = 1,
 	Earth = 2,
 	Water = 3,
+	Steam = 4,
 };
 
 inline std::wstring ElementTypeName(ElementType type)
@@ -22,6 +23,8 @@ inline std::wstring ElementTypeName(ElementType type)
 		return L"Земля";
 	case ElementType::Water:
 		return L"Вода";
+	case ElementType::Steam:
+		return L"Пар";
 	default:
 		return L"???";
 	}
@@ -44,6 +47,10 @@ inline ElementType ConvertToElementType(const std::wstring& type)
 	if (type == L"Вода")
 	{
 		return ElementType::Water;
+	}
+	if (type == L"Пар")
+	{
+		return ElementType::Steam;
 	}
 
 	throw std::invalid_argument("Unsupported element type");

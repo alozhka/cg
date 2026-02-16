@@ -78,6 +78,10 @@ public:
 		{
 			m_viewModel.RemoveElement(m_dragState->elementId);
 		}
+		else if (std::optional<std::string> targetId = FindDropTargetElement())
+		{
+			m_viewModel.MergeElements(m_dragState->elementId, *targetId);
+		}
 		else
 		{
 			m_viewModel.MoveElement(m_dragState->elementId, GetDraggedElementPosition());
@@ -109,17 +113,46 @@ private:
 		return m_deleteButton.Contains(m_dragState->currentMousePos);
 	}
 
-	std::optional<std::string> FindElementAt(sf::Vector2f absolutePos) const
+	std::optional<std::string> FindElementAt(sf::Vector2f absolutePos, const std::string& excludeId = {}) const
 	{
 		auto items = m_viewModel.ListWorkspaceElements();
 
 		// Перебираем с конца — верхний элемент первый
 		for (auto& item : std::ranges::reverse_view(items))
 		{
+			if (item.id == excludeId)
+			{
+				continue;
+			}
+
 			sf::Vector2f absItemPos = LocalPositionToAbsolute(item.position);
 			sf::FloatRect bounds{ absItemPos, { ElementCardView::Width, ElementCardView::Height } };
 
 			if (bounds.contains(absolutePos))
+			{
+				return item.id;
+			}
+		}
+		return std::nullopt;
+	}
+
+	std::optional<std::string> FindDropTargetElement() const
+	{
+		sf::Vector2f draggedAbsPos = LocalPositionToAbsolute(GetDraggedElementPosition());
+		sf::FloatRect draggedBounds{ draggedAbsPos, { ElementCardView::Width, ElementCardView::Height } };
+
+		auto items = m_viewModel.ListWorkspaceElements();
+		for (auto& item : std::ranges::reverse_view(items))
+		{
+			if (item.id == m_dragState->elementId)
+			{
+				continue;
+			}
+
+			sf::Vector2f absItemPos = LocalPositionToAbsolute(item.position);
+			sf::FloatRect bounds{ absItemPos, { ElementCardView::Width, ElementCardView::Height } };
+
+			if (draggedBounds.findIntersection(bounds).has_value())
 			{
 				return item.id;
 			}

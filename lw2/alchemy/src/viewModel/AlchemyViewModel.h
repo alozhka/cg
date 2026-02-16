@@ -28,20 +28,6 @@ public:
 		m_alchemy.RemoveObserver(observer);
 	}
 
-	std::vector<ElementSlot> ListElementsStatuses() const
-	{
-		std::unordered_set<ElementType> discoveredElements = m_alchemy.ListDiscoveredElements();
-		const auto& allElements = RecipeBook::ListElements();
-
-		std::vector<ElementSlot> result;
-		for (ElementType el : allElements)
-		{
-			bool discovered = discoveredElements.contains(el);
-			result.push_back({ ElementTypeName(el), discovered, std::nullopt });
-		}
-		return result;
-	}
-
 	void InsertElement(const std::wstring& typeName)
 	{
 		ElementType elementType = ConvertToElementType(typeName);
@@ -56,6 +42,25 @@ public:
 	void RemoveElement(const std::string& id)
 	{
 		m_alchemy.RemoveElement(id);
+	}
+
+	void MergeElements(const std::string& sourceId, const std::string& targetId)
+	{
+		m_alchemy.TryCombineElements(sourceId, targetId);
+	}
+
+	std::vector<ElementSlot> ListElementsStatuses() const
+	{
+		std::unordered_set<ElementType> discoveredElements = m_alchemy.ListDiscoveredElements();
+		const auto& allElements = RecipeBook::ListElements();
+
+		std::vector<ElementSlot> result;
+		for (ElementType el : allElements)
+		{
+			bool discovered = discoveredElements.contains(el);
+			result.push_back({ ElementTypeName(el), discovered, std::nullopt });
+		}
+		return result;
 	}
 
 	struct WorkspaceElementData
