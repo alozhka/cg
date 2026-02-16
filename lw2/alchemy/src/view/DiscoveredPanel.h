@@ -26,6 +26,7 @@ public:
 
 	void Draw()
 	{
+		RebuildCards();
 		m_window.draw(m_background);
 		m_window.draw(m_titleText);
 

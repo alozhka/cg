@@ -46,17 +46,6 @@ public:
 		}
 	}
 
-	std::vector<Element> ListElementsOnWorkspace() const
-	{
-		std::vector<Element> elements;
-		for (const Element& element : m_elements | std::views::values)
-		{
-			elements.push_back(element);
-		}
-
-		return elements;
-	}
-
 	void TryCombineElements(const std::string& id1, const std::string& id2)
 	{
 		auto it1 = m_elements.find(id1);
@@ -83,6 +72,17 @@ public:
 		m_elements.emplace(combinedElement.GetId(), combinedElement);
 		m_discoveredElements.insert(*combinedType);
 		Notify();
+	}
+
+	std::vector<Element> ListElementsOnWorkspace() const
+	{
+		std::vector<Element> elements;
+		for (const Element& element : m_elements | std::views::values)
+		{
+			elements.push_back(element);
+		}
+
+		return elements;
 	}
 
 private:

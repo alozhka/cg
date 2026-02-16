@@ -48,11 +48,14 @@ private:
 		return { first, second };
 	}
 
+	// TODO: на ordered map
 	std::map<std::pair<ElementType, ElementType>, ElementType> m_recipes{};
+	// TODO: на вектор
 	inline static std::unordered_set<ElementType, ElementTypeHash> m_elements{
 		ElementType::Earth,
 		ElementType::Water,
 		ElementType::Air,
 		ElementType::Fire,
+		ElementType::Steam
 	};
 };
