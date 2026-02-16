@@ -32,6 +32,25 @@ constexpr CardColorScheme UndiscoveredCard{
 	.PlaceholderText = { 150, 150, 150 },
 	.LabelText = { 140, 140, 140 },
 };
+
+constexpr CardColorScheme DraggedCard{
+	.CardFill = { 200, 220, 255 },
+	.CardOutline = { 70, 130, 220 },
+	.PlaceholderFill = { 180, 200, 240 },
+	.PlaceholderOutline = { 120, 155, 210 },
+	.PlaceholderText = { 80, 120, 200 },
+	.LabelText = { 20, 20, 20 },
+};
+
+constexpr CardColorScheme DropTargetCard{
+	.CardFill = { 200, 255, 200 },
+	.CardOutline = { 60, 180, 60 },
+	.PlaceholderFill = { 180, 235, 180 },
+	.PlaceholderOutline = { 100, 180, 100 },
+	.PlaceholderText = { 60, 150, 60 },
+	.LabelText = { 20, 20, 20 },
+};
+
 struct DeleteButtonColorScheme
 {
 	sf::Color Fill;

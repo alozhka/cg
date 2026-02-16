@@ -24,11 +24,11 @@ public:
 	static constexpr unsigned int LabelFontSize = 12;
 	static constexpr unsigned int PlaceholderFontSize = 28;
 
-	ElementCardView(const sf::Font& font, const ElementSlot& slot, sf::Vector2f position)
+	ElementCardView(const sf::Font& font, const ElementSlot& slot, sf::Vector2f position, const Colors::CardColorScheme& colors)
 		: m_font(font)
 		, m_slot(slot)
 		, m_position(position)
-		, m_colors(slot.isDiscovered ? Colors::DiscoveredCard : Colors::UndiscoveredCard)
+		, m_colors(colors)
 	{
 		if (m_slot.imagePath.has_value())
 		{

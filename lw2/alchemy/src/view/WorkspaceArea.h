@@ -140,26 +140,7 @@ private:
 
 	std::optional<std::string> FindDropTargetElement() const
 	{
-		sf::Vector2f draggedAbsPos = LocalPositionToAbsolute(GetDraggedElementPosition());
-		sf::FloatRect draggedBounds{ draggedAbsPos, { ElementCardView::Width, ElementCardView::Height } };
-
-		auto items = m_viewModel.ListWorkspaceElements();
-		for (auto& item : std::ranges::reverse_view(items))
-		{
-			if (item.id == m_dragState->elementId)
-			{
-				continue;
-			}
-
-			sf::Vector2f absItemPos = LocalPositionToAbsolute(item.position);
-			sf::FloatRect bounds{ absItemPos, { ElementCardView::Width, ElementCardView::Height } };
-
-			if (draggedBounds.findIntersection(bounds).has_value())
-			{
-				return item.id;
-			}
-		}
-		return std::nullopt;
+		return FindElementAt(m_dragState->currentMousePos, m_dragState->elementId);
 	}
 
 	sf::Vector2f FindElementPosition(const std::string& id) const
@@ -176,19 +157,41 @@ private:
 	void DrawElements()
 	{
 		auto items = m_viewModel.ListWorkspaceElements();
+		std::optional<std::string> dropTargetId = IsDragging() ? FindDropTargetElement() : std::nullopt;
+
 		for (const auto& item : items)
 		{
-			sf::Vector2f drawPos = item.position;
-
-			if (m_dragState.has_value() && m_dragState->elementId == item.id)
-			{
-				drawPos = GetDraggedElementPosition();
-			}
+			sf::Vector2f drawPos = GetElementDrawPosition(item);
+			Colors::CardColorScheme colors = GetElementColorScheme(item, dropTargetId);
 
 			ElementSlot slot{ item.name, true, std::nullopt };
-			ElementCardView card(m_font, slot, LocalPositionToAbsolute(drawPos));
+			ElementCardView card(m_font, slot, LocalPositionToAbsolute(drawPos), colors);
 			card.Draw(m_window);
 		}
+	}
+
+	sf::Vector2f GetElementDrawPosition(const AlchemyViewModel::WorkspaceElementData& item) const
+	{
+		if (m_dragState.has_value() && m_dragState->elementId == item.id)
+		{
+			return GetDraggedElementPosition();
+		}
+		return item.position;
+	}
+
+	Colors::CardColorScheme GetElementColorScheme(
+		const AlchemyViewModel::WorkspaceElementData& item,
+		const std::optional<std::string>& dropTargetId) const
+	{
+		if (m_dragState.has_value() && m_dragState->elementId == item.id)
+		{
+			return Colors::DraggedCard;
+		}
+		if (dropTargetId.has_value() && *dropTargetId == item.id)
+		{
+			return Colors::DropTargetCard;
+		}
+		return Colors::DiscoveredCard;
 	}
 
 	sf::Vector2f ClampToWorkspace(sf::Vector2f absPos) const

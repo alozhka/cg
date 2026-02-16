@@ -47,7 +47,8 @@ public:
 		for (size_t i = 0; i < elements.size(); ++i)
 		{
 			sf::Vector2f position = GetCellPosition(gridOrigin, i, columns);
-			m_cards.emplace_back(m_font, elements[i], position);
+			const auto& colors = elements[i].isDiscovered ? Colors::DiscoveredCard : Colors::UndiscoveredCard;
+			m_cards.emplace_back(m_font, elements[i], position, colors);
 		}
 	}
 
