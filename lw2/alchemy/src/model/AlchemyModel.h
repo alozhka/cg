@@ -4,6 +4,7 @@
 #include "shared/Observable.h"
 #include "shared/Uuid.h"
 
+#include <algorithm>
 #include <ranges>
 #include <unordered_set>
 #include <vector>
@@ -25,7 +26,7 @@ public:
 			return;
 		}
 
-		Element element{ Uuid::Generate(), type, DEFAULT_ELEMENT_POS };
+		Element element{ Uuid::Generate(), type, DEFAULT_ELEMENT_POS, m_nextZOrder++ };
 		m_elements.emplace(element.GetId(), element);
 		Notify();
 	}
@@ -44,6 +45,16 @@ public:
 	{
 		if (m_elements.erase(id))
 		{
+			Notify();
+		}
+	}
+
+	void BringToFront(const std::string& id)
+	{
+		auto it = m_elements.find(id);
+		if (it != m_elements.end())
+		{
+			it->second.SetZOrder(m_nextZOrder++);
 			Notify();
 		}
 	}
@@ -70,7 +81,7 @@ public:
 		m_elements.erase(it1);
 		m_elements.erase(it2);
 
-		Element combinedElement{ Uuid::Generate(), *combinedType, DEFAULT_ELEMENT_POS };
+		Element combinedElement{ Uuid::Generate(), *combinedType, DEFAULT_ELEMENT_POS, m_nextZOrder++ };
 		m_elements.emplace(combinedElement.GetId(), combinedElement);
 		m_discoveredElements.insert(*combinedType);
 		Notify();
@@ -93,6 +104,10 @@ public:
 		{
 			elements.push_back(element);
 		}
+
+		std::ranges::sort(elements, [](const Element& a, const Element& b) {
+			return a.GetZOrder() < b.GetZOrder();
+		});
 
 		return elements;
 	}
@@ -154,6 +169,7 @@ private:
 
 	static constexpr sf::Vector2f DEFAULT_ELEMENT_POS = { 50, 50 };
 
+	int m_nextZOrder = 0;
 	RecipeBook m_recipeBook{};
 	std::vector<ElementType> m_allElements{};
 	std::unordered_set<ElementType> m_discoveredElements{};

@@ -48,6 +48,11 @@ public:
 		m_alchemy.TryCombineElements(sourceId, targetId);
 	}
 
+	void BringToFront(const std::string& id)
+	{
+		m_alchemy.BringToFront(id);
+	}
+
 	std::vector<ElementSlot> ListElementsStatuses() const
 	{
 		std::unordered_set<ElementType> discoveredElements = m_alchemy.ListDiscoveredElements();

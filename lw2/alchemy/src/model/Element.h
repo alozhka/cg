@@ -164,10 +164,11 @@ static ElementType ConvertToElementType(const std::wstring& type)
 class Element
 {
 public:
-	Element(const std::string& id, ElementType type, sf::Vector2f pos)
+	Element(const std::string& id, ElementType type, sf::Vector2f pos, int zOrder)
 		: m_id(id)
 		, m_type(type)
 		, m_pos(pos)
+		, m_zOrder(zOrder)
 	{
 	}
 
@@ -191,8 +192,19 @@ public:
 		m_pos = pos;
 	}
 
+	int GetZOrder() const
+	{
+		return m_zOrder;
+	}
+
+	void SetZOrder(int zOrder)
+	{
+		m_zOrder = zOrder;
+	}
+
 private:
 	std::string m_id;
 	ElementType m_type;
 	sf::Vector2f m_pos;
+	int m_zOrder;
 };

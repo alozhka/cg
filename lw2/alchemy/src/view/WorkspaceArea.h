@@ -49,6 +49,8 @@ public:
 			return;
 		}
 
+		m_viewModel.BringToFront(*elementId);
+
 		sf::Vector2f elementPos = FindElementPosition(*elementId);
 		m_dragState = DragState{
 			.elementId = *elementId,
