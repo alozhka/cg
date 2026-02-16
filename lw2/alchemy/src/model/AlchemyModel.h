@@ -23,6 +23,11 @@ public:
 
 	void InsertElement(ElementType type)
 	{
+		if (!m_discoveredElements.contains(type))
+		{
+			return;
+		}
+
 		Element element{ Uuid::Generate(), type, DEFAULT_ELEMENT_POS };
 		m_elements.emplace(element.GetId(), element);
 		Notify();
@@ -97,6 +102,21 @@ private:
 	void AddRecipes()
 	{
 		m_recipeBook.AddRecipe(ElementType::Fire, ElementType::Water, ElementType::Steam);
+		m_recipeBook.AddRecipe(ElementType::Fire, ElementType::Earth, ElementType::Lava);
+		m_recipeBook.AddRecipe(ElementType::Air, ElementType::Earth, ElementType::Dust);
+		m_recipeBook.AddRecipe(ElementType::Fire, ElementType::Dust, ElementType::Gunpowder);
+		m_recipeBook.AddRecipe(ElementType::Water, ElementType::Earth, ElementType::Mud);
+		m_recipeBook.AddRecipe(ElementType::Fire, ElementType::Air, ElementType::Energy);
+		m_recipeBook.AddRecipe(ElementType::Water, ElementType::Air, ElementType::Rain);
+		m_recipeBook.AddRecipe(ElementType::Fire, ElementType::Lava, ElementType::Metal);
+		m_recipeBook.AddRecipe(ElementType::Lava, ElementType::Water, ElementType::Brick);
+		m_recipeBook.AddRecipe(ElementType::Rain, ElementType::Earth, ElementType::Plant);
+		m_recipeBook.AddRecipe(ElementType::Mud, ElementType::Plant, ElementType::Swamp);
+		m_recipeBook.AddRecipe(ElementType::Lava, ElementType::Dust, ElementType::Glass);
+		m_recipeBook.AddRecipe(ElementType::Energy, ElementType::Rain, ElementType::Storm);
+		m_recipeBook.AddRecipe(ElementType::Swamp, ElementType::Energy, ElementType::Life);
+		m_recipeBook.AddRecipe(ElementType::Life, ElementType::Metal, ElementType::Golem);
+		m_recipeBook.AddRecipe(ElementType::Life, ElementType::Fire, ElementType::Phoenix);
 	}
 
 	static constexpr sf::Vector2f DEFAULT_ELEMENT_POS = { 50, 50 };

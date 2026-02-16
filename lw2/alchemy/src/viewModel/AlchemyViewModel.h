@@ -58,7 +58,7 @@ public:
 		for (ElementType el : allElements)
 		{
 			bool discovered = discoveredElements.contains(el);
-			result.push_back({ ElementTypeName(el), discovered, std::nullopt });
+			result.push_back({ ElementTypeToString(el), discovered, std::nullopt });
 		}
 		return result;
 	}
@@ -80,7 +80,7 @@ public:
 		{
 			results.emplace_back(
 				element.GetId(),
-				ElementTypeName(element.GetType()),
+				ElementTypeToString(element.GetType()),
 				element.GetPosition());
 		}
 		return results;

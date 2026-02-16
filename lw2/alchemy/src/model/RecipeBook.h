@@ -56,6 +56,21 @@ private:
 		ElementType::Water,
 		ElementType::Air,
 		ElementType::Fire,
-		ElementType::Steam
+		ElementType::Steam,
+		ElementType::Lava,
+		ElementType::Dust,
+		ElementType::Gunpowder,
+		ElementType::Mud,
+		ElementType::Energy,
+		ElementType::Rain,
+		ElementType::Metal,
+		ElementType::Brick,
+		ElementType::Plant,
+		ElementType::Swamp,
+		ElementType::Glass,
+		ElementType::Storm,
+		ElementType::Life,
+		ElementType::Golem,
+		ElementType::Phoenix,
 	};
 };
