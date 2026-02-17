@@ -5,6 +5,7 @@
 #include "shared/Uuid.h"
 
 #include <algorithm>
+#include <random>
 #include <ranges>
 #include <unordered_set>
 #include <vector>
@@ -12,7 +13,8 @@
 class AlchemyModel : public Observable
 {
 public:
-	AlchemyModel()
+	explicit AlchemyModel(sf::Vector2f workspaceSize)
+		: m_workspaceSize(workspaceSize)
 	{
 		AddAllElements();
 		AddDefaultDiscoveredElements();
@@ -26,7 +28,7 @@ public:
 			return;
 		}
 
-		Element element{ Uuid::Generate(), type, DEFAULT_ELEMENT_POS, m_nextZOrder++ };
+		Element element{ Uuid::Generate(), type, RandomPos(), m_nextZOrder++ };
 		m_elements.emplace(element.GetId(), element);
 		Notify();
 	}
@@ -168,8 +170,20 @@ private:
 		m_recipeBook.AddRecipe(ElementType::Life, ElementType::Fire, ElementType::Phoenix);
 	}
 
-	static constexpr sf::Vector2f DEFAULT_ELEMENT_POS = { 50, 50 };
+	static constexpr float MIN_CLAMPED_BOUNDS = 0.2;
+	static constexpr float MAX_CLAMPED_BOUNDS = 0.8;
 
+	sf::Vector2f RandomPos() const
+	{
+		static std::mt19937 gen{ std::random_device{}() };
+		float minPos = m_workspaceSize.x * MIN_CLAMPED_BOUNDS;
+		float maxPos = m_workspaceSize.x * MAX_CLAMPED_BOUNDS;
+		std::uniform_real_distribution<float> distX(minPos, maxPos);
+		std::uniform_real_distribution<float> distY(minPos, maxPos);
+		return { distX(gen), distY(gen) };
+	}
+
+	sf::Vector2f m_workspaceSize;
 	int m_nextZOrder = 0;
 	RecipeBook m_recipeBook{};
 	std::vector<ElementType> m_allElements{};

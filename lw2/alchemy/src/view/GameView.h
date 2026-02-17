@@ -28,6 +28,8 @@ public:
 		m_alchemyViewModel.AddObserver(this);
 	}
 
+	static constexpr float PANEL_WIDTH = 450;
+
 	~GameView() override
 	{
 		m_alchemyViewModel.RemoveObserver(this);
@@ -117,8 +119,6 @@ private:
 	{
 		Draw();
 	}
-
-	static constexpr float PANEL_WIDTH = 450;
 
 	sf::RenderWindow& m_window;
 	const sf::Font& m_font;

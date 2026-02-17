@@ -21,10 +21,11 @@ int main()
 	sf::RenderWindow window = CreateWindow();
 	const sf::Font font("/System/Library/Fonts/Geneva.ttf");
 
-	AlchemyModel alchemy;
+	sf::Vector2f workspaceSize(window.getSize().x - GameView::PANEL_WIDTH, window.getSize().y);
+	AlchemyModel alchemy(workspaceSize);
 	AlchemyViewModel alchemyViewModel(alchemy, "assets/images");
 	GameView view(window, font, alchemyViewModel);
 	view.Run();
 
-	return 0;
+	return EXIT_SUCCESS;
 }
