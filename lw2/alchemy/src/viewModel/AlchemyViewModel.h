@@ -63,6 +63,7 @@ public:
 		size_t discoveredBefore = m_alchemy.ListDiscoveredElementsOrdered().size();
 		bool elementCombined = m_alchemy.TryCombineElements(sourceId, targetId, dropPos);
 
+		// TODO: вынести обработку действий в отдельный обработчик
 		if (!elementCombined)
 		{
 			m_alchemy.MoveElement(sourceId, dropPos);

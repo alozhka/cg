@@ -162,6 +162,7 @@ private:
 
 	void AddRecipes()
 	{
+		// TODO: лучше сделать загрузку из файла
 		m_recipeBook.AddRecipe(ElementType::Fire, ElementType::Water, ElementType::Steam);
 		m_recipeBook.AddRecipe(ElementType::Fire, ElementType::Earth, ElementType::Lava);
 		m_recipeBook.AddRecipe(ElementType::Air, ElementType::Earth, ElementType::Dust);

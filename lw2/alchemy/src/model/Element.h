@@ -26,6 +26,7 @@ enum class ElementType
 	Phoenix = 19,
 };
 
+// TODO: грузить из файла элемент (его имя на русском и путь до картинки)
 static std::wstring ElementTypeToString(ElementType type)
 {
 	switch (type)
