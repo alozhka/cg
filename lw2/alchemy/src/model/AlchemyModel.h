@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <random>
 #include <ranges>
-#include <unordered_set>
 #include <vector>
 
 class AlchemyModel : public Observable
@@ -23,7 +22,7 @@ public:
 
 	void InsertElement(ElementType type)
 	{
-		if (!m_discoveredElements.contains(type))
+		if (!IsDiscovered(type))
 		{
 			return;
 		}
@@ -85,9 +84,8 @@ public:
 
 		Element combinedElement{ Uuid::Generate(), *combinedType, resultPos, m_nextZOrder++ };
 		m_elements.emplace(combinedElement.GetId(), combinedElement);
-		if (!m_discoveredElements.contains(*combinedType))
+		if (!IsDiscovered(*combinedType))
 		{
-			m_discoveredElements.insert(*combinedType);
 			m_discoveredOrder.push_back(*combinedType);
 		}
 		Notify();
@@ -97,11 +95,6 @@ public:
 	const std::vector<ElementType>& ListAllElements() const
 	{
 		return m_allElements;
-	}
-
-	std::unordered_set<ElementType> ListDiscoveredElements() const
-	{
-		return m_discoveredElements;
 	}
 
 	const std::vector<ElementType>& ListDiscoveredElementsOrdered() const
@@ -161,14 +154,10 @@ private:
 
 	void AddDefaultDiscoveredElements()
 	{
-		auto discover = [this](ElementType type) {
-			m_discoveredElements.emplace(type);
-			m_discoveredOrder.push_back(type);
-		};
-		discover(ElementType::Earth);
-		discover(ElementType::Water);
-		discover(ElementType::Air);
-		discover(ElementType::Fire);
+		m_discoveredOrder.push_back(ElementType::Earth);
+		m_discoveredOrder.push_back(ElementType::Water);
+		m_discoveredOrder.push_back(ElementType::Air);
+		m_discoveredOrder.push_back(ElementType::Fire);
 	}
 
 	void AddRecipes()
@@ -191,8 +180,10 @@ private:
 		m_recipeBook.AddRecipe(ElementType::Life, ElementType::Fire, ElementType::Phoenix);
 	}
 
-	static constexpr float MIN_CLAMPED_BOUNDS = 0.2;
-	static constexpr float MAX_CLAMPED_BOUNDS = 0.8;
+	bool IsDiscovered(ElementType type) const
+	{
+		return std::ranges::find(m_discoveredOrder, type) != m_discoveredOrder.end();
+	}
 
 	sf::Vector2f RandomPos() const
 	{
@@ -204,11 +195,13 @@ private:
 		return { distX(gen), distY(gen) };
 	}
 
+	static constexpr float MIN_CLAMPED_BOUNDS = 0.2;
+	static constexpr float MAX_CLAMPED_BOUNDS = 0.8;
+
 	sf::Vector2f m_workspaceSize;
 	int m_nextZOrder = 0;
 	RecipeBook m_recipeBook{};
 	std::vector<ElementType> m_allElements{};
-	std::unordered_set<ElementType> m_discoveredElements{};
 	std::vector<ElementType> m_discoveredOrder{};
 	std::unordered_map<std::string, Element> m_elements{};
 };
