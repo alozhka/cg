@@ -70,18 +70,22 @@ public:
 
 	std::vector<ElementSlot> ListElementsStatuses()
 	{
-		std::unordered_set<ElementType> discoveredElements = m_alchemy.ListDiscoveredElements();
-		const auto& allElements = m_alchemy.ListAllElements();
+		const auto& discoveredOrder = m_alchemy.ListDiscoveredElementsOrdered();
 
 		std::vector<ElementSlot> result;
-		for (ElementType el : allElements)
+		result.reserve(discoveredOrder.size());
+		for (ElementType el : discoveredOrder)
 		{
-			bool discovered = discoveredElements.contains(el);
-			std::wstring name = discovered ? ElementTypeToString(el) : L"???";
-			const sf::Texture* texture = discovered ? m_textureCache.Get(el) : nullptr;
-			result.push_back({ name, discovered, texture });
+			std::wstring name = ElementTypeToString(el);
+			const sf::Texture* texture = m_textureCache.Get(el);
+			result.push_back({ name, true, texture });
 		}
 		return result;
+	}
+
+	void SortDiscoveredElements()
+	{
+		m_alchemy.SortDiscoveredElements();
 	}
 
 	std::vector<WorkspaceElementData> ListWorkspaceElements()

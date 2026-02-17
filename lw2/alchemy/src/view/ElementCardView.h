@@ -13,14 +13,14 @@
 class ElementCardView
 {
 public:
-	static constexpr float Width = 100.f;
-	static constexpr float Height = 120.f;
-	static constexpr float ImageSize = 64.f;
-	static constexpr float ImageTopMargin = 10.f;
-	static constexpr float LabelTopMargin = 80.f;
+	static constexpr float Width = 80.f;
+	static constexpr float Height = 100.f;
+	static constexpr float ImageSize = 48.f;
+	static constexpr float ImageTopMargin = 8.f;
+	static constexpr float LabelTopMargin = 62.f;
 	static constexpr float OutlineThickness = 1.f;
-	static constexpr unsigned int LabelFontSize = 12;
-	static constexpr unsigned int PlaceholderFontSize = 28;
+	static constexpr unsigned int LabelFontSize = 11;
+	static constexpr unsigned int PlaceholderFontSize = 24;
 
 	ElementCardView(
 		const sf::Font& font,

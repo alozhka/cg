@@ -19,9 +19,11 @@ public:
 		, m_font(font)
 		, m_rect(rect)
 		, m_titleText(font, L"Открытые элементы", TitleFontSize)
+		, m_sortButtonText(font, L"Сортировать", SortButtonFontSize)
 	{
 		SetupBackground();
 		SetupTitle();
+		SetupSortButton();
 		RebuildCards();
 	}
 
@@ -30,6 +32,8 @@ public:
 		RebuildCards();
 		m_window.draw(m_background);
 		m_window.draw(m_titleText);
+		m_window.draw(m_sortButtonShape);
+		m_window.draw(m_sortButtonText);
 
 		for (const auto& card : m_cards)
 		{
@@ -55,6 +59,12 @@ public:
 
 	void HandleClick(sf::Vector2f pos)
 	{
+		if (m_sortButtonShape.getGlobalBounds().contains(pos))
+		{
+			m_alchemyViewModel.SortDiscoveredElements();
+			return;
+		}
+
 		std::optional<std::wstring> newElement = GetPressedElementAt(pos);
 		if (newElement.has_value())
 		{
@@ -65,7 +75,11 @@ public:
 private:
 	static constexpr unsigned int TitleFontSize = 20;
 	static constexpr float TitleTopMargin = 10.f;
-	static constexpr float GridTopMargin = 45.f;
+	static constexpr unsigned int SortButtonFontSize = 14;
+	static constexpr float SortButtonWidth = 130.f;
+	static constexpr float SortButtonHeight = 28.f;
+	static constexpr float SortButtonTopMargin = 38.f;
+	static constexpr float GridTopMargin = 75.f;
 	static constexpr float GridSidePadding = 10.f;
 	static constexpr float GridGap = 8.f;
 
@@ -127,6 +141,26 @@ private:
 		m_titleText.setStyle(sf::Text::Bold);
 	}
 
+	void SetupSortButton()
+	{
+		float buttonX = m_rect.position.x + (m_rect.size.x - SortButtonWidth) / 2.f;
+		float buttonY = m_rect.position.y + SortButtonTopMargin;
+
+		m_sortButtonShape.setSize({ SortButtonWidth, SortButtonHeight });
+		m_sortButtonShape.setPosition({ buttonX, buttonY });
+		m_sortButtonShape.setFillColor({ 100, 150, 220 });
+		m_sortButtonShape.setOutlineColor({ 70, 120, 190 });
+		m_sortButtonShape.setOutlineThickness(1.f);
+
+		float textWidth = m_sortButtonText.getLocalBounds().size.x;
+		float textHeight = m_sortButtonText.getLocalBounds().size.y;
+		m_sortButtonText.setPosition({
+			buttonX + (SortButtonWidth - textWidth) / 2.f,
+			buttonY + (SortButtonHeight - textHeight) / 2.f - 3.f,
+		});
+		m_sortButtonText.setFillColor(sf::Color::White);
+	}
+
 	AlchemyViewModel& m_alchemyViewModel;
 	std::vector<ElementCardView> m_cards;
 
@@ -135,4 +169,6 @@ private:
 	sf::FloatRect m_rect;
 	sf::RectangleShape m_background;
 	sf::Text m_titleText;
+	sf::RectangleShape m_sortButtonShape;
+	sf::Text m_sortButtonText;
 };

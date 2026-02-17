@@ -85,7 +85,11 @@ public:
 
 		Element combinedElement{ Uuid::Generate(), *combinedType, resultPos, m_nextZOrder++ };
 		m_elements.emplace(combinedElement.GetId(), combinedElement);
-		m_discoveredElements.insert(*combinedType);
+		if (!m_discoveredElements.contains(*combinedType))
+		{
+			m_discoveredElements.insert(*combinedType);
+			m_discoveredOrder.push_back(*combinedType);
+		}
 		Notify();
 		return true;
 	}
@@ -98,6 +102,19 @@ public:
 	std::unordered_set<ElementType> ListDiscoveredElements() const
 	{
 		return m_discoveredElements;
+	}
+
+	const std::vector<ElementType>& ListDiscoveredElementsOrdered() const
+	{
+		return m_discoveredOrder;
+	}
+
+	void SortDiscoveredElements()
+	{
+		std::ranges::sort(m_discoveredOrder, [](ElementType a, ElementType b) {
+			return ElementTypeToString(a) < ElementTypeToString(b);
+		});
+		Notify();
 	}
 
 	std::vector<Element> ListElementsOnWorkspace() const
@@ -144,10 +161,14 @@ private:
 
 	void AddDefaultDiscoveredElements()
 	{
-		m_discoveredElements.emplace(ElementType::Earth);
-		m_discoveredElements.emplace(ElementType::Water);
-		m_discoveredElements.emplace(ElementType::Air);
-		m_discoveredElements.emplace(ElementType::Fire);
+		auto discover = [this](ElementType type) {
+			m_discoveredElements.emplace(type);
+			m_discoveredOrder.push_back(type);
+		};
+		discover(ElementType::Earth);
+		discover(ElementType::Water);
+		discover(ElementType::Air);
+		discover(ElementType::Fire);
 	}
 
 	void AddRecipes()
@@ -188,5 +209,6 @@ private:
 	RecipeBook m_recipeBook{};
 	std::vector<ElementType> m_allElements{};
 	std::unordered_set<ElementType> m_discoveredElements{};
+	std::vector<ElementType> m_discoveredOrder{};
 	std::unordered_map<std::string, Element> m_elements{};
 };
