@@ -4,6 +4,8 @@
 #include "../view/TextureCache.h"
 
 #include <SFML/Graphics/Texture.hpp>
+#include <SFML/System/Clock.hpp>
+#include <SFML/System/Time.hpp>
 
 struct ElementSlot
 {
@@ -42,6 +44,7 @@ public:
 	{
 		ElementType elementType = ConvertToElementType(typeName);
 		m_alchemy.InsertElement(elementType);
+		SetMessage(L"Добавлен: " + typeName);
 	}
 
 	void MoveElement(const std::string& id, sf::Vector2f newPos)
@@ -52,15 +55,50 @@ public:
 	void RemoveElement(const std::string& id)
 	{
 		m_alchemy.RemoveElement(id);
+		SetMessage(L"Элемент удалён");
 	}
 
 	void MergeElements(const std::string& sourceId, const std::string& targetId, sf::Vector2f dropPos)
 	{
+		size_t discoveredBefore = m_alchemy.ListDiscoveredElementsOrdered().size();
 		bool elementCombined = m_alchemy.TryCombineElements(sourceId, targetId, dropPos);
+
 		if (!elementCombined)
 		{
 			m_alchemy.MoveElement(sourceId, dropPos);
+			SetMessage(L"Не удалось скомбинировать");
+			return;
 		}
+
+		size_t discoveredAfter = m_alchemy.ListDiscoveredElementsOrdered().size();
+		if (discoveredAfter > discoveredBefore)
+		{
+			const auto& discovered = m_alchemy.ListDiscoveredElementsOrdered();
+			std::wstring newName = ElementTypeToString(discovered.back());
+			SetMessage(L"Открыт новый элемент: " + newName);
+		}
+		else
+		{
+			SetMessage(L"Элементы скомбинированы");
+		}
+	}
+
+	std::wstring GetMessage() const
+	{
+		if (m_lastMessage.empty())
+		{
+			return {};
+		}
+		if (m_messageClock.getElapsedTime().asSeconds() > MessageDuration)
+		{
+			return {};
+		}
+		return m_lastMessage;
+	}
+
+	float GetMessageAge() const
+	{
+		return m_messageClock.getElapsedTime().asSeconds();
 	}
 
 	void BringToFront(const std::string& id)
@@ -104,6 +142,16 @@ public:
 	}
 
 private:
+	static constexpr float MessageDuration = 2.0f;
+
+	void SetMessage(const std::wstring& message)
+	{
+		m_lastMessage = message;
+		m_messageClock.restart();
+	}
+
 	AlchemyModel& m_alchemy;
 	TextureCache m_textureCache;
+	std::wstring m_lastMessage;
+	sf::Clock m_messageClock;
 };

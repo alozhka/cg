@@ -1,6 +1,7 @@
 #pragma once
 #include "shared/IObserver.h"
 #include "view/DiscoveredPanel.h"
+#include "view/PopupMessageView.h"
 #include "view/WorkspaceArea.h"
 
 #include <SFML/Graphics/Font.hpp>
@@ -23,6 +24,7 @@ public:
 			  font,
 			  { { PANEL_WIDTH, 0 }, { static_cast<float>(window.getSize().x) - PANEL_WIDTH, static_cast<float>(window.getSize().y) } },
 			  alchemyViewModel)
+		, m_popupMessage(window, font, alchemyViewModel)
 		, m_alchemyViewModel(alchemyViewModel)
 	{
 		m_alchemyViewModel.AddObserver(this);
@@ -51,6 +53,7 @@ private:
 	{
 		m_discoveredPanel.Draw();
 		m_workspaceArea.Draw();
+		m_popupMessage.Draw();
 	}
 
 	void ProcessEvents()
@@ -125,6 +128,7 @@ private:
 
 	DiscoveredPanel m_discoveredPanel;
 	WorkspaceArea m_workspaceArea;
+	PopupMessageView m_popupMessage;
 
 	AlchemyViewModel& m_alchemyViewModel;
 };
