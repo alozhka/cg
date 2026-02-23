@@ -19,6 +19,4 @@ public:
 
 private:
 	GLFWwindow* m_window;
-
-	static void FrameBufferSizeCallback(GLFWwindow* window, int width, int height);
 };

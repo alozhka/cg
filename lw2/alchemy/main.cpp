@@ -19,7 +19,7 @@ sf::RenderWindow CreateWindow()
 int main()
 {
 	sf::RenderWindow window = CreateWindow();
-	const sf::Font font("/System/Library/Fonts/Geneva.ttf");
+	const sf::Font font("C:\\Windows\\Fonts\\Calibri.ttf");
 
 	sf::Vector2f workspaceSize(window.getSize().x - GameView::PANEL_WIDTH, window.getSize().y);
 	AlchemyModel alchemy(workspaceSize);
