@@ -10,7 +10,7 @@ GuiApplication::GuiApplication(int width, int height, const std::string& title)
 	}
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	m_window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
@@ -21,7 +21,7 @@ GuiApplication::GuiApplication(int width, int height, const std::string& title)
 	}
 
 	glfwMakeContextCurrent(m_window);
-	glfwSetFramebufferSizeCallback(m_window, FrameBufferSizeCallback);
+	glfwSetFramebufferSizeCallback(m_window, &FrameBufferSizeCallback);
 
 	glViewport(0, 0, width, height);
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -46,7 +46,7 @@ void GuiApplication::MainLoop(const RenderCallback& onDraw)
 	}
 }
 
-void GuiApplication::FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
+void GuiApplication::FrameBufferSizeCallback(GLFWwindow*, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
