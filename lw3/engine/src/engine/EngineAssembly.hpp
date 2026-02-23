@@ -3,201 +3,206 @@
 #include "../shapes/Rectangle.hpp"
 #include "../shared/Color.hpp"
 #include "../shared/CompositeObject.hpp"
-
+#include "../shared/Rect.h"
+#include "../shared/SceneObject.hpp"
 #include <cmath>
+#include <memory>
+#include <vector>
 
-// Константы для красивых цветов
-namespace EngineColors
+// Определим палитру, чтобы не хардкодить числа в логике
+namespace Palette
 {
-const Color Steel = { 0.60f, 0.60f, 0.65f, 1.0f };
-const Color DarkSteel = { 0.40f, 0.40f, 0.45f, 1.0f };
-const Color Aluminum = { 0.80f, 0.80f, 0.85f, 1.0f };
-const Color Red = { 0.80f, 0.20f, 0.20f, 1.0f };
-const Color DarkGrey = { 0.20f, 0.20f, 0.20f, 1.0f };
-} // namespace EngineColors
+const Color CastIron{ 0.70, 0.55, 0.45 }; // Светло-коричневый корпус (как на картинке)
+const Color CastIronDark{ 0.55, 0.40, 0.30 }; // Темная окантовка
+const Color CylinderInner{ 0.85, 0.90, 0.95 }; // Голубоватый металл внутри
+const Color Steel{ 0.75, 0.75, 0.80 }; // Сталь (поршень)
+const Color DarkSteel{ 0.50, 0.50, 0.55 }; // Темная сталь (шатун)
+const Color CrankGreen{ 0.60, 0.70, 0.60 }; // Зеленоватый оттенок противовеса
+const Color ValveColor{ 0.40, 0.30, 0.20 }; // Клапаны
+const Color SparkPlug{ 0.90, 0.90, 0.80 }; // Свеча (керамика)
+} // namespace Palette
 
 class EngineAssembly : public CompositeObject
 {
 public:
 	EngineAssembly()
 	{
-		BuildEngine();
+		// Настройка размеров (подгоняем под пропорции картинки)
+		m_pistonWidth = 60.0;
+		m_pistonHeight = 45.0;
+		m_cylinderWidth = 62.0; // Чуть шире поршня
+		m_cylinderHeight = 140.0;
+
+		m_crankRadius = 35.0;
+		m_rodLength = 95.0;
+
+		BuildStaticBlock(); // Корпус
+		BuildMovingParts(); // Механизм
+		BuildCylinderHead(); // Голова (клапаны, впуск/выпуск)
 	}
 
+	// Пока без анимации, но структура готова
 	void Update(double dt) override
 	{
-		// 1. Увеличиваем угол (имитация вращения)
-		m_crankAngleDegrees += m_rpm * dt;
-		if (m_crankAngleDegrees > 360.0f)
-		{
-			m_crankAngleDegrees -= 360.0f;
-		}
-
-		// Перевод в радианы для математики
-		float alpha = m_crankAngleDegrees * 3.1415926f / 180.0f;
-
-		// 2. Основная формула кривошипно-шатунного механизма
-		// Позиция поршня по Y (от центра коленвала)
-		// y = r * cos(a) + sqrt(l^2 - r^2 * sin^2(a))
-		float sinA = std::sin(alpha);
-		float cosA = std::cos(alpha);
-
-		// Слагаемое, связанное с наклоном шатуна
-		float rodVerticalComponent = std::sqrt(m_rodLength * m_rodLength - m_crankRadius * m_crankRadius * sinA * sinA);
-
-		float pistonY = m_crankRadius * cosA + rodVerticalComponent;
-
-		// 3. Вычисление угла наклона шатуна (Beta)
-		// sin(beta) = (r / l) * sin(alpha)
-		float sinBeta = (m_crankRadius / m_rodLength) * sinA;
-		float betaRad = std::asin(sinBeta);
-		float betaDeg = betaRad * 180.0f / 3.1415926f;
-
-		// 4. Применение трансформаций
-
-		// Коленвал: вращаем просто по углу (с минусом, чтобы крутился по часовой)
-		if (m_crankShaftNode)
-		{
-			m_crankShaftNode->SetRotation(-m_crankAngleDegrees);
-		}
-
-		// Поршень: ходит только вверх-вниз
-		if (m_pistonNode)
-		{
-			m_pistonNode->SetPosition(0.0f, pistonY);
-		}
-
-		// Шатун:
-		// Он "висит" на поршне, поэтому его позиция (0,0) совпадает с центром пальца поршня.
-		// Нам нужно только повернуть его на угол Beta.
-		// Обрати внимание: наклон шатуна противоположен смещению коленвала по X,
-		// но asin автоматически даёт правильный знак.
-		if (m_rodNode)
-		{
-			m_rodNode->SetPosition(0.0f, pistonY);
-			m_rodNode->SetRotation(betaDeg);
-		}
-
-		// Рекурсивный апдейт детей (если у них есть своя логика)
 		CompositeObject::Update(dt);
 	}
 
 private:
-	void BuildEngine()
+	void BuildStaticBlock()
 	{
-		// --- Параметры двигателя ---
-		m_crankRadius = 35.0f;
-		m_rodLength = 90.0f;
+		auto blockGroup = std::make_shared<CompositeObject>();
 
-		// Размеры деталей
-		float pistonW = 54.0f;
-		float pistonH = 45.0f;
-		float cylWallThickness = 10.0f;
-		float cylHeight = 180.0f;
+		// 1. Картер (Нижняя широкая часть)
+		// Рисуем большой прямоугольник снизу
+		blockGroup->AddChild(std::make_shared<Rectangle>(
+			Rect{ 0, -50, 160, 120 },
+			Palette::CastIron));
 
-		// 1. Блок цилиндров (Статика)
-		// Центр блока визуально сместим вверх, чтобы коленвал был внизу
-		auto engineBlock = std::make_shared<CompositeObject>();
+		// 2. Блок цилиндра (Средняя часть)
+		blockGroup->AddChild(std::make_shared<Rectangle>(
+			Rect{ 0, 70, 100, 140 },
+			Palette::CastIron));
 
-		// Левая стенка
-		// Rect: x, y - центр фигуры
-		engineBlock->AddChild(std::make_shared<Rectangle>(
-			Rect{ -(pistonW / 2 + cylWallThickness / 2), m_crankRadius + 40, cylWallThickness, cylHeight },
-			EngineColors::DarkGrey));
+		// 3. Гильза цилиндра (Внутренняя полость)
+		// Это тот самый голубой прямоугольник, внутри которого ходит поршень
+		blockGroup->AddChild(std::make_shared<Rectangle>(
+			Rect{ 0, 70, m_cylinderWidth, m_cylinderHeight },
+			Palette::CylinderInner));
 
-		// Правая стенка
-		engineBlock->AddChild(std::make_shared<Rectangle>(
-			Rect{ (pistonW / 2 + cylWallThickness / 2), m_crankRadius + 40, cylWallThickness, cylHeight },
-			EngineColors::DarkGrey));
-
-		AddChild(engineBlock);
-
-		// 2. Коленчатый вал (Crankshaft)
-		// Вращается вокруг (0,0) сцены
-		m_crankShaftNode = std::make_shared<CompositeObject>();
-
-		// Противовес (большой круг, смещенный вниз от центра вращения)
-		auto counterWeight = std::make_shared<Circle>(
-			Point{ 0, -20 },
-			EngineColors::Steel,
-			32.0f);
-		m_crankShaftNode->AddChild(counterWeight);
-
-		// Щека коленвала (прямоугольник, соединяющий центр и палец)
-		m_crankShaftNode->AddChild(std::make_shared<Rectangle>(
-			Rect{ 0, m_crankRadius / 2, 15, m_crankRadius },
-			EngineColors::Steel));
-
-		// Шейка шатуна (Crank Pin) - красная точка крепления
-		auto crankPin = std::make_shared<Circle>(
-			Point{ 0, m_crankRadius },
-			EngineColors::Red,
-			8.0f);
-		m_crankShaftNode->AddChild(crankPin);
-
-		AddChild(m_crankShaftNode);
-
-		// 3. Шатун (Connecting Rod)
-		// Важный момент: Pivot point (0,0) этого узла - это верхняя точка (где поршень).
-		// Поэтому геометрию внутри узла мы смещаем вниз.
-		m_rodNode = std::make_shared<CompositeObject>();
-
-		// Тело шатуна. Длина L. Центр прямоугольника должен быть на L/2 вниз.
-		auto rodBody = std::make_shared<Rectangle>(
-			Rect{ 0, -m_rodLength / 2.0f, 12.0f, m_rodLength },
-			EngineColors::DarkSteel);
-		m_rodNode->AddChild(rodBody);
-
-		// Нижняя головка шатуна (крепится к коленвалу)
-		auto rodBottomCap = std::make_shared<Circle>(
-			Point{ 0, -m_rodLength },
-			EngineColors::DarkSteel,
-			14.0f);
-		m_rodNode->AddChild(rodBottomCap);
-
-		// Верхняя головка шатуна (крепится к поршню)
-		auto rodTopCap = std::make_shared<Circle>(
-			Point{ 0, 0 },
-			EngineColors::DarkSteel,
-			10.0f);
-		m_rodNode->AddChild(rodTopCap);
-
-		AddChild(m_rodNode);
-
-		// 4. Поршень (Piston)
-		m_pistonNode = std::make_shared<CompositeObject>();
-
-		// Тело поршня
-		m_pistonNode->AddChild(std::make_shared<Rectangle>(
-			Rect{ 0, 0, pistonW, pistonH },
-			EngineColors::Aluminum));
-
-		// Палец поршня (визуальный центр крепления)
-		m_pistonNode->AddChild(std::make_shared<Circle>(
-			Point{ 0, 0 },
-			EngineColors::DarkGrey,
-			6.0f));
-
-		// Кольца поршневые (для детализации)
-		m_pistonNode->AddChild(std::make_shared<Rectangle>(
-			Rect{ 0, 10, pistonW + 2, 3 }, EngineColors::DarkGrey));
-		m_pistonNode->AddChild(std::make_shared<Rectangle>(
-			Rect{ 0, 4, pistonW + 2, 3 }, EngineColors::DarkGrey));
-
-		AddChild(m_pistonNode);
+		AddChild(blockGroup);
 	}
 
-private:
-	// Ссылки на подвижные узлы для анимации
-	std::shared_ptr<CompositeObject> m_crankShaftNode;
-	std::shared_ptr<CompositeObject> m_pistonNode;
-	std::shared_ptr<CompositeObject> m_rodNode;
+	void BuildMovingParts()
+	{
+		// --- Коленвал ---
+		m_crankShaft = std::make_shared<CompositeObject>();
+		m_crankShaft->SetPosition(0, -50); // Центр вращения внизу, в картере
+
+		// Противовес (Зеленоватый сектор)
+		// Имитируем форму "топора" двумя кругами и прямоугольником или просто большим кругом
+		auto counterWeight = std::make_shared<Circle>(
+			Point{ 0, -20 }, Palette::CrankGreen, 45.0);
+		m_crankShaft->AddChild(counterWeight);
+
+		// Ось вращения (маленький круг в центре)
+		m_crankShaft->AddChild(std::make_shared<Circle>(
+			Point{ 0, 0 }, Palette::DarkSteel, 10.0));
+
+		// Шейка шатуна (Crank Pin) - точка крепления шатуна
+		// Она смещена на радиус кривошипа
+		m_crankShaft->AddChild(std::make_shared<Circle>(
+			Point{ 0, m_crankRadius }, Palette::Steel, 8.0));
+
+		AddChild(m_crankShaft);
+
+		// --- Шатун ---
+		m_connRod = std::make_shared<CompositeObject>();
+		// По умолчанию ставим его в ВМТ (верхнюю точку)
+		m_connRod->SetPosition(0, -50 + m_crankRadius);
+
+		// Тело шатуна (Длинная палка)
+		// Смещаем геометрию вниз, чтобы (0,0) узла было в точке крепления к поршню (как обсуждали)
+		m_connRod->AddChild(std::make_shared<Rectangle>(
+			Rect{ 0, -m_rodLength / 2.0, 14, m_rodLength },
+			Palette::DarkSteel));
+
+		// Нижняя головка шатуна
+		m_connRod->AddChild(std::make_shared<Circle>(
+			Point{ 0, -m_rodLength }, Palette::DarkSteel, 16.0));
+
+		// Верхняя головка шатуна
+		m_connRod->AddChild(std::make_shared<Circle>(
+			Point{ 0, 0 }, Palette::DarkSteel, 12.0));
+
+		AddChild(m_connRod);
+
+		// --- Поршень ---
+		m_piston = std::make_shared<CompositeObject>();
+		// Позиция: Центр коленвала + Радиус + Длина шатуна
+		double startY = -50 + m_crankRadius + m_rodLength;
+		m_piston->SetPosition(0, startY);
+
+		// Основное тело
+		m_piston->AddChild(std::make_shared<Rectangle>(
+			Rect{ 0, 0, m_pistonWidth, m_pistonHeight },
+			Palette::Steel));
+
+		// Компрессионные кольца (Детализация - две темные полоски)
+		m_piston->AddChild(std::make_shared<Rectangle>(
+			Rect{ 0, 10, m_pistonWidth, 3 }, Palette::DarkSteel));
+		m_piston->AddChild(std::make_shared<Rectangle>(
+			Rect{ 0, 4, m_pistonWidth, 3 }, Palette::DarkSteel));
+
+		// Палец поршня (В центре)
+		m_piston->AddChild(std::make_shared<Circle>(
+			Point{ 0, -5 }, Palette::DarkSteel, 8.0));
+
+		AddChild(m_piston);
+	}
+
+	void BuildCylinderHead()
+	{
+		auto headGroup = std::make_shared<CompositeObject>();
+		double headY = 70 + m_cylinderHeight / 2.0 + 15; // Чуть выше блока
+
+		// 1. Головка блока (Крышка)
+		headGroup->AddChild(std::make_shared<Rectangle>(
+			Rect{ 0, headY, 120, 50 },
+			Palette::CastIron));
+
+		// 2. Впускной канал (Труба слева) - повернутый прямоугольник
+		auto intakePipe = std::make_shared<Rectangle>(
+			Rect{ -50, headY + 10, 60, 15 }, Palette::CastIron, 20.0 // Поворот
+		);
+		headGroup->AddChild(intakePipe);
+
+		// Внутренность трубы (воздух)
+		headGroup->AddChild(std::make_shared<Rectangle>(
+			Rect{ -50, headY + 10, 60, 8 }, Palette::CylinderInner, 20.0));
+
+		// 3. Выпускной канал (Труба справа)
+		auto exhaustPipe = std::make_shared<Rectangle>(
+			Rect{ 50, headY + 10, 60, 15 }, Palette::CastIron, -20.0);
+		headGroup->AddChild(exhaustPipe);
+
+		// Внутренность трубы
+		headGroup->AddChild(std::make_shared<Rectangle>(
+			Rect{ 50, headY + 10, 60, 8 }, Palette::CylinderInner, -20.0));
+
+		// 4. Клапаны
+		double valveY = headY - 10;
+		// Левый клапан
+		headGroup->AddChild(std::make_shared<Rectangle>(
+			Rect{ -15, valveY, 4, 35 }, Palette::ValveColor));
+		headGroup->AddChild(std::make_shared<Rectangle>( // Тарелка клапана
+			Rect{ -15, valveY - 18, 16, 5 }, Palette::ValveColor));
+
+		// Правый клапан
+		headGroup->AddChild(std::make_shared<Rectangle>(
+			Rect{ 15, valveY, 4, 35 }, Palette::ValveColor));
+		headGroup->AddChild(std::make_shared<Rectangle>( // Тарелка клапана
+			Rect{ 15, valveY - 18, 16, 5 }, Palette::ValveColor));
+
+		// 5. Свеча зажигания (По центру)
+		headGroup->AddChild(std::make_shared<Rectangle>(
+			Rect{ 0, headY + 20, 10, 25 }, Palette::SparkPlug));
+		// Электрод
+		headGroup->AddChild(std::make_shared<Rectangle>(
+			Rect{ 0, headY, 3, 15 }, Palette::DarkSteel));
+
+		AddChild(headGroup);
+	}
+
+	// Указатели для будущей анимации
+	std::shared_ptr<CompositeObject> m_crankShaft;
+	std::shared_ptr<CompositeObject> m_piston;
+	std::shared_ptr<CompositeObject> m_connRod;
 
 	// Параметры
-	float m_crankRadius;
-	float m_rodLength;
-
-	// Состояние
-	float m_crankAngleDegrees = 0.0f;
-	float m_rpm = 120.0f; // Оборотов в минуту (визуально, множитель скорости)
+	double m_pistonWidth;
+	double m_pistonHeight;
+	double m_cylinderWidth;
+	double m_cylinderHeight;
+	double m_crankRadius;
+	double m_rodLength;
 };

@@ -10,7 +10,6 @@ public:
 		: GuiApplication(width, height, title)
 	{
 		auto engine = std::make_shared<EngineAssembly>();
-		engine->SetScale(0.002);
 
 		m_root.AddChild(engine);
 		m_lastTime = glfwGetTime();

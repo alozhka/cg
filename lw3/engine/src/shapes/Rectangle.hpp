@@ -20,12 +20,11 @@ public:
 		ApplyTransform();
 
 		m_color.ApplyColor();
-		glBegin(GL_LINE_LOOP);
+		glBegin(GL_QUADS);
 
 		double centerX = m_width / 2;
 		double centerY = m_height / 2;
 
-		glBegin(GL_QUADS);
 		glVertex2d(-centerX, -centerY);
 		glVertex2d(centerX, -centerY);
 		glVertex2d(centerX, centerY);
