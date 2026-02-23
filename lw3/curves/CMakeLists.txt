@@ -19,6 +19,7 @@ FetchContent_MakeAvailable(glfw)
 find_package(OpenGL REQUIRED)
 
 add_executable(curves main.cpp
-        src/app/GuiApplication.cpp)
+        src/app/GuiApplication.cpp
+        src/CurveBezier.hpp)
 
 target_link_libraries(curves glfw OpenGL::GL)
