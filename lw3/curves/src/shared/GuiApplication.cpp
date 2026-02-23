@@ -1,14 +1,7 @@
 #include "GuiApplication.h"
 
+#include <algorithm>
 #include <stdexcept>
-
-namespace
-{
-void FrameBufferSizeCallback(GLFWwindow*, int width, int height)
-{
-	glViewport(0, 0, width, height);
-}
-} // namespace
 
 GuiApplication::GuiApplication(int width, int height, const std::string& title)
 {
@@ -26,8 +19,11 @@ GuiApplication::GuiApplication(int width, int height, const std::string& title)
 
 	glfwMakeContextCurrent(m_window);
 	glfwSetFramebufferSizeCallback(m_window, &FrameBufferSizeCallback);
+	glfwSetWindowUserPointer(m_window, this);
 
-	glViewport(0, 0, width, height);
+	glfwSetMouseButtonCallback(m_window, &GuiApplication::MouseButtonCallback);
+	glfwSetCursorPosCallback(m_window, &GuiApplication::CursorPosCallback);
+
 	glClearColor(0.2, 0.2, 0.2, 1);
 }
 
@@ -38,6 +34,47 @@ GuiApplication::~GuiApplication()
 		glfwDestroyWindow(m_window);
 	}
 	glfwTerminate();
+}
+
+void GuiApplication::OnMouseButton(int button, int action, Point2D p)
+{
+}
+
+void GuiApplication::OnMouseMove(Point2D p)
+{
+}
+
+void GuiApplication::MouseButtonCallback(GLFWwindow* window, int button, int action, int)
+{
+	double x, y;
+	glfwGetCursorPos(window, &x, &y);
+	auto* app = static_cast<GuiApplication*>(glfwGetWindowUserPointer(window));
+	app->OnMouseButton(button, action, app->NormalizeCoords(x, y));
+}
+
+void GuiApplication::CursorPosCallback(GLFWwindow* window, double x, double y)
+{
+	auto* app = static_cast<GuiApplication*>(glfwGetWindowUserPointer(window));
+	app->OnMouseMove(app->NormalizeCoords(x, y));
+}
+
+void GuiApplication::FrameBufferSizeCallback(GLFWwindow*, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
+
+Point2D GuiApplication::NormalizeCoords(double x, double y) const
+{
+	int w, h;
+	glfwGetWindowSize(m_window, &w, &h);
+
+	double normalizedX = (x / static_cast<double>(w)) * 2 - 1;
+	double normalizedY = 1 - (y / static_cast<double>(h)) * 2;
+
+	normalizedX = std::clamp(normalizedX, -1.0, 1.0);
+	normalizedY = std::clamp(normalizedY, -1.0, 1.0);
+
+	return Point2D{ normalizedX, normalizedY };
 }
 
 void GuiApplication::MainLoop()

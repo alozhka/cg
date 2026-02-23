@@ -1,4 +1,5 @@
 #pragma once
+#include "shared/Point2D.hpp"
 #include <GLFW/glfw3.h>
 #include <vector>
 
@@ -19,6 +20,36 @@ public:
 		DrawControlPoints();
 	}
 
+	void SetControlPoint(size_t index, double x, double y)
+	{
+		if (index < m_controlPoints.size())
+		{
+			m_controlPoints[index].x = x;
+			m_controlPoints[index].y = y;
+			CalculateCurve();
+		}
+	}
+
+	std::optional<size_t> GetControlPointIndexAt(Point2D p, double radius) const
+	{
+		std::optional<size_t> best = std::nullopt;
+		double bestDist2 = radius * radius;
+
+		for (size_t i = 0; i < m_controlPoints.size(); ++i)
+		{
+			double dx = p.x - m_controlPoints[i].x;
+			double dy = p.y - m_controlPoints[i].y;
+			double d2 = dx * dx + dy * dy;
+			if (d2 < bestDist2)
+			{
+				bestDist2 = d2;
+				best = i;
+			}
+		}
+
+		return best;
+	}
+
 private:
 	void DrawStripeLines()
 	{
@@ -28,7 +59,7 @@ private:
 		glBegin(GL_LINE_STRIP);
 		for (const Point2D& pt : m_controlPoints)
 		{
-			glVertex2f(pt.x, pt.y);
+			glVertex2d(pt.x, pt.y);
 		}
 		glEnd();
 		glDisable(GL_LINE_STIPPLE);
@@ -41,20 +72,20 @@ private:
 		glBegin(GL_LINE_STRIP);
 		for (const Point2D& pt : m_curveVertices)
 		{
-			glVertex2f(pt.x, pt.y);
+			glVertex2d(pt.x, pt.y);
 		}
 		glEnd();
 	}
 
 	void DrawControlPoints()
 	{
-		glLineWidth(1.0);
+		glLineWidth(1);
 		glColor3f(1, 0, 0);
 		glPointSize(12);
 		glBegin(GL_POINTS);
 		for (const Point2D& pt : m_controlPoints)
 		{
-			glVertex2f(pt.x, pt.y);
+			glVertex2d(pt.x, pt.y);
 		}
 		glEnd();
 	}
@@ -63,35 +94,44 @@ private:
 	{
 		m_curveVertices.clear();
 
-		for (int i = 0; i <= m_segments; ++i)
+		for (size_t i = 0; i <= m_segments; ++i)
 		{
-			float t = static_cast<float>(i) / static_cast<float>(m_segments);
-
-			float u = 1.0f - t;
-			float tt = t * t;
-			float uu = u * u;
-			float uuu = uu * u;
-			float ttt = tt * t;
-
-			Point2D p{};
-			p.x = uuu * m_controlPoints[0].x + 3 * uu * t * m_controlPoints[1].x + 3 * u * tt * m_controlPoints[2].x + ttt * m_controlPoints[3].x;
-			p.y = uuu * m_controlPoints[0].y + 3 * uu * t * m_controlPoints[1].y + 3 * u * tt * m_controlPoints[2].y + ttt * m_controlPoints[3].y;
-
+			double t = static_cast<double>(i) / static_cast<double>(m_segments);
+			Point2D p = CalculateCoords(t);
 			m_curveVertices.push_back(p);
 		}
 	}
 
-	struct Point2D
+	Point2D CalculateCoords(double t) const
 	{
-		float x, y;
-	};
+		double u = 1.0 - t;
+		double tt = t * t;
+		double uu = u * u;
+		double uuu = uu * u;
+		double ttt = tt * t;
+
+		Point2D p{};
+
+		// B(t) = (1-t)^3*P0 + 3*(1-t)^2*t*P1 + 3*(1-t)^2*t*P2 + t^3*P3
+		p.x = uuu * m_controlPoints[0].x
+			+ 3 * uu * t * m_controlPoints[1].x
+			+ 3 * u * tt * m_controlPoints[2].x
+			+ ttt * m_controlPoints[3].x;
+
+		p.y = uuu * m_controlPoints[0].y
+			+ 3 * uu * t * m_controlPoints[1].y
+			+ 3 * u * tt * m_controlPoints[2].y
+			+ ttt * m_controlPoints[3].y;
+
+		return p;
+	}
 
 	unsigned int m_segments;
 	std::vector<Point2D> m_curveVertices{};
 	std::vector<Point2D> m_controlPoints{
-		Point2D{ -0.8f, -0.5f },
-		Point2D{ -0.4f, 0.8f },
-		Point2D{ 0.4f, 0.8f },
-		Point2D{ 0.8f, -0.5f }
+		Point2D{ -0.8, -0.5 },
+		Point2D{ -0.4, 0.8 },
+		Point2D{ 0.4, 0.8 },
+		Point2D{ 0.8, -0.5 }
 	};
 };
