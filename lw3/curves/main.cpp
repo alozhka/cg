@@ -1,20 +1,23 @@
-#include "src/CurveBezier.hpp"
-#include "src/app/GuiApplication.h"
+#define GL_SILENCE_DEPRECATION
+#include "src/app/CurveDrawerApplication.hpp"
 
 #include <iostream>
-#define GL_SILENCE_DEPRECATION
+#include <ostream>
 
 int main()
 {
 	std::setlocale(LC_ALL, "ru_RU.UTF-8");
-	CurveBezier bezierCurve{ 100 };
-	GuiApplication app(800, 600, "Curves drawer");
 
-	auto onDraw = [&bezierCurve] {
-		bezierCurve.Draw();
-	};
-
-	app.MainLoop(onDraw);
+	try
+	{
+		CurveDrawerApplication app;
+		app.MainLoop();
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+		return EXIT_FAILURE;
+	}
 
 	return EXIT_SUCCESS;
 }

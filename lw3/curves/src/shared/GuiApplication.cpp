@@ -28,7 +28,7 @@ GuiApplication::GuiApplication(int width, int height, const std::string& title)
 	glfwSetFramebufferSizeCallback(m_window, &FrameBufferSizeCallback);
 
 	glViewport(0, 0, width, height);
-	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+	glClearColor(0.2, 0.2, 0.2, 1);
 }
 
 GuiApplication::~GuiApplication()
@@ -40,12 +40,12 @@ GuiApplication::~GuiApplication()
 	glfwTerminate();
 }
 
-void GuiApplication::MainLoop(const RenderCallback& onDraw)
+void GuiApplication::MainLoop()
 {
 	while (!glfwWindowShouldClose(m_window))
 	{
 		glfwPollEvents();
-		onDraw();
+		OnDraw();
 		glfwSwapBuffers(m_window);
 	}
 }
