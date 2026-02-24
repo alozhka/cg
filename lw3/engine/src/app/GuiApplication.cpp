@@ -4,6 +4,8 @@
 #include <stdexcept>
 
 GuiApplication::GuiApplication(int width, int height, const std::string& title)
+	: m_worldWidth(width)
+	, m_worldHeight(height)
 {
 	if (!glfwInit())
 	{
@@ -58,8 +60,13 @@ void GuiApplication::CursorPosCallback(GLFWwindow* window, double x, double y)
 	app->OnMouseMove(app->NormalizeCoords(x, y));
 }
 
-void GuiApplication::FrameBufferSizeCallback(GLFWwindow*, int width, int height)
+void GuiApplication::FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
 {
+	auto* app = static_cast<GuiApplication*>(glfwGetWindowUserPointer(window));
+
+	app->m_worldWidth = width;
+	app->m_worldHeight = height;
+
 	glViewport(0, 0, width, height);
 }
 
@@ -82,7 +89,26 @@ void GuiApplication::MainLoop()
 	while (!glfwWindowShouldClose(m_window))
 	{
 		glfwPollEvents();
+		ApplyProjectionMatrix();
 		OnDraw();
 		glfwSwapBuffers(m_window);
 	}
+}
+
+void GuiApplication::ApplyProjectionMatrix()
+{
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	double aspect = m_worldWidth / m_worldHeight;
+	double viewHeight = 2;
+	double viewWidth = aspect * viewHeight;
+
+	glOrtho(
+		-viewWidth / 2, +viewWidth / 2,
+		-viewHeight / 2, +viewHeight / 2,
+		-1, 1);
+
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 }

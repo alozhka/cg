@@ -18,6 +18,7 @@ protected:
 	virtual void OnMouseMove(Point p);
 
 private:
+	void ApplyProjectionMatrix();
 	Point NormalizeCoords(double x, double y) const;
 
 	static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
@@ -25,4 +26,5 @@ private:
 	static void FrameBufferSizeCallback(GLFWwindow*, int width, int height);
 
 	GLFWwindow* m_window;
+	int m_worldWidth = 0, m_worldHeight = 0;
 };
