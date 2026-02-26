@@ -9,6 +9,9 @@ class GuiApplication
 public:
 	void MainLoop();
 
+	GuiApplication(const GuiApplication&) = delete;
+	GuiApplication& operator=(const GuiApplication&) = delete;
+
 protected:
 	GuiApplication(int width, int height, const std::string& title);
 	virtual ~GuiApplication();
@@ -21,9 +24,11 @@ private:
 	void ApplyProjectionMatrix();
 	Point NormalizeCoords(double x, double y) const;
 
-	static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+	static void MouseButtonCallback(GLFWwindow* window, int button, int action, int);
 	static void CursorPosCallback(GLFWwindow* window, double x, double y);
 	static void FrameBufferSizeCallback(GLFWwindow*, int width, int height);
+
+	static GuiApplication* GetInstance(GLFWwindow* window);
 
 	GLFWwindow* m_window;
 	int m_worldWidth = 0, m_worldHeight = 0;

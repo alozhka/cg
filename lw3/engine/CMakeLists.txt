@@ -25,9 +25,9 @@ add_executable(engine main.cpp
         src/shared/CompositeObject.hpp
         src/shapes/Rectangle.hpp
         src/shared/Point.hpp
-        src/shared/Rect.h
         src/shapes/Circle.hpp
         src/engine/EngineAssembly.hpp
-        src/app/EngineApplication.h)
+        src/app/EngineApplication.h
+        src/engine/CrankShaft.hpp)
 
 target_link_libraries(engine glfw OpenGL::GL)

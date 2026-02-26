@@ -1,15 +1,14 @@
 #pragma once
 #include "../shared/Color.hpp"
-#include "../shared/Rect.h"
 #include "../shared/SceneObject.hpp"
 
 class Rectangle : public SceneObject
 {
 public:
-	Rectangle(const Rect& rect, const Color& color, double rotation = 0)
-		: SceneObject({ rect.x, rect.y }, rotation, 1)
-		, m_width(rect.width)
-		, m_height(rect.height)
+	Rectangle(Point p, double width, double height, const Color& color, double rotation = 0)
+		: SceneObject(p, rotation, 1)
+		, m_width(width)
+		, m_height(height)
 		, m_color(color)
 	{
 	}

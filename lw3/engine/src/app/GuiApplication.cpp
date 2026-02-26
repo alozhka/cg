@@ -48,26 +48,36 @@ void GuiApplication::OnMouseMove(Point p)
 
 void GuiApplication::MouseButtonCallback(GLFWwindow* window, int button, int action, int)
 {
-	double x, y;
-	glfwGetCursorPos(window, &x, &y);
-	auto* app = static_cast<GuiApplication*>(glfwGetWindowUserPointer(window));
-	app->OnMouseButton(button, action, app->NormalizeCoords(x, y));
+	if (GuiApplication* app = GetInstance(window))
+	{
+		double x, y;
+		glfwGetCursorPos(window, &x, &y);
+		app->OnMouseButton(button, action, app->NormalizeCoords(x, y));
+	}
 }
 
 void GuiApplication::CursorPosCallback(GLFWwindow* window, double x, double y)
 {
-	auto* app = static_cast<GuiApplication*>(glfwGetWindowUserPointer(window));
-	app->OnMouseMove(app->NormalizeCoords(x, y));
+	if (GuiApplication* app = GetInstance(window))
+	{
+		app->OnMouseMove(app->NormalizeCoords(x, y));
+	}
 }
 
 void GuiApplication::FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
 {
-	auto* app = static_cast<GuiApplication*>(glfwGetWindowUserPointer(window));
+	if (GuiApplication* app = GetInstance(window))
+	{
+		app->m_worldWidth = width;
+		app->m_worldHeight = height;
 
-	app->m_worldWidth = width;
-	app->m_worldHeight = height;
+		glViewport(0, 0, width, height);
+	}
+}
 
-	glViewport(0, 0, width, height);
+GuiApplication* GuiApplication::GetInstance(GLFWwindow* window)
+{
+	return static_cast<GuiApplication*>(glfwGetWindowUserPointer(window));
 }
 
 Point GuiApplication::NormalizeCoords(double x, double y) const

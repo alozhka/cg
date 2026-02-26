@@ -23,15 +23,22 @@ protected:
 		glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		double t = glfwGetTime();
-		double dt = t - m_lastTime;
-		m_lastTime = t;
+		double dt = GetDeltaTime();
 
 		m_root.Update(dt);
 		m_root.Draw();
 	}
 
 private:
+	double GetDeltaTime()
+	{
+		double t = glfwGetTime();
+		double dt = t - m_lastTime;
+		m_lastTime = t;
+
+		return dt;
+	}
+
 	CompositeObject m_root{};
 	double m_lastTime = 0;
 };

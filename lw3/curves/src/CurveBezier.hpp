@@ -57,11 +57,13 @@ private:
 		glEnable(GL_LINE_STIPPLE);
 		glLineStipple(1, 0x00FF);
 		glBegin(GL_LINE_STRIP);
+
 		for (const Point2D& pt : m_controlPoints)
 		{
 			glVertex2d(pt.x, pt.y);
 		}
 		glEnd();
+
 		glDisable(GL_LINE_STIPPLE);
 	}
 
@@ -70,10 +72,12 @@ private:
 		glColor3f(1, 1, 1);
 		glLineWidth(2);
 		glBegin(GL_LINE_STRIP);
+
 		for (const Point2D& pt : m_curveVertices)
 		{
 			glVertex2d(pt.x, pt.y);
 		}
+
 		glEnd();
 	}
 
@@ -83,10 +87,12 @@ private:
 		glColor3f(1, 0, 0);
 		glPointSize(12);
 		glBegin(GL_POINTS);
+
 		for (const Point2D& pt : m_controlPoints)
 		{
 			glVertex2d(pt.x, pt.y);
 		}
+
 		glEnd();
 	}
 

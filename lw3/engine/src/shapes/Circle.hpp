@@ -21,7 +21,7 @@ public:
 
 		m_color.ApplyColor();
 		glBegin(GL_TRIANGLE_FAN);
-		glVertex2f(0, 0);
+		glVertex2d(0, 0);
 		for (int i = 0; i <= m_segments; ++i)
 		{
 			double theta = 2 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(m_segments);
