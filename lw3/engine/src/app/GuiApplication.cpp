@@ -66,9 +66,7 @@ void GuiApplication::FrameBufferSizeCallback(GLFWwindow* window, int width, int 
 {
 	if (GuiApplication* app = GetInstance(window))
 	{
-		app->m_worldWidth = width;
-		app->m_worldHeight = height;
-
+		app->m_currentAspectRatio = static_cast<double>(width) / height;
 		glViewport(0, 0, width, height);
 	}
 }
@@ -108,7 +106,22 @@ void GuiApplication::ApplyProjectionMatrix()
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	glOrtho(0, m_worldWidth, 0, m_worldHeight, -1, 1);
+	double viewWidth = m_worldWidth;
+	double viewHeight = m_worldHeight;
+
+	if (m_currentAspectRatio > 1)
+	{
+		viewWidth = viewHeight * m_currentAspectRatio;
+	}
+	else
+	{
+		viewHeight = viewWidth / m_currentAspectRatio;
+	}
+
+	glOrtho(
+		-viewWidth * 0.5, viewWidth * 0.5,
+		-viewHeight * 0.5, viewHeight * 0.5,
+		-1, 1);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();

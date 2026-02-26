@@ -32,4 +32,5 @@ private:
 
 	GLFWwindow* m_window;
 	int m_worldWidth = 0, m_worldHeight = 0;
+	double m_currentAspectRatio = 0;
 };
