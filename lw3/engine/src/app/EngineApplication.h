@@ -9,11 +9,6 @@ public:
 	EngineApplication(int width, int height, const std::string& title)
 		: GuiApplication(width, height, title)
 	{
-		auto engine = std::make_shared<EngineAssembly>();
-		engine->SetPosition(0, -0.3);
-		engine->SetScale(0.005);
-
-		m_root.AddChild(engine);
 		m_lastTime = glfwGetTime();
 	}
 
@@ -25,8 +20,8 @@ protected:
 
 		double dt = GetDeltaTime();
 
-		m_root.Update(dt);
-		m_root.Draw();
+		m_engine.Update(dt);
+		m_engine.Draw();
 	}
 
 private:
@@ -39,6 +34,6 @@ private:
 		return dt;
 	}
 
-	CompositeObject m_root{};
+	EngineAssembly m_engine{};
 	double m_lastTime = 0;
 };

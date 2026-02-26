@@ -25,8 +25,6 @@ GuiApplication::GuiApplication(int width, int height, const std::string& title)
 
 	glfwSetMouseButtonCallback(m_window, &GuiApplication::MouseButtonCallback);
 	glfwSetCursorPosCallback(m_window, &GuiApplication::CursorPosCallback);
-
-	glClearColor(0.2, 0.2, 0.2, 1);
 }
 
 GuiApplication::~GuiApplication()
@@ -110,14 +108,7 @@ void GuiApplication::ApplyProjectionMatrix()
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	double aspect = m_worldWidth / m_worldHeight;
-	double viewHeight = 2;
-	double viewWidth = aspect * viewHeight;
-
-	glOrtho(
-		-viewWidth / 2, +viewWidth / 2,
-		-viewHeight / 2, +viewHeight / 2,
-		-1, 1);
+	glOrtho(0, m_worldWidth, 0, m_worldHeight, -1, 1);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
