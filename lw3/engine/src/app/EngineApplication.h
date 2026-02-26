@@ -1,5 +1,5 @@
 #pragma once
-#include "../engine/EngineAssembly.hpp"
+#include "../engine/Engine.hpp"
 #include "../shared/CompositeObject.hpp"
 #include "GuiApplication.h"
 
@@ -9,6 +9,7 @@ public:
 	EngineApplication(int width, int height, const std::string& title)
 		: GuiApplication(width, height, title)
 	{
+		m_engine.SetScale(1.2);
 		m_lastTime = glfwGetTime();
 	}
 
@@ -34,6 +35,6 @@ private:
 		return dt;
 	}
 
-	EngineAssembly m_engine{};
+	Engine m_engine{};
 	double m_lastTime = 0;
 };

@@ -27,7 +27,7 @@ add_executable(engine main.cpp
         src/shapes/Rectangle.hpp
         src/shared/Point.hpp
         src/shapes/Circle.hpp
-        src/engine/EngineAssembly.hpp
+        src/engine/Engine.hpp
         src/app/EngineApplication.h
         src/engine/CrankShaft.hpp)
 

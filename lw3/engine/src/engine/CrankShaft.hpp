@@ -1,7 +1,7 @@
 #pragma once
 #include "../shared/CompositeObject.hpp"
 
-namespace Engine
+namespace EngineParts
 {
 class CrankShaft final : public CompositeObject
 {
@@ -15,23 +15,25 @@ public:
 private:
 	void Init()
 	{
-		m_root->SetPosition(0, -50); // Центр вращения внизу, в картере
-
-		// Противовес
 		auto counterWeight = std::make_shared<Circle>(
-			Point{ 0, -20 }, Palette::CrankGreen, 45.0);
-		m_root->AddChild(counterWeight);
+			Point{ 0, -20 },
+			Palette::CrankGreen,
+			45.0);
+		AddChild(counterWeight);
 
-		// Ось вращения
-		m_root->AddChild(std::make_shared<Circle>(
-			Point{ 0, 0 }, Palette::DarkSteel, 10.0));
+		auto rotationAxis = std::make_shared<Circle>(
+			Point{ 0, 0 },
+			Palette::DarkSteel,
+			10.0);
+		AddChild(rotationAxis);
 
-		// Шейка шатуна
-		m_root->AddChild(std::make_shared<Circle>(
-			Point{ 0, m_radius }, Palette::Steel, 8.0));
+		auto connectingRodNeck = std::make_shared<Circle>(
+			Point{ 0, m_radius },
+			Palette::Steel,
+			8.0);
+		AddChild(connectingRodNeck);
 	}
 
 	double m_radius;
-	std::unique_ptr<CompositeObject> m_root = std::make_unique<CompositeObject>();
 };
 }; // namespace Engine

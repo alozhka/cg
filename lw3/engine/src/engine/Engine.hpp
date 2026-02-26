@@ -4,14 +4,15 @@
 #include "../shared/Color.hpp"
 #include "../shared/CompositeObject.hpp"
 #include "../shared/SceneObject.hpp"
+#include "ConnectingRod.h"
 #include "CrankShaft.hpp"
 #include <memory>
 #include <vector>
 
-class EngineAssembly : public CompositeObject
+class Engine : public CompositeObject
 {
 public:
-	EngineAssembly()
+	Engine()
 	{
 		m_pistonWidth = 60.0;
 		m_pistonHeight = 45.0;
@@ -54,28 +55,13 @@ private:
 	void BuildMovingParts()
 	{
 		// --- Коленвал ---
-		m_crankShaft = std::make_unique<Engine::CrankShaft>(m_crankRadius);
+		m_crankShaft = std::make_unique<EngineParts::CrankShaft>(m_crankRadius);
+		m_crankShaft->SetPosition(0, -50);
 		AddChild(m_crankShaft);
 
 		// --- Шатун ---
-		m_connRod = std::make_shared<CompositeObject>();
-		// По умолчанию ставим его в ВМТ (верхнюю точку)
+		m_connRod = std::make_shared<EngineParts::ConnectingRod>(m_rodLength);
 		m_connRod->SetPosition(0, -50 + m_crankRadius);
-
-		// Тело шатуна (Длинная палка)
-		// Смещаем геометрию вниз, чтобы (0,0) узла было в точке крепления к поршню (как обсуждали)
-		m_connRod->AddChild(std::make_shared<Rectangle>(
-			Point{ 0, -m_rodLength / 2.0 }, 14, m_rodLength,
-			Palette::DarkSteel));
-
-		// Нижняя головка шатуна
-		m_connRod->AddChild(std::make_shared<Circle>(
-			Point{ 0, -m_rodLength }, Palette::DarkSteel, 16.0));
-
-		// Верхняя головка шатуна
-		m_connRod->AddChild(std::make_shared<Circle>(
-			Point{ 0, 0 }, Palette::DarkSteel, 12.0));
-
 		AddChild(m_connRod);
 
 		// --- Поршень ---

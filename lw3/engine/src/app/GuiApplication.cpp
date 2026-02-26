@@ -22,6 +22,7 @@ GuiApplication::GuiApplication(int width, int height, const std::string& title)
 	glfwMakeContextCurrent(m_window);
 	glfwSetFramebufferSizeCallback(m_window, &FrameBufferSizeCallback);
 	glfwSetWindowUserPointer(m_window, this);
+	SetupInitialViewport();
 
 	glfwSetMouseButtonCallback(m_window, &GuiApplication::MouseButtonCallback);
 	glfwSetCursorPosCallback(m_window, &GuiApplication::CursorPosCallback);
@@ -66,9 +67,7 @@ void GuiApplication::FrameBufferSizeCallback(GLFWwindow* window, int width, int 
 {
 	if (GuiApplication* app = GetInstance(window))
 	{
-		app->m_worldWidth = width;
-		app->m_worldHeight = height;
-
+		app->m_currentAspectRatio = static_cast<double>(width) / height;
 		glViewport(0, 0, width, height);
 	}
 }
@@ -92,6 +91,13 @@ Point GuiApplication::NormalizeCoords(double x, double y) const
 	return Point{ normalizedX, normalizedY };
 }
 
+void GuiApplication::SetupInitialViewport()
+{
+	int fbWidth, fbHeight;
+	glfwGetWindowSize(m_window, &fbWidth, &fbHeight);
+	FrameBufferSizeCallback(m_window, fbWidth, fbHeight);
+}
+
 void GuiApplication::MainLoop()
 {
 	while (!glfwWindowShouldClose(m_window))
@@ -108,7 +114,22 @@ void GuiApplication::ApplyProjectionMatrix()
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	glOrtho(0, m_worldWidth, 0, m_worldHeight, -1, 1);
+	double viewWidth = m_worldWidth;
+	double viewHeight = m_worldHeight;
+
+	if (m_currentAspectRatio > 1)
+	{
+		viewWidth = viewHeight * m_currentAspectRatio;
+	}
+	else
+	{
+		viewHeight = viewWidth / m_currentAspectRatio;
+	}
+
+	glOrtho(
+		-viewWidth * 0.5, viewWidth * 0.5,
+		-viewHeight * 0.5, viewHeight * 0.5,
+		-1, 1);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
