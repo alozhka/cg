@@ -29,6 +29,7 @@ add_executable(engine main.cpp
         src/shapes/Circle.hpp
         src/engine/Engine.hpp
         src/app/EngineApplication.h
-        src/engine/CrankShaft.hpp)
+        src/engine/CrankShaft.hpp
+        src/engine/Piston.hpp)
 
 target_link_libraries(engine glfw OpenGL::GL)

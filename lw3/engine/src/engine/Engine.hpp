@@ -4,8 +4,10 @@
 #include "../shared/Color.hpp"
 #include "../shared/CompositeObject.hpp"
 #include "../shared/SceneObject.hpp"
-#include "ConnectingRod.h"
+#include "ConnectingRod.hpp"
 #include "CrankShaft.hpp"
+#include "Piston.hpp"
+
 #include <memory>
 #include <vector>
 
@@ -35,56 +37,47 @@ public:
 private:
 	void BuildStaticBlock()
 	{
-		auto blockGroup = std::make_shared<CompositeObject>();
+		auto block = std::make_shared<CompositeObject>();
 
-		auto carter = std::make_shared<Rectangle>(Point{ 0, -50 }, 160, 120, Palette::CastIron);
-		blockGroup->AddChild(carter);
+		auto carter = std::make_shared<Rectangle>(
+			Point{ 0, -50 },
+			160,
+			120,
+			Palette::CastIron);
+		block->AddChild(carter);
 
-		// 2. Блок цилиндра (Средняя часть)
-		blockGroup->AddChild(std::make_shared<Rectangle>(Point{ 0, 70 }, 100, 140, Palette::CastIron));
+		auto cylinderBlock = std::make_shared<Rectangle>(
+			Point{ 0, 70 },
+			100,
+			140,
+			Palette::CastIron);
+		block->AddChild(cylinderBlock);
 
-		// 3. Гильза цилиндра (Внутренняя полость)
-		// Это тот самый голубой прямоугольник, внутри которого ходит поршень
-		blockGroup->AddChild(std::make_shared<Rectangle>(
-			Point{ 0, 70 }, m_cylinderWidth, m_cylinderHeight,
-			Palette::CylinderInner));
+		auto cylinderLiner = std::make_shared<Rectangle>(
+			Point{ 0, 70 },
+			m_cylinderWidth,
+			m_cylinderHeight,
+			Palette::CylinderInner);
+		block->AddChild(cylinderLiner);
 
-		AddChild(blockGroup);
+		AddChild(block);
 	}
 
 	void BuildMovingParts()
 	{
-		// --- Коленвал ---
+		constexpr int crankShaftCenter = -50;
+
 		m_crankShaft = std::make_unique<EngineParts::CrankShaft>(m_crankRadius);
-		m_crankShaft->SetPosition(0, -50);
+		m_crankShaft->SetPosition(0, crankShaftCenter);
 		AddChild(m_crankShaft);
 
-		// --- Шатун ---
 		m_connRod = std::make_shared<EngineParts::ConnectingRod>(m_rodLength);
-		m_connRod->SetPosition(0, -50 + m_crankRadius);
+		m_connRod->SetPosition(0, crankShaftCenter + m_crankRadius);
 		AddChild(m_connRod);
 
-		// --- Поршень ---
-		m_piston = std::make_shared<CompositeObject>();
+		m_piston = std::make_shared<EngineParts::Piston>(m_pistonWidth, m_pistonHeight);
 		// Позиция: Центр коленвала + Радиус + Длина шатуна
-		double startY = -50 + m_crankRadius + m_rodLength;
-		m_piston->SetPosition(0, startY);
-
-		// Основное тело
-		m_piston->AddChild(std::make_shared<Rectangle>(
-			Point{ 0, 0 }, m_pistonWidth, m_pistonHeight,
-			Palette::Steel));
-
-		// Компрессионные кольца (Детализация - две темные полоски)
-		m_piston->AddChild(std::make_shared<Rectangle>(
-			Point{ 0, 10 }, m_pistonWidth, 3, Palette::DarkSteel));
-		m_piston->AddChild(std::make_shared<Rectangle>(
-			Point{ 0, 4 }, m_pistonWidth, 3, Palette::DarkSteel));
-
-		// Палец поршня (В центре)
-		m_piston->AddChild(std::make_shared<Circle>(
-			Point{ 0, -5 }, Palette::DarkSteel, 8.0));
-
+		m_piston->SetPosition(0, crankShaftCenter + m_crankRadius + m_rodLength);
 		AddChild(m_piston);
 	}
 
