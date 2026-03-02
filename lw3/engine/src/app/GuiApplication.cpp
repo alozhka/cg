@@ -93,8 +93,9 @@ Point GuiApplication::NormalizeCoords(double x, double y) const
 
 void GuiApplication::SetupInitialViewport()
 {
-	Size size = GetWindowSize();
-	glViewport(0, 0, size.width, size.height);
+	int w, h;
+	glfwGetFramebufferSize(m_window, &w, &h);
+	glViewport(0, 0, w, h);
 }
 
 void GuiApplication::MainLoop()
