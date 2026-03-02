@@ -21,6 +21,11 @@ protected:
 	virtual void OnMouseMove(Point p);
 
 private:
+	struct Size
+	{
+		int width = 0, height = 0;
+	};
+
 	void ApplyProjectionMatrix();
 	Point NormalizeCoords(double x, double y) const;
 	void SetupInitialViewport();
@@ -29,9 +34,8 @@ private:
 	static void CursorPosCallback(GLFWwindow* window, double x, double y);
 	static void FrameBufferSizeCallback(GLFWwindow*, int width, int height);
 
+	Size GetWindowSize() const;
 	static GuiApplication* GetInstance(GLFWwindow* window);
 
 	GLFWwindow* m_window;
-	int m_worldWidth = 0, m_worldHeight = 0;
-	double m_currentAspectRatio = 0;
 };

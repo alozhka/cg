@@ -30,6 +30,7 @@ add_executable(engine main.cpp
         src/engine/Engine.hpp
         src/app/EngineApplication.h
         src/engine/CrankShaft.hpp
-        src/engine/Piston.hpp)
+        src/engine/Piston.hpp
+        src/engine/SparkPlug.hpp)
 
 target_link_libraries(engine glfw OpenGL::GL)

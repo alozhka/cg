@@ -1,5 +1,6 @@
 #pragma once
 #include "../shared/CompositeObject.hpp"
+#include "../shapes/Circle.hpp"
 
 namespace EngineParts
 {

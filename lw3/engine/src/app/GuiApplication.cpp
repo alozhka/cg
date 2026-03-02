@@ -4,8 +4,6 @@
 #include <stdexcept>
 
 GuiApplication::GuiApplication(int width, int height, const std::string& title)
-	: m_worldWidth(width)
-	, m_worldHeight(height)
 {
 	if (!glfwInit())
 	{
@@ -63,13 +61,16 @@ void GuiApplication::CursorPosCallback(GLFWwindow* window, double x, double y)
 	}
 }
 
-void GuiApplication::FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
+void GuiApplication::FrameBufferSizeCallback(GLFWwindow*, int width, int height)
 {
-	if (GuiApplication* app = GetInstance(window))
-	{
-		app->m_currentAspectRatio = static_cast<double>(width) / height;
-		glViewport(0, 0, width, height);
-	}
+	glViewport(0, 0, width, height);
+}
+
+GuiApplication::Size GuiApplication::GetWindowSize() const
+{
+	int w, h;
+	glfwGetWindowSize(m_window, &w, &h);
+	return { w, h };
 }
 
 GuiApplication* GuiApplication::GetInstance(GLFWwindow* window)
@@ -79,11 +80,10 @@ GuiApplication* GuiApplication::GetInstance(GLFWwindow* window)
 
 Point GuiApplication::NormalizeCoords(double x, double y) const
 {
-	int w, h;
-	glfwGetWindowSize(m_window, &w, &h);
+	Size size = GetWindowSize();
 
-	double normalizedX = (x / static_cast<double>(w)) * 2 - 1;
-	double normalizedY = 1 - (y / static_cast<double>(h)) * 2;
+	double normalizedX = (x / static_cast<double>(size.width)) * 2 - 1;
+	double normalizedY = 1 - (y / static_cast<double>(size.height)) * 2;
 
 	normalizedX = std::clamp(normalizedX, -1.0, 1.0);
 	normalizedY = std::clamp(normalizedY, -1.0, 1.0);
@@ -93,9 +93,8 @@ Point GuiApplication::NormalizeCoords(double x, double y) const
 
 void GuiApplication::SetupInitialViewport()
 {
-	int fbWidth, fbHeight;
-	glfwGetWindowSize(m_window, &fbWidth, &fbHeight);
-	FrameBufferSizeCallback(m_window, fbWidth, fbHeight);
+	Size size = GetWindowSize();
+	glViewport(0, 0, size.width, size.height);
 }
 
 void GuiApplication::MainLoop()
@@ -114,16 +113,19 @@ void GuiApplication::ApplyProjectionMatrix()
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	double viewWidth = m_worldWidth;
-	double viewHeight = m_worldHeight;
+	Size size = GetWindowSize();
 
-	if (m_currentAspectRatio > 1)
+	double viewWidth = size.width;
+	double viewHeight = size.height;
+	double currentAspectRatio = viewWidth / viewHeight;
+
+	if (currentAspectRatio > 1)
 	{
-		viewWidth = viewHeight * m_currentAspectRatio;
+		viewWidth = viewHeight * currentAspectRatio;
 	}
 	else
 	{
-		viewHeight = viewWidth / m_currentAspectRatio;
+		viewHeight = viewWidth / currentAspectRatio;
 	}
 
 	glOrtho(
