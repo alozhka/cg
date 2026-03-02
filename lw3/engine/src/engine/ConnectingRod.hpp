@@ -1,5 +1,6 @@
 #pragma once
 #include "../shared/CompositeObject.hpp"
+#include "../shapes/Circle.hpp"
 
 namespace EngineParts
 {
@@ -16,7 +17,6 @@ public:
 private:
 	void Init()
 	{
-		// Смещаем геометрию вниз, чтобы (0,0) узла было в точке крепления к поршню (как обсуждали)
 		AddChild(std::make_shared<Rectangle>(
 			Point{ 0, -m_rodLength / 2.0 }, 14, m_rodLength,
 			Palette::DarkSteel));

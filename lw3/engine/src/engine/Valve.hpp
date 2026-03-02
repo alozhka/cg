@@ -4,7 +4,7 @@
 
 namespace EngineParts
 {
-class Valve : public CompositeObject
+class Valve final : public CompositeObject
 {
 public:
 	Valve()

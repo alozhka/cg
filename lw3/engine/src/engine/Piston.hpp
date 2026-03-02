@@ -3,7 +3,7 @@
 
 namespace EngineParts
 {
-class Piston : public CompositeObject
+class Piston final : public CompositeObject
 {
 public:
 	Piston(double pistonWidth, double pistonHeight)

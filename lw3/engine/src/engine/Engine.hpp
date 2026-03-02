@@ -1,19 +1,19 @@
 #pragma once
-#include "../shapes/Circle.hpp"
 #include "../shapes/Rectangle.hpp"
 #include "../shared/Color.hpp"
 #include "../shared/CompositeObject.hpp"
 #include "../shared/SceneObject.hpp"
 #include "ConnectingRod.hpp"
 #include "CrankShaft.hpp"
+#include "Pipe.hpp"
 #include "Piston.hpp"
 #include "SparkPlug.hpp"
-#include "Valve.h"
+#include "Valve.hpp"
 
 #include <memory>
 #include <vector>
 
-class Engine : public CompositeObject
+class Engine final : public CompositeObject
 {
 public:
 	Engine()
@@ -93,26 +93,16 @@ private:
 			Point{ 0, headY }, 120, 50,
 			Palette::CastIron));
 
-		// 2. Впускной канал (Труба слева) - повернутый прямоугольник
-		auto intakePipe = std::make_shared<Rectangle>(
-			Point{ -50, headY + 10 }, 60, 15, Palette::CastIron, 20.0 // Поворот
-		);
-		headGroup->AddChild(intakePipe);
-
-		// Внутренность трубы (воздух)
-		headGroup->AddChild(std::make_shared<Rectangle>(
-			Point{ -50, headY + 10 }, 60, 8, Palette::CylinderInner, 20.0));
-
-		// 3. Выпускной канал (Труба справа)
-		auto exhaustPipe = std::make_shared<Rectangle>(
-			Point{ 50, headY + 10 }, 60, 15, Palette::CastIron, -20.0);
-		headGroup->AddChild(exhaustPipe);
-
-		// Внутренность трубы
-		headGroup->AddChild(std::make_shared<Rectangle>(
-			Point{ 50, headY + 10 }, 60, 8, Palette::CylinderInner, -20.0));
-
 		AddChild(headGroup);
+
+		// 2. Впускной канал (Труба слева) - повернутый прямоугольник
+		auto intakePipe = std::make_shared<EngineParts::Pipe>(-20.0);
+		intakePipe->SetPosition(-50, headY - 20);
+		AddChild(intakePipe);
+
+		auto exhaustPipe = std::make_shared<EngineParts::Pipe>(20);
+		exhaustPipe->SetPosition(50, headY - 20);
+		AddChild(exhaustPipe);
 
 		// 4. Клапаны
 		double valveY = headY - 10;

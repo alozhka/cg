@@ -4,7 +4,7 @@
 
 namespace EngineParts
 {
-class SparkPlug : public CompositeObject
+class SparkPlug final : public CompositeObject
 {
 public:
 	explicit SparkPlug()
