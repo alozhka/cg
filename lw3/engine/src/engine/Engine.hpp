@@ -7,6 +7,8 @@
 #include "ConnectingRod.hpp"
 #include "CrankShaft.hpp"
 #include "Piston.hpp"
+#include "SparkPlug.hpp"
+#include "Valve.h"
 
 #include <memory>
 #include <vector>
@@ -84,7 +86,7 @@ private:
 	void BuildCylinderHead()
 	{
 		auto headGroup = std::make_shared<CompositeObject>();
-		double headY = 70 + m_cylinderHeight / 2.0 + 15; // Чуть выше блока
+		double headY = 70 + m_cylinderHeight / 2.0 + 15;
 
 		// 1. Головка блока (Крышка)
 		headGroup->AddChild(std::make_shared<Rectangle>(
@@ -110,28 +112,22 @@ private:
 		headGroup->AddChild(std::make_shared<Rectangle>(
 			Point{ 50, headY + 10 }, 60, 8, Palette::CylinderInner, -20.0));
 
+		AddChild(headGroup);
+
 		// 4. Клапаны
 		double valveY = headY - 10;
-		// Левый клапан
-		headGroup->AddChild(std::make_shared<Rectangle>(
-			Point{ -15, valveY }, 4, 35, Palette::ValveColor));
-		headGroup->AddChild(std::make_shared<Rectangle>( // Тарелка клапана
-			Point{ -15, valveY - 18 }, 16, 5, Palette::ValveColor));
 
-		// Правый клапан
-		headGroup->AddChild(std::make_shared<Rectangle>(
-			Point{ 15, valveY }, 4, 35, Palette::ValveColor));
-		headGroup->AddChild(std::make_shared<Rectangle>( // Тарелка клапана
-			Point{ 15, valveY - 18 }, 16, 5, Palette::ValveColor));
+		auto leftValve = std::make_shared<EngineParts::Valve>();
+		leftValve->SetPosition(-15, valveY);
+		AddChild(leftValve);
 
-		// 5. Свеча зажигания (По центру)
-		headGroup->AddChild(std::make_shared<Rectangle>(
-			Point{ 0, headY + 20 }, 10, 25, Palette::SparkPlug));
-		// Электрод
-		headGroup->AddChild(std::make_shared<Rectangle>(
-			Point{ 0, headY }, 3, 15, Palette::DarkSteel));
+		auto rightValve = std::make_shared<EngineParts::Valve>();
+		rightValve->SetPosition(15, valveY);
+		AddChild(rightValve);
 
-		AddChild(headGroup);
+		auto sparkPlug = std::make_shared<EngineParts::SparkPlug>();
+		sparkPlug->SetPosition(0, headY);
+		AddChild(sparkPlug);
 	}
 
 	std::shared_ptr<CompositeObject> m_crankShaft;

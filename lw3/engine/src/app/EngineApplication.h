@@ -16,7 +16,7 @@ public:
 protected:
 	void OnDraw() override
 	{
-		glClearColor(0.9f, 0.9f, 0.9f, 1.0f);
+		glClearColor(0.7, 0.7, 0.7, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		double dt = GetDeltaTime();

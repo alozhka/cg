@@ -2,6 +2,8 @@
 #include "../shapes/Rectangle.hpp"
 #include "../shared/CompositeObject.hpp"
 
+namespace EngineParts
+{
 class SparkPlug : public CompositeObject
 {
 public:
@@ -28,3 +30,4 @@ private:
 		AddChild(electrode);
 	}
 };
+} // namespace EngineParts
