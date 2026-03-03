@@ -1,4 +1,5 @@
 #include "../app/GuiApplication.h"
+#include <glad/glad.h>
 
 #include <algorithm>
 #include <stdexcept>
@@ -10,6 +11,10 @@ GuiApplication::GuiApplication(int width, int height, const std::string& title)
 		throw std::runtime_error("Failed to initialize window");
 	}
 
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 	m_window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
 	if (!m_window)
 	{
@@ -18,9 +23,17 @@ GuiApplication::GuiApplication(int width, int height, const std::string& title)
 	}
 
 	glfwMakeContextCurrent(m_window);
+	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+	{
+		glfwDestroyWindow(m_window);
+		glfwTerminate();
+		throw std::runtime_error("Failed to initialize GLAD");
+	}
+
 	glfwSetFramebufferSizeCallback(m_window, &FrameBufferSizeCallback);
 	glfwSetWindowUserPointer(m_window, this);
 	SetupInitialViewport();
+	UpdateProjectionMatrix();
 
 	glfwSetMouseButtonCallback(m_window, &GuiApplication::MouseButtonCallback);
 	glfwSetCursorPosCallback(m_window, &GuiApplication::CursorPosCallback);
@@ -61,9 +74,11 @@ void GuiApplication::CursorPosCallback(GLFWwindow* window, double x, double y)
 	}
 }
 
-void GuiApplication::FrameBufferSizeCallback(GLFWwindow*, int width, int height)
+void GuiApplication::FrameBufferSizeCallback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
+	if (GuiApplication* app = GetInstance(window))
+		app->UpdateProjectionMatrix();
 }
 
 GuiApplication::Size GuiApplication::GetWindowSize() const
@@ -103,37 +118,38 @@ void GuiApplication::MainLoop()
 	while (!glfwWindowShouldClose(m_window))
 	{
 		glfwPollEvents();
-		ApplyProjectionMatrix();
 		OnDraw();
 		glfwSwapBuffers(m_window);
 	}
 }
 
-void GuiApplication::ApplyProjectionMatrix()
+void GuiApplication::UpdateProjectionMatrix()
 {
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
 	Size size = GetWindowSize();
-
-	double viewWidth = size.width;
-	double viewHeight = size.height;
+	double viewWidth = static_cast<double>(size.width);
+	double viewHeight = static_cast<double>(size.height);
 	double currentAspectRatio = viewWidth / viewHeight;
 
 	if (currentAspectRatio > 1)
-	{
 		viewWidth = viewHeight * currentAspectRatio;
-	}
 	else
-	{
 		viewHeight = viewWidth / currentAspectRatio;
-	}
 
-	glOrtho(
-		-viewWidth * 0.5, viewWidth * 0.5,
-		-viewHeight * 0.5, viewHeight * 0.5,
-		-1, 1);
+	double left = -viewWidth * 0.5;
+	double right = viewWidth * 0.5;
+	double bottom = -viewHeight * 0.5;
+	double top = viewHeight * 0.5;
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	// Orthographic 3x3: scale and translate to NDC-like range
+	// (x,y) in [left,right] x [bottom,top] -> [-1,1] x [-1,1]
+	float sx = 2.f / static_cast<float>(right - left);
+	float sy = 2.f / static_cast<float>(top - bottom);
+	float tx = -static_cast<float>(left + right) / static_cast<float>(right - left);
+	float ty = -static_cast<float>(bottom + top) / static_cast<float>(top - bottom);
+
+	m_projection = Mat3::Identity();
+	m_projection.m[0] = sx;
+	m_projection.m[4] = sy;
+	m_projection.m[6] = tx;
+	m_projection.m[7] = ty;
 }

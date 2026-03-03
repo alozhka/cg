@@ -16,14 +16,24 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(glfw)
 
-# OpenGL
+# GLAD (OpenGL loader)
+set(GLAD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/glad)
+add_library(glad ${GLAD_DIR}/src/glad.c)
+target_include_directories(glad PUBLIC ${GLAD_DIR}/include)
+
+# OpenGL (required for context on Linux/macOS)
 find_package(OpenGL REQUIRED)
 
 add_executable(engine main.cpp
         src/app/GuiApplication.cpp
+        src/app/EngineApplication.cpp
+        src/render/ShaderProgram.cpp
+        src/shapes/Rectangle.cpp
+        src/shapes/Circle.cpp
         src/shared/Color.hpp
         src/shared/SceneObject.hpp
         src/shared/CompositeObject.hpp
+        src/shared/Mat3.hpp
         src/shapes/Rectangle.hpp
         src/shared/Point.hpp
         src/shapes/Circle.hpp
@@ -35,4 +45,5 @@ add_executable(engine main.cpp
         src/engine/Valve.hpp
         src/engine/Pipe.hpp)
 
-target_link_libraries(engine glfw OpenGL::GL)
+target_include_directories(engine PRIVATE ${GLAD_DIR}/include)
+target_link_libraries(engine glfw glad OpenGL::GL)

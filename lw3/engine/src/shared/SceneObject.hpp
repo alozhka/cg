@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Point.hpp"
+#include "Mat3.hpp"
 
-#include <GLFW/glfw3.h>
 #include <memory>
+
+class ShaderProgram;
 
 class SceneObject;
 using SceneObjectPtr = std::shared_ptr<SceneObject>;
@@ -18,10 +20,10 @@ public:
 	{
 	}
 
-	SceneObject(const Point& m_pos, double m_rotation, double m_scale)
-		: m_pos(m_pos)
-		, m_rotation(m_rotation)
-		, m_scale(m_scale)
+	SceneObject(const Point& pos, double rotation, double scale)
+		: m_pos(pos)
+		, m_rotation(rotation)
+		, m_scale(scale)
 	{
 	}
 
@@ -46,16 +48,17 @@ public:
 	{
 	}
 
-	virtual void Draw() = 0;
+	virtual void Draw(ShaderProgram& shader, const Mat3& parentModel) = 0;
 
-protected:
-	void ApplyTransform()
+	Mat3 GetModelMatrix() const
 	{
-		glTranslated(m_pos.x, m_pos.y, 0);
-		glRotated(m_rotation, 0, 0, 1);
-		glScaled(m_scale, m_scale, 1);
+		Mat3 t = Mat3::Translation(static_cast<float>(m_pos.x), static_cast<float>(m_pos.y));
+		Mat3 r = Mat3::RotationDegrees(static_cast<float>(m_rotation));
+		Mat3 s = Mat3::Scale(static_cast<float>(m_scale), static_cast<float>(m_scale));
+		return t * r * s;
 	}
 
+protected:
 	Point m_pos;
 	double m_rotation;
 	double m_scale;

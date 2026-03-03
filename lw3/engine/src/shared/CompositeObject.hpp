@@ -1,5 +1,6 @@
 #pragma once
 #include "SceneObject.hpp"
+#include "../render/ShaderProgram.hpp"
 
 #include <vector>
 
@@ -19,17 +20,14 @@ public:
 		}
 	}
 
-	void Draw() override
+	void Draw(ShaderProgram& shader, const Mat3& parentModel) override
 	{
-		glPushMatrix();
-		ApplyTransform();
+		Mat3 currentModel = parentModel * GetModelMatrix();
 
 		for (const SceneObjectPtr& child : m_children)
 		{
-			child->Draw();
+			child->Draw(shader, currentModel);
 		}
-
-		glPopMatrix();
 	}
 
 private:
