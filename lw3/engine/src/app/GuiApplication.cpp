@@ -1,6 +1,6 @@
 #include "../app/GuiApplication.h"
-
 #include <algorithm>
+#include <glad/glad.h>
 #include <stdexcept>
 
 GuiApplication::GuiApplication(int width, int height, const std::string& title)
@@ -18,6 +18,7 @@ GuiApplication::GuiApplication(int width, int height, const std::string& title)
 	}
 
 	glfwMakeContextCurrent(m_window);
+	SetupGlad();
 	glfwSetFramebufferSizeCallback(m_window, &FrameBufferSizeCallback);
 	glfwSetWindowUserPointer(m_window, this);
 	SetupInitialViewport();
@@ -96,6 +97,16 @@ void GuiApplication::SetupInitialViewport()
 	int w, h;
 	glfwGetFramebufferSize(m_window, &w, &h);
 	glViewport(0, 0, w, h);
+}
+
+void GuiApplication::SetupGlad()
+{
+	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
+	{
+		glfwDestroyWindow(m_window);
+		glfwTerminate();
+		throw std::runtime_error("Failed to initialize GLAD");
+	}
 }
 
 void GuiApplication::MainLoop()

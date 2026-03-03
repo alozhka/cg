@@ -16,9 +16,15 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(glfw)
 
+# glad
+set(GLAD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../vendors/glad)
+add_library(glad ${GLAD_DIR}/src/glad.c)
+target_include_directories(glad PUBLIC ${GLAD_DIR}/include)
+
 # OpenGL
 find_package(OpenGL REQUIRED)
 
+# Сборка
 add_executable(engine main.cpp
         src/app/GuiApplication.cpp
         src/shared/Color.hpp
@@ -35,4 +41,6 @@ add_executable(engine main.cpp
         src/engine/Valve.hpp
         src/engine/Pipe.hpp)
 
-target_link_libraries(engine glfw OpenGL::GL)
+# Линковка
+target_include_directories(engine PRIVATE ${GLAD_DIR}/include)
+target_link_libraries(engine glfw glad OpenGL::GL)

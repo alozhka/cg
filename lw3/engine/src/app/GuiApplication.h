@@ -1,4 +1,5 @@
 #pragma once
+#define GLFW_INCLUDE_NONE
 #include "../shared/Point.hpp"
 #include "GLFW/glfw3.h"
 
@@ -29,6 +30,7 @@ private:
 	void ApplyProjectionMatrix();
 	Point NormalizeCoords(double x, double y) const;
 	void SetupInitialViewport();
+	void SetupGlad();
 
 	static void MouseButtonCallback(GLFWwindow* window, int button, int action, int);
 	static void CursorPosCallback(GLFWwindow* window, double x, double y);
