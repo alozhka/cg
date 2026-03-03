@@ -18,14 +18,6 @@ class Engine final : public CompositeObject
 public:
 	Engine()
 	{
-		m_pistonWidth = 60.0;
-		m_pistonHeight = 45.0;
-		m_cylinderWidth = 62.0;
-		m_cylinderHeight = 140.0;
-
-		m_crankRadius = 35.0;
-		m_rodLength = 95.0;
-
 		BuildStaticBlock();
 		BuildMovingParts();
 		BuildCylinderHead();
@@ -57,8 +49,8 @@ private:
 
 		auto cylinderLiner = std::make_shared<Rectangle>(
 			Point{ 0, 70 },
-			m_cylinderWidth,
-			m_cylinderHeight,
+			62.0,
+			140.0,
 			Palette::CylinderInner);
 		block->AddChild(cylinderLiner);
 
@@ -69,24 +61,24 @@ private:
 	{
 		constexpr int crankShaftCenter = -50;
 
-		m_crankShaft = std::make_unique<EngineParts::CrankShaft>(m_crankRadius);
+		m_crankShaft = std::make_unique<EngineParts::CrankShaft>(35.0);
 		m_crankShaft->SetPosition(0, crankShaftCenter);
 		AddChild(m_crankShaft);
 
-		m_connRod = std::make_shared<EngineParts::ConnectingRod>(m_rodLength);
-		m_connRod->SetPosition(0, crankShaftCenter + m_crankRadius);
+		m_connRod = std::make_shared<EngineParts::ConnectingRod>(95.0);
+		m_connRod->SetPosition(0, crankShaftCenter + 35.0);
 		AddChild(m_connRod);
 
-		m_piston = std::make_shared<EngineParts::Piston>(m_pistonWidth, m_pistonHeight);
+		m_piston = std::make_shared<EngineParts::Piston>(60.0, 45.0);
 		// Позиция: Центр коленвала + Радиус + Длина шатуна
-		m_piston->SetPosition(0, crankShaftCenter + m_crankRadius + m_rodLength);
+		m_piston->SetPosition(0, crankShaftCenter + 35.0 + 95.0);
 		AddChild(m_piston);
 	}
 
 	void BuildCylinderHead()
 	{
 		auto headGroup = std::make_shared<CompositeObject>();
-		double headY = 70 + m_cylinderHeight / 2.0 + 15;
+		double headY = 70 + 140.0 / 2.0 + 15;
 
 		// 1. Головка блока (Крышка)
 		headGroup->AddChild(std::make_shared<Rectangle>(
@@ -123,11 +115,4 @@ private:
 	std::shared_ptr<CompositeObject> m_crankShaft;
 	std::shared_ptr<CompositeObject> m_piston;
 	std::shared_ptr<CompositeObject> m_connRod;
-
-	double m_pistonWidth;
-	double m_pistonHeight;
-	double m_cylinderWidth;
-	double m_cylinderHeight;
-	double m_crankRadius;
-	double m_rodLength;
 };
