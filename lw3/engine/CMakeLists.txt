@@ -24,7 +24,6 @@ target_include_directories(glad PUBLIC ${GLAD_DIR}/include)
 # OpenGL
 find_package(OpenGL REQUIRED)
 
-# Сборка
 add_executable(engine main.cpp
         src/app/GuiApplication.cpp
         src/shared/Color.hpp
@@ -39,8 +38,8 @@ add_executable(engine main.cpp
         src/engine/Piston.hpp
         src/engine/SparkPlug.hpp
         src/engine/Valve.hpp
-        src/engine/Pipe.hpp)
+        src/engine/Pipe.hpp
+        src/render/ShaderProgram.hpp)
 
-# Линковка
 target_include_directories(engine PRIVATE ${GLAD_DIR}/include)
 target_link_libraries(engine glfw glad OpenGL::GL)
