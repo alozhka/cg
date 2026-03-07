@@ -1,5 +1,6 @@
 #pragma once
 #include <format>
+#include <fstream>
 #include <glad/glad.h>
 #include <string>
 
@@ -45,16 +46,18 @@ public:
 			glDeleteProgram(m_programId);
 			m_programId = 0;
 		}
-
 	}
 
 private:
 	static GLuint CompileShader(GLenum shaderType, const std::string& filename)
 	{
 		GLuint shader = glCreateShader(shaderType);
-		const GLchar* shaderSource = filename.c_str();
+		std::string sourceText = ReadFileText(filename);
+		const GLchar* shaderSource = sourceText.c_str();
+
 		glShaderSource(shader, 1, &shaderSource, nullptr);
 		glCompileShader(shader);
+
 		if (HasCompilationErrors(shader))
 		{
 			std::string error = GetShaderCompilationErrors(shader);
@@ -64,6 +67,21 @@ private:
 		}
 
 		return shader;
+	}
+
+	static std::string ReadFileText(const std::string& filename)
+	{
+		std::ifstream in(filename);
+		if (!in.is_open())
+		{
+			throw std::runtime_error("Could not open file " + filename);
+		}
+
+		std::string source{
+			std::istreambuf_iterator<char>(in),
+			std::istreambuf_iterator<char>()
+		};
+		return source;
 	}
 
 	static GLuint LinkProgram(GLuint& vertexShader, GLuint& fragmentShader)

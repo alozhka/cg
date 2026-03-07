@@ -44,3 +44,10 @@ add_executable(engine main.cpp
 
 target_include_directories(engine PRIVATE ${GLAD_DIR}/include)
 target_link_libraries(engine glfw glad OpenGL::GL)
+
+add_custom_command(
+        TARGET engine PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/render/assets
+        $<TARGET_FILE_DIR:engine>/assets
+)

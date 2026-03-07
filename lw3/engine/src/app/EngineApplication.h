@@ -1,7 +1,8 @@
 #pragma once
+#include "../render/ShaderProgram.hpp"
+#include "GuiApplication.h"
 #include "../engine/Engine.hpp"
 #include "../shared/CompositeObject.hpp"
-#include "GuiApplication.h"
 
 class EngineApplication : public GuiApplication
 {
@@ -9,6 +10,9 @@ public:
 	EngineApplication(int width, int height, const std::string& title)
 		: GuiApplication(width, height, title)
 	{
+		m_shader.LoadFromFile(
+			"assets/vertex.glsl",
+			"assets/fragment.glsl");
 		m_engine.SetScale(1.2);
 		m_lastTime = glfwGetTime();
 	}
@@ -36,5 +40,6 @@ private:
 	}
 
 	Engine m_engine{};
+	ShaderProgram m_shader;
 	double m_lastTime = 0;
 };
