@@ -1,6 +1,6 @@
 #pragma once
 #define GLFW_INCLUDE_NONE
-#include "../render/Mat3.h"
+#include "../render/Mat3.hpp"
 #include "../shared/Point.hpp"
 #include "GLFW/glfw3.h"
 

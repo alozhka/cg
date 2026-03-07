@@ -40,7 +40,9 @@ add_executable(engine main.cpp
         src/engine/Valve.hpp
         src/engine/Pipe.hpp
         src/render/ShaderProgram.hpp
-        src/render/Mat3.h)
+        src/render/Mat3.hpp
+        src/render/Mesh.hpp
+        src/render/Vec2f.h)
 
 target_include_directories(engine PRIVATE ${GLAD_DIR}/include)
 target_link_libraries(engine glfw glad OpenGL::GL)
