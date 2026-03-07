@@ -1,5 +1,6 @@
 #pragma once
 #define GLFW_INCLUDE_NONE
+#include "../render/Mat3.h"
 #include "../shared/Point.hpp"
 #include "GLFW/glfw3.h"
 
@@ -27,7 +28,7 @@ private:
 		int width = 0, height = 0;
 	};
 
-	void ApplyProjectionMatrix();
+	void UpdateProjectionMatrix();
 	Point NormalizeCoords(double x, double y) const;
 	void SetupInitialViewport();
 	void SetupGlad();
@@ -40,4 +41,5 @@ private:
 	static GuiApplication* GetInstance(GLFWwindow* window);
 
 	GLFWwindow* m_window;
+	Mat3 m_projection;
 };

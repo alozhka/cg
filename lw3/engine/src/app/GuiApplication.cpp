@@ -114,19 +114,15 @@ void GuiApplication::MainLoop()
 	while (!glfwWindowShouldClose(m_window))
 	{
 		glfwPollEvents();
-		ApplyProjectionMatrix();
+		UpdateProjectionMatrix();
 		OnDraw();
 		glfwSwapBuffers(m_window);
 	}
 }
 
-void GuiApplication::ApplyProjectionMatrix()
+void GuiApplication::UpdateProjectionMatrix()
 {
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
 	Size size = GetWindowSize();
-
 	double viewWidth = size.width;
 	double viewHeight = size.height;
 	double currentAspectRatio = viewWidth / viewHeight;
@@ -140,11 +136,8 @@ void GuiApplication::ApplyProjectionMatrix()
 		viewHeight = viewWidth / currentAspectRatio;
 	}
 
-	glOrtho(
-		-viewWidth * 0.5, viewWidth * 0.5,
-		-viewHeight * 0.5, viewHeight * 0.5,
-		-1, 1);
+	double halfWidth = 0.5 * viewWidth;
+	double halfHeight = 0.5 * viewHeight;
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	m_projection = Mat3::Ortho(-halfWidth, halfWidth, -halfHeight, halfHeight);
 }

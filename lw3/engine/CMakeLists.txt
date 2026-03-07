@@ -39,7 +39,8 @@ add_executable(engine main.cpp
         src/engine/SparkPlug.hpp
         src/engine/Valve.hpp
         src/engine/Pipe.hpp
-        src/render/ShaderProgram.hpp)
+        src/render/ShaderProgram.hpp
+        src/render/Mat3.h)
 
 target_include_directories(engine PRIVATE ${GLAD_DIR}/include)
 target_link_libraries(engine glfw glad OpenGL::GL)
