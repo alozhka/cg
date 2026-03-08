@@ -1,4 +1,5 @@
 #pragma once
+#include "../render/Mesh.hpp"
 #include "../shared/Color.hpp"
 #include "../shared/SceneObject.hpp"
 
@@ -10,31 +11,23 @@ public:
 		, m_width(width)
 		, m_height(height)
 		, m_color(color)
+		, m_mesh(Mesh::Rectangle(width, height))
 	{
 	}
 
-	void Draw() override
+	void Draw(ShaderProgram& shader, const Mat3& parentTransform) override
 	{
-		glPushMatrix();
-		ApplyTransform();
+		Mat3 world = parentTransform * GetTransformMatrix();
 
-		m_color.ApplyColor();
-		glBegin(GL_QUADS);
+		shader.SetUniformMat3("uViewProjection", world.ToFloatArray());
+		shader.SetUniformVec4("uColor", m_color.ToFloatArray());
 
-		double centerX = m_width / 2;
-		double centerY = m_height / 2;
-
-		glVertex2d(-centerX, -centerY);
-		glVertex2d(centerX, -centerY);
-		glVertex2d(centerX, centerY);
-		glVertex2d(-centerX, centerY);
-		glEnd();
-
-		glPopMatrix();
+		m_mesh.Draw();
 	}
 
 private:
 	double m_width;
 	double m_height;
 	Color m_color;
+	Mesh m_mesh;
 };

@@ -1,13 +1,18 @@
 #pragma once
-#include <GLFW/glfw3.h>
+#include <array>
 
 struct Color
 {
 	double r = 0, g = 0, b = 0, a = 1;
 
-	void ApplyColor()
+	std::array<float, 4> ToFloatArray() const
 	{
-		glColor4d(r, g, b, a);
+		return {
+			static_cast<float>(r),
+			static_cast<float>(g),
+			static_cast<float>(b),
+			static_cast<float>(a)
+		};
 	}
 };
 

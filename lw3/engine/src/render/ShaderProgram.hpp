@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <format>
 #include <fstream>
 #include <glad/glad.h>
@@ -46,6 +47,18 @@ public:
 			glDeleteProgram(m_programId);
 			m_programId = 0;
 		}
+	}
+
+	void SetUniformMat3(const std::string& str, const std::array<float, 9>& data)
+	{
+		GLint location = glGetUniformLocation(m_programId, str.c_str());
+		glUniformMatrix3fv(location, 1, GL_FALSE, data.data());
+	}
+
+	void SetUniformVec4(const std::string& str, const std::array<float, 4>& data)
+	{
+		GLint location = glGetUniformLocation(m_programId, str.c_str());
+		glUniform4f(location, data[0], data[1], data[2], data[3]);
 	}
 
 private:

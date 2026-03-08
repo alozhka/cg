@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Point.hpp"
+#include "../render/ShaderProgram.hpp"
+#include "../render/Mat3.hpp"
 
-#include <GLFW/glfw3.h>
 #include <memory>
 
 class SceneObject;
@@ -46,14 +47,14 @@ public:
 	{
 	}
 
-	virtual void Draw() = 0;
+	virtual void Draw(ShaderProgram& shader, const Mat3& parentTransform) = 0;
 
 protected:
-	void ApplyTransform()
+	Mat3 GetTransformMatrix() const
 	{
-		glTranslated(m_pos.x, m_pos.y, 0);
-		glRotated(m_rotation, 0, 0, 1);
-		glScaled(m_scale, m_scale, 1);
+		return Mat3::Translate(m_pos.x, m_pos.y)
+			* Mat3::Rotate(m_rotation)
+			* Mat3::Scale(m_scale, m_scale);
 	}
 
 	Point m_pos;

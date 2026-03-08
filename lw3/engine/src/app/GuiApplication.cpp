@@ -114,13 +114,13 @@ void GuiApplication::MainLoop()
 	while (!glfwWindowShouldClose(m_window))
 	{
 		glfwPollEvents();
-		UpdateProjectionMatrix();
-		OnDraw();
+		Mat3 projection = GetProjectionMatrix();
+		OnDraw(projection);
 		glfwSwapBuffers(m_window);
 	}
 }
 
-void GuiApplication::UpdateProjectionMatrix()
+Mat3 GuiApplication::GetProjectionMatrix() const
 {
 	Size size = GetWindowSize();
 	double viewWidth = size.width;
@@ -139,5 +139,5 @@ void GuiApplication::UpdateProjectionMatrix()
 	double halfWidth = 0.5 * viewWidth;
 	double halfHeight = 0.5 * viewHeight;
 
-	m_projection = Mat3::Ortho(-halfWidth, halfWidth, -halfHeight, halfHeight);
+	return Mat3::Ortho(-halfWidth, halfWidth, -halfHeight, halfHeight);
 }

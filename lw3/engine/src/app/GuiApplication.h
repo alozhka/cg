@@ -18,7 +18,7 @@ protected:
 	GuiApplication(int width, int height, const std::string& title);
 	virtual ~GuiApplication();
 
-	virtual void OnDraw() = 0;
+	virtual void OnDraw(const Mat3& projection) = 0;
 	virtual void OnMouseButton(int button, int action, Point p);
 	virtual void OnMouseMove(Point p);
 
@@ -28,7 +28,7 @@ private:
 		int width = 0, height = 0;
 	};
 
-	void UpdateProjectionMatrix();
+	Mat3 GetProjectionMatrix() const;
 	Point NormalizeCoords(double x, double y) const;
 	void SetupInitialViewport();
 	void SetupGlad();
@@ -41,5 +41,4 @@ private:
 	static GuiApplication* GetInstance(GLFWwindow* window);
 
 	GLFWwindow* m_window;
-	Mat3 m_projection;
 };

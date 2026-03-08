@@ -1,8 +1,8 @@
 #pragma once
-#include "../render/ShaderProgram.hpp"
-#include "GuiApplication.h"
 #include "../engine/Engine.hpp"
+#include "../render/ShaderProgram.hpp"
 #include "../shared/CompositeObject.hpp"
+#include "GuiApplication.h"
 
 class EngineApplication : public GuiApplication
 {
@@ -13,12 +13,11 @@ public:
 		m_shader.LoadFromFile(
 			"assets/vertex.glsl",
 			"assets/fragment.glsl");
-		m_engine.SetScale(1.2);
 		m_lastTime = glfwGetTime();
 	}
 
 protected:
-	void OnDraw() override
+	void OnDraw(const Mat3& projection) override
 	{
 		glClearColor(0.7, 0.7, 0.7, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -26,7 +25,9 @@ protected:
 		double dt = GetDeltaTime();
 
 		m_engine.Update(dt);
-		m_engine.Draw();
+
+		m_shader.Use();
+		m_engine.Draw(m_shader, projection);
 	}
 
 private:

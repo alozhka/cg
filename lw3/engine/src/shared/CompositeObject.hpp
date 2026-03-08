@@ -19,17 +19,14 @@ public:
 		}
 	}
 
-	void Draw() override
+	void Draw(ShaderProgram& shader, const Mat3& parentTransform) override
 	{
-		glPushMatrix();
-		ApplyTransform();
+		Mat3 worldTransform = parentTransform * GetTransformMatrix();
 
 		for (const SceneObjectPtr& child : m_children)
 		{
-			child->Draw();
+			child->Draw(shader, worldTransform);
 		}
-
-		glPopMatrix();
 	}
 
 private:
