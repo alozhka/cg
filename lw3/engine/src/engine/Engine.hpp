@@ -11,7 +11,6 @@
 #include "Valve.hpp"
 
 #include <memory>
-#include <vector>
 
 class Engine final : public CompositeObject
 {
@@ -23,7 +22,7 @@ public:
 		BuildCylinderHead();
 	}
 
-	void Update(double dt) override
+	void Update(float dt) override
 	{
 		CompositeObject::Update(dt);
 	}
@@ -34,21 +33,21 @@ private:
 		auto block = std::make_shared<CompositeObject>();
 
 		auto carter = std::make_shared<Rectangle>(
-			Point{ 0, -50 },
+			Vec2f{ 0, -50 },
 			160,
 			120,
 			Palette::CastIron);
 		block->AddChild(carter);
 
 		auto cylinderBlock = std::make_shared<Rectangle>(
-			Point{ 0, 70 },
+			Vec2f{ 0, 70 },
 			100,
 			140,
 			Palette::CastIron);
 		block->AddChild(cylinderBlock);
 
 		auto cylinderLiner = std::make_shared<Rectangle>(
-			Point{ 0, 70 },
+			Vec2f{ 0, 70 },
 			62.0,
 			140.0,
 			Palette::CylinderInner);
@@ -78,11 +77,11 @@ private:
 	void BuildCylinderHead()
 	{
 		auto headGroup = std::make_shared<CompositeObject>();
-		double headY = 70 + 140.0 / 2.0 + 15;
+		float headY = 70 + 140.0 / 2 + 15;
 
 		// 1. Головка блока (Крышка)
 		headGroup->AddChild(std::make_shared<Rectangle>(
-			Point{ 0, headY }, 120, 50,
+			Vec2f{ 0, headY }, 120, 50,
 			Palette::CastIron));
 
 		AddChild(headGroup);

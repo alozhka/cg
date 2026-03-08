@@ -11,7 +11,7 @@ public:
 		m_children.push_back(child);
 	}
 
-	void Update(double dt) override
+	void Update(float dt) override
 	{
 		for (const SceneObjectPtr& child : m_children)
 		{

@@ -5,11 +5,11 @@
 class Circle : public SceneObject
 {
 public:
-	Circle(Point center, Color color, float radius, int segments = 30)
+	Circle(Vec2f center, Color color, float radius, int segments = 30)
 		: SceneObject(center, 0, 1)
 		, m_radius(radius)
 		, m_color(color)
-		, m_mesh(Mesh::Circle(radius, segments))
+		, m_mesh(CreateMesh(radius, segments))
 
 	{
 	}
@@ -25,6 +25,24 @@ public:
 	}
 
 private:
+	static Mesh CreateMesh(float radius, int segments = 30)
+	{
+		std::vector<float> vertices;
+		vertices.reserve(segments * 2);
+		vertices.push_back(0);
+		vertices.push_back(0);
+
+		for (int i = 0; i <= segments; i++)
+		{
+			float theta = 2 * std::numbers::pi_v<float> * i / segments;
+
+			vertices.push_back(radius * std::cos(theta));
+			vertices.push_back(radius * std::sin(theta));
+		}
+
+		return Mesh{ vertices, GL_TRIANGLE_FAN };
+	}
+
 	float m_radius;
 	Color m_color;
 	Mesh m_mesh;

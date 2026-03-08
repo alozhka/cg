@@ -6,7 +6,7 @@
 struct Mat3
 {
 	// Row-major формат
-	std::array<std::array<double, 3>, 3> m{};
+	std::array<std::array<float, 3>, 3> m{};
 
 	Mat3 operator*(const Mat3& other) const
 	{
@@ -37,7 +37,7 @@ struct Mat3
 		return r;
 	}
 
-	static Mat3 Translate(double tx, double ty)
+	static Mat3 Translate(float tx, float ty)
 	{
 		Mat3 r = Identity();
 		r.m[0][2] = tx;
@@ -45,11 +45,11 @@ struct Mat3
 		return r;
 	}
 
-	static Mat3 Rotate(double degrees)
+	static Mat3 Rotate(float degrees)
 	{
-		double radians = degrees * std::numbers::pi / 180;
-		double cos = std::cos(radians);
-		double sin = std::sin(radians);
+		float radians = degrees * std::numbers::pi_v<float> / 180;
+		float cos = std::cos(radians);
+		float sin = std::sin(radians);
 
 		Mat3 r{};
 		r.m[0][0] = cos;
@@ -60,7 +60,7 @@ struct Mat3
 		return r;
 	}
 
-	static Mat3 Scale(double sx, double sy)
+	static Mat3 Scale(float sx, float sy)
 	{
 		Mat3 r{};
 		r.m[0][0] = sx;
@@ -69,11 +69,11 @@ struct Mat3
 		return r;
 	}
 
-	static Mat3 Ortho(double left, double right, double bottom, double top)
+	static Mat3 Ortho(float left, float right, float bottom, float top)
 	{
 		Mat3 r;
-		r.m[0][0] = 2.0 / (right - left);
-		r.m[1][1] = 2.0 / (top - bottom);
+		r.m[0][0] = 2 / (right - left);
+		r.m[1][1] = 2 / (top - bottom);
 		r.m[0][2] = -(right + left) / (right - left);
 		r.m[1][2] = -(top + bottom) / (top - bottom);
 		r.m[2][2] = 1;
@@ -84,15 +84,15 @@ struct Mat3
 	std::array<float, 9> ToFloatArray() const
 	{
 		return {
-			static_cast<float>(m[0][0]),
-			static_cast<float>(m[1][0]),
-			static_cast<float>(m[2][0]),
-			static_cast<float>(m[0][1]),
-			static_cast<float>(m[1][1]),
-			static_cast<float>(m[2][1]),
-			static_cast<float>(m[0][2]),
-			static_cast<float>(m[1][2]),
-			static_cast<float>(m[2][2]),
+			m[0][0],
+			m[1][0],
+			m[2][0],
+			m[0][1],
+			m[1][1],
+			m[2][1],
+			m[0][2],
+			m[1][2],
+			m[2][2],
 		};
 	}
 };

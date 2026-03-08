@@ -6,7 +6,7 @@ namespace EngineParts
 class Piston final : public CompositeObject
 {
 public:
-	Piston(double pistonWidth, double pistonHeight)
+	Piston(float pistonWidth, float pistonHeight)
 		: m_pistonWidth(pistonWidth)
 		, m_pistonHeight(pistonHeight)
 	{
@@ -17,34 +17,34 @@ private:
 	void Init()
 	{
 		auto mainBody = std::make_shared<Rectangle>(
-			Point{ 0, 0 },
+			Vec2f{ 0, 0 },
 			m_pistonWidth,
 			m_pistonHeight,
 			Palette::Steel);
 		AddChild(mainBody);
 
 		auto topCompressionRing = std::make_shared<Rectangle>(
-			Point{ 0, 10 },
+			Vec2f{ 0, 10 },
 			m_pistonWidth,
 			3,
 			Palette::DarkSteel);
 		AddChild(topCompressionRing);
 
 		auto bottomCompressionRing = std::make_shared<Rectangle>(
-			Point{ 0, 4 },
+			Vec2f{ 0, 4 },
 			m_pistonWidth,
 			3,
 			Palette::DarkSteel);
 		AddChild(bottomCompressionRing);
 
 		auto pistonPin = std::make_shared<Circle>(
-			Point{ 0, -5 },
+			Vec2f{ 0, -5 },
 			Palette::DarkSteel,
 			8.0);
 		AddChild(pistonPin);
 	}
 
-	double m_pistonWidth;
-	double m_pistonHeight;
+	float m_pistonWidth;
+	float m_pistonHeight;
 };
 } // namespace EngineParts

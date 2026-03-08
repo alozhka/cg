@@ -3,16 +3,11 @@
 
 struct Color
 {
-	double r = 0, g = 0, b = 0, a = 1;
+	float r = 0, g = 0, b = 0, a = 1;
 
 	std::array<float, 4> ToFloatArray() const
 	{
-		return {
-			static_cast<float>(r),
-			static_cast<float>(g),
-			static_cast<float>(b),
-			static_cast<float>(a)
-		};
+		return { r, g, b, a };
 	}
 };
 

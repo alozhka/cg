@@ -16,14 +16,14 @@ private:
 	void Init()
 	{
 		auto plug = std::make_shared<Rectangle>(
-			Point{ 0, 20 },
+			Vec2f{ 0, 20 },
 			10,
 			25,
 			Palette::SparkPlug);
 		AddChild(plug);
 
 		auto electrode = std::make_shared<Rectangle>(
-			Point{ 0, 0 },
+			Vec2f{ 0, 0 },
 			3,
 			15,
 			Palette::DarkSteel);

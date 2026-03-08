@@ -6,7 +6,7 @@ namespace EngineParts
 class CrankShaft final : public CompositeObject
 {
 public:
-	explicit CrankShaft(double radius)
+	explicit CrankShaft(float radius)
 		: m_radius(radius)
 	{
 		Init();
@@ -18,6 +18,6 @@ private:
 
 	}
 
-	double m_radius;
+	float m_radius;
 };
 } // namespace EngineParts

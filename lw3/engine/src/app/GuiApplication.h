@@ -1,7 +1,7 @@
 #pragma once
 #define GLFW_INCLUDE_NONE
 #include "../render/Mat3.hpp"
-#include "../shared/Point.hpp"
+#include "../render/Vec2f.hpp"
 #include "GLFW/glfw3.h"
 
 #include <string>
@@ -19,8 +19,8 @@ protected:
 	virtual ~GuiApplication();
 
 	virtual void OnDraw(const Mat3& projection) = 0;
-	virtual void OnMouseButton(int button, int action, Point p);
-	virtual void OnMouseMove(Point p);
+	virtual void OnMouseButton(int button, int action, Vec2f p);
+	virtual void OnMouseMove(Vec2f p);
 
 private:
 	struct Size
@@ -29,7 +29,7 @@ private:
 	};
 
 	Mat3 GetProjectionMatrix() const;
-	Point NormalizeCoords(double x, double y) const;
+	Vec2f NormalizeCoords(double x, double y) const;
 	void SetupInitialViewport();
 	void SetupGlad();
 

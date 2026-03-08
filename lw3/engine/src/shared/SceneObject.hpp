@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Point.hpp"
-#include "../render/ShaderProgram.hpp"
 #include "../render/Mat3.hpp"
+#include "../render/ShaderProgram.hpp"
+#include "../render/Vec2f.hpp"
 
 #include <memory>
 
@@ -19,31 +19,31 @@ public:
 	{
 	}
 
-	SceneObject(const Point& m_pos, double m_rotation, double m_scale)
-		: m_pos(m_pos)
-		, m_rotation(m_rotation)
-		, m_scale(m_scale)
+	SceneObject(const Vec2f& pos, float rotation, float scale)
+		: m_pos(pos)
+		, m_rotation(rotation)
+		, m_scale(scale)
 	{
 	}
 
 	virtual ~SceneObject() = default;
 
-	void SetPosition(double x, double y)
+	void SetPosition(float x, float y)
 	{
 		m_pos = { x, y };
 	}
 
-	void SetRotation(double angleInDegrees)
+	void SetRotation(float angleInDegrees)
 	{
 		m_rotation = angleInDegrees;
 	}
 
-	void SetScale(double scale)
+	void SetScale(float scale)
 	{
 		m_scale = scale;
 	}
 
-	virtual void Update(double dt)
+	virtual void Update(float dt)
 	{
 	}
 
@@ -57,7 +57,7 @@ protected:
 			* Mat3::Scale(m_scale, m_scale);
 	}
 
-	Point m_pos;
-	double m_rotation;
-	double m_scale;
+	Vec2f m_pos;
+	float m_rotation;
+	float m_scale;
 };

@@ -30,7 +30,6 @@ add_executable(engine main.cpp
         src/shared/SceneObject.hpp
         src/shared/CompositeObject.hpp
         src/shapes/Rectangle.hpp
-        src/shared/Point.hpp
         src/shapes/Circle.hpp
         src/engine/Engine.hpp
         src/app/EngineApplication.h
@@ -42,7 +41,7 @@ add_executable(engine main.cpp
         src/render/ShaderProgram.hpp
         src/render/Mat3.hpp
         src/render/Mesh.hpp
-        src/render/Vec2f.h)
+        src/render/Vec2f.hpp)
 
 target_include_directories(engine PRIVATE ${GLAD_DIR}/include)
 target_link_libraries(engine glfw glad OpenGL::GL)

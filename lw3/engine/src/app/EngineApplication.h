@@ -9,11 +9,11 @@ class EngineApplication : public GuiApplication
 public:
 	EngineApplication(int width, int height, const std::string& title)
 		: GuiApplication(width, height, title)
+		, m_lastTime(GetTime())
 	{
 		m_shader.LoadFromFile(
 			"assets/vertex.glsl",
 			"assets/fragment.glsl");
-		m_lastTime = glfwGetTime();
 	}
 
 protected:
@@ -22,7 +22,7 @@ protected:
 		glClearColor(0.7, 0.7, 0.7, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		double dt = GetDeltaTime();
+		float dt = GetDeltaTime();
 
 		m_engine.Update(dt);
 
@@ -31,16 +31,21 @@ protected:
 	}
 
 private:
-	double GetDeltaTime()
+	float GetDeltaTime()
 	{
-		double t = glfwGetTime();
-		double dt = t - m_lastTime;
+		auto t = GetTime();
+		float dt = t - m_lastTime;
 		m_lastTime = t;
 
 		return dt;
 	}
 
+	static float GetTime()
+	{
+		return static_cast<float>(glfwGetTime());
+	}
+
 	Engine m_engine{};
 	ShaderProgram m_shader;
-	double m_lastTime = 0;
+	float m_lastTime = 0;
 };

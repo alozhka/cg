@@ -36,11 +36,11 @@ GuiApplication::~GuiApplication()
 	glfwTerminate();
 }
 
-void GuiApplication::OnMouseButton(int button, int action, Point p)
+void GuiApplication::OnMouseButton(int button, int action, Vec2f p)
 {
 }
 
-void GuiApplication::OnMouseMove(Point p)
+void GuiApplication::OnMouseMove(Vec2f p)
 {
 }
 
@@ -79,17 +79,17 @@ GuiApplication* GuiApplication::GetInstance(GLFWwindow* window)
 	return static_cast<GuiApplication*>(glfwGetWindowUserPointer(window));
 }
 
-Point GuiApplication::NormalizeCoords(double x, double y) const
+Vec2f GuiApplication::NormalizeCoords(double x, double y) const
 {
 	Size size = GetWindowSize();
 
-	double normalizedX = (x / static_cast<double>(size.width)) * 2 - 1;
-	double normalizedY = 1 - (y / static_cast<double>(size.height)) * 2;
+	float normalizedX = (static_cast<float>(x) / static_cast<float>(size.width)) * 2 - 1;
+	float normalizedY = 1 - (static_cast<float>(y) / static_cast<float>(size.height)) * 2;
 
-	normalizedX = std::clamp(normalizedX, -1.0, 1.0);
-	normalizedY = std::clamp(normalizedY, -1.0, 1.0);
+	normalizedX = std::clamp(normalizedX, -1.0f, 1.0f);
+	normalizedY = std::clamp(normalizedY, -1.0f, 1.0f);
 
-	return Point{ normalizedX, normalizedY };
+	return Vec2f{ normalizedX, normalizedY };
 }
 
 void GuiApplication::SetupInitialViewport()

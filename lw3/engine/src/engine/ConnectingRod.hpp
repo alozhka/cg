@@ -9,7 +9,7 @@ class ConnectingRod final : public CompositeObject
 {
 
 public:
-	explicit ConnectingRod(double rodLength)
+	explicit ConnectingRod(float rodLength)
 		: m_rodLength(rodLength)
 	{
 		Init();
@@ -19,7 +19,7 @@ private:
 	void Init()
 	{
 		auto rod = std::make_shared<Rectangle>(
-			Point{ 10, m_rodLength / 2.0 },
+			Vec2f{ 10, m_rodLength / 2 },
 			14,
 			m_rodLength,
 			Palette::DarkSteel,
@@ -27,18 +27,18 @@ private:
 		AddChild(rod);
 
 		auto bottomConnectingRodHead = std::make_shared<Circle>(
-			Point{ 0, m_rodLength },
+			Vec2f{ 0, m_rodLength },
 			Palette::DarkSteel,
 			16.0);
 		AddChild(bottomConnectingRodHead);
 
 		auto topConnectingRodHead = std::make_shared<Circle>(
-			Point{ 0, 0 },
+			Vec2f{ 0, 0 },
 			Palette::DarkSteel,
 			12.0);
 		AddChild(topConnectingRodHead);
 	}
 
-	double m_rodLength;
+	float m_rodLength;
 };
 } // namespace EngineParts

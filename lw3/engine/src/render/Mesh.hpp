@@ -52,37 +52,6 @@ public:
 		glBindVertexArray(0);
 	}
 
-	static Mesh Rectangle(double width, double height)
-	{
-		float halfWidth = static_cast<float>(width) * 0.5;
-		float halfHeight = static_cast<float>(height) * 0.5;
-		return Mesh({ -halfWidth, -halfHeight,
-						halfWidth, -halfHeight,
-						halfWidth, halfHeight,
-						-halfWidth, -halfHeight,
-						halfWidth, halfHeight,
-						-halfWidth, halfHeight },
-			GL_TRIANGLES);
-	}
-
-	static Mesh Circle(float radius, unsigned int segments = 30)
-	{
-		std::vector<float> vertices;
-		vertices.reserve(segments * 2);
-		vertices.push_back(0);
-		vertices.push_back(0);
-
-		for (unsigned int i = 0; i <= segments; i++)
-		{
-			float theta = 2 * std::numbers::pi_v<float> * i / segments;
-
-			vertices.push_back(radius * std::cos(theta));
-			vertices.push_back(radius * std::sin(theta));
-		}
-
-		return Mesh{ vertices, GL_TRIANGLE_FAN };
-	}
-
 private:
 	GLenum m_drawMode;
 	GLuint m_vao = 0;

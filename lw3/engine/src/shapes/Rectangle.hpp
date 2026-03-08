@@ -6,12 +6,12 @@
 class Rectangle : public SceneObject
 {
 public:
-	Rectangle(Point p, double width, double height, const Color& color, double rotation = 0)
+	Rectangle(Vec2f p, float width, float height, const Color& color, float rotation = 0)
 		: SceneObject(p, rotation, 1)
 		, m_width(width)
 		, m_height(height)
 		, m_color(color)
-		, m_mesh(Mesh::Rectangle(width, height))
+		, m_mesh(CreateMesh(width, height))
 	{
 	}
 
@@ -26,8 +26,20 @@ public:
 	}
 
 private:
-	double m_width;
-	double m_height;
+	static Mesh CreateMesh(float width, float height)
+	{
+		float halfWidth = width * 0.5f;
+		float halfHeight = height * 0.5f;
+		return Mesh({ -halfWidth, -halfHeight,
+						halfWidth, -halfHeight,
+						halfWidth, halfHeight,
+						-halfWidth, -halfHeight,
+						halfWidth, halfHeight,
+						-halfWidth, halfHeight },
+			GL_TRIANGLES);
+	}
+	float m_width;
+	float m_height;
 	Color m_color;
 	Mesh m_mesh;
 };
