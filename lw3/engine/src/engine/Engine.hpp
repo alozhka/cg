@@ -45,15 +45,15 @@ private:
 	void UpdateCrankAngle(float dt)
 	{
 		m_crankAngle += ANGLE_SPEED * dt;
-		if (m_crankAngle > 360.0f)
+		if (m_crankAngle > 360)
 		{
-			m_crankAngle -= 360.0f;
+			m_crankAngle -= 360;
 		}
 	}
 
 	static Vec2f ComputeCrankPinPosition(float angle)
 	{
-		float angleRad = angle * std::numbers::pi_v<float> / 180.0f;
+		float angleRad = angle * std::numbers::pi_v<float> / 180;
 		float x = -CRANKSHAFT_RADIUS * std::sin(angleRad);
 		float y = CRANKSHAFT_CENTER + CRANKSHAFT_RADIUS * std::cos(angleRad);
 		return { x, y };
@@ -113,41 +113,36 @@ private:
 		m_connRod->SetPosition(0, CRANKSHAFT_CENTER + 50);
 		AddChild(m_connRod);
 
-		m_piston = std::make_shared<EngineParts::Piston>(60.0, 45.0);
-		// Позиция: Центр коленвала + Радиус + Длина шатуна
+		m_piston = std::make_shared<EngineParts::Piston>(60, 45);
 		m_piston->SetPosition(0, CRANKSHAFT_CENTER + CRANKSHAFT_RADIUS + CONNECTING_ROD_LENGTH);
 		AddChild(m_piston);
 	}
 
 	void BuildCylinderHead()
 	{
-		float headY = 155;
-
 		auto headBlock = std::make_shared<Rectangle>(
-			Vec2f{ 0, headY }, 120, 50,
+			Vec2f{ 0, 155 }, 120, 50,
 			Palette::CastIron);
 		AddChild(headBlock);
 
-		auto intakePipe = std::make_shared<EngineParts::Pipe>(-20.0);
-		intakePipe->SetPosition(-50, headY - 20);
+		auto intakePipe = std::make_shared<EngineParts::Pipe>(-20);
+		intakePipe->SetPosition(-50, 135);
 		AddChild(intakePipe);
 
 		auto exhaustPipe = std::make_shared<EngineParts::Pipe>(20);
-		exhaustPipe->SetPosition(50, headY - 20);
+		exhaustPipe->SetPosition(50, 135);
 		AddChild(exhaustPipe);
 
-		float valveY = headY - 10;
-
 		auto leftValve = std::make_shared<EngineParts::Valve>();
-		leftValve->SetPosition(-15, valveY);
+		leftValve->SetPosition(-15, 145);
 		AddChild(leftValve);
 
 		auto rightValve = std::make_shared<EngineParts::Valve>();
-		rightValve->SetPosition(15, valveY);
+		rightValve->SetPosition(15, 145);
 		AddChild(rightValve);
 
 		auto sparkPlug = std::make_shared<EngineParts::SparkPlug>();
-		sparkPlug->SetPosition(0, headY);
+		sparkPlug->SetPosition(0, 155);
 		AddChild(sparkPlug);
 	}
 
