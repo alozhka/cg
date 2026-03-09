@@ -28,38 +28,50 @@ public:
 	{
 		CompositeObject::Update(dt);
 
-		constexpr float R = 35.0f; // radius of CrankShaft
-		constexpr float L = 95.0f; // length of ConnectingRod
-		constexpr float crankShaftCenter = -50.0f;
+		UpdateCrankAngle(dt);
+		m_crankShaft->SetRotation(m_crankAngle);
 
-		// 1. Update crank angle
-		float speed = 180.0f; // degrees per second
-		m_crankAngle += speed * dt;
+		Vec2f crankPinPos = ComputeCrankPinPosition(m_crankAngle);
+		m_connRod->SetPosition(crankPinPos);
+
+		Vec2f pistonPos = ComputePistonPosition(crankPinPos);
+		m_piston->SetPosition(pistonPos);
+
+		float degrees = ComputeConnectingRodRotation(crankPinPos);
+		m_connRod->SetRotation(degrees);
+	}
+
+private:
+	void UpdateCrankAngle(float dt)
+	{
+		m_crankAngle += ANGLE_SPEED * dt;
 		if (m_crankAngle > 360.0f)
 		{
 			m_crankAngle -= 360.0f;
 		}
+	}
 
-		m_crankShaft->SetRotation(m_crankAngle);
+	static Vec2f ComputeCrankPinPosition(float angle)
+	{
+		float angleRad = angle * std::numbers::pi_v<float> / 180.0f;
+		float x = -CRANKSHAFT_RADIUS * std::sin(angleRad);
+		float y = CRANKSHAFT_CENTER + CRANKSHAFT_RADIUS * std::cos(angleRad);
+		return { x, y };
+	}
 
-		// 2. Calculate Crank pin position
-		float angleRad = m_crankAngle * std::numbers::pi_v<float> / 180.0f;
-		float xc = -R * std::sin(angleRad);
-		float yc = crankShaftCenter + R * std::cos(angleRad);
+	static Vec2f ComputePistonPosition(Vec2f crankPinPosition)
+	{
+		// y = y0 + sqrt(L^2 - x0^2)
+		float y = crankPinPosition.y + std::sqrt(std::pow(CONNECTING_ROD_LENGTH, 2) - std::pow(crankPinPosition.x, 2));
+		return { 0, y };
+	}
 
-		// 3. Update ConnectingRod position (top head on crank pin)
-		m_connRod->SetPosition(xc, yc);
-
-		// 4. Calculate Piston position
-		// yp = yc + sqrt(L^2 - xc^2)
-		float yp = yc + std::sqrt(L * L - xc * xc);
-		m_piston->SetPosition(0, yp + 5.0f);
-
-		// 5. Calculate ConnectingRod rotation
+	static float ComputeConnectingRodRotation(Vec2f crankPinPosition)
+	{
 		// phi = asin(xc / L)
-		float phiRad = std::asin(xc / L);
-		float phiDeg = phiRad * 180.0f / std::numbers::pi_v<float>;
-		m_connRod->SetRotation(phiDeg);
+		float radians = std::asin(crankPinPosition.x / CONNECTING_ROD_LENGTH);
+		float degrees = radians * 180.0f / std::numbers::pi_v<float>;
+		return degrees;
 	}
 
 private:
@@ -93,19 +105,17 @@ private:
 
 	void BuildMovingParts()
 	{
-		constexpr int crankShaftCenter = -50;
-
-		m_crankShaft = std::make_unique<EngineParts::CrankShaft>(35.0);
-		m_crankShaft->SetPosition(0, crankShaftCenter);
+		m_crankShaft = std::make_unique<EngineParts::CrankShaft>(CRANKSHAFT_RADIUS);
+		m_crankShaft->SetPosition(0, CRANKSHAFT_CENTER);
 		AddChild(m_crankShaft);
 
-		m_connRod = std::make_shared<EngineParts::ConnectingRod>(95.0);
-		m_connRod->SetPosition(0, crankShaftCenter);
+		m_connRod = std::make_shared<EngineParts::ConnectingRod>(CONNECTING_ROD_LENGTH);
+		m_connRod->SetPosition(0, CRANKSHAFT_CENTER + 50);
 		AddChild(m_connRod);
 
 		m_piston = std::make_shared<EngineParts::Piston>(60.0, 45.0);
 		// Позиция: Центр коленвала + Радиус + Длина шатуна
-		m_piston->SetPosition(0, crankShaftCenter + 35.0 + 95.0);
+		m_piston->SetPosition(0, CRANKSHAFT_CENTER + CRANKSHAFT_RADIUS + CONNECTING_ROD_LENGTH);
 		AddChild(m_piston);
 	}
 
@@ -141,8 +151,13 @@ private:
 		AddChild(sparkPlug);
 	}
 
+	constexpr static float ANGLE_SPEED = 180;
+	constexpr static float CRANKSHAFT_CENTER = -50;
+	constexpr static float CRANKSHAFT_RADIUS = 35;
+	constexpr static float CONNECTING_ROD_LENGTH = 100;
+
+	float m_crankAngle = 0;
 	std::shared_ptr<EngineParts::CrankShaft> m_crankShaft;
 	std::shared_ptr<EngineParts::Piston> m_piston;
 	std::shared_ptr<EngineParts::ConnectingRod> m_connRod;
-	float m_crankAngle = 0.0f;
 };

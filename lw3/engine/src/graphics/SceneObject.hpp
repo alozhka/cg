@@ -33,6 +33,11 @@ public:
 		m_pos = { x, y };
 	}
 
+	void SetPosition(Vec2f pos)
+	{
+		m_pos = pos;
+	}
+
 	void SetRotation(float angleInDegrees)
 	{
 		m_rotation = angleInDegrees;

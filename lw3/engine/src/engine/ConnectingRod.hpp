@@ -19,7 +19,7 @@ private:
 	void Init()
 	{
 		auto rod = std::make_shared<Rectangle>(
-			Vec2f{ 10, m_rodLength / 2 },
+			Vec2f{ 0, m_rodLength / 2 },
 			14,
 			m_rodLength,
 			Palette::DarkSteel);
