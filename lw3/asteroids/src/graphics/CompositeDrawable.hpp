@@ -1,9 +1,9 @@
 #pragma once
-#include "SceneObject.hpp"
+#include "Drawable.hpp"
 
 #include <vector>
 
-class CompositeObject : public SceneObject
+class CompositeDrawable : public Drawable
 {
 public:
 	void AddChild(const SceneObjectPtr& child)

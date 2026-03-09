@@ -6,27 +6,27 @@
 
 #include <memory>
 
-class SceneObject;
-using SceneObjectPtr = std::shared_ptr<SceneObject>;
+class Drawable;
+using SceneObjectPtr = std::shared_ptr<Drawable>;
 
-class SceneObject
+class Drawable
 {
 public:
-	explicit SceneObject()
+	explicit Drawable()
 		: m_pos({ 0, 0 })
 		, m_rotation(0)
 		, m_scale(1)
 	{
 	}
 
-	SceneObject(const Vec2f& pos, float rotation, float scale)
+	Drawable(const Vec2f& pos, float rotation, float scale)
 		: m_pos(pos)
 		, m_rotation(rotation)
 		, m_scale(scale)
 	{
 	}
 
-	virtual ~SceneObject() = default;
+	virtual ~Drawable() = default;
 
 	void SetPosition(float x, float y)
 	{
