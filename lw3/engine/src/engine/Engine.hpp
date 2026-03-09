@@ -51,11 +51,11 @@ private:
 		}
 	}
 
-	static Vec2f ComputeCrankPinPosition(float angle)
+	static Vec2f ComputeCrankPinPosition(float degrees)
 	{
-		float angleRad = angle * std::numbers::pi_v<float> / 180;
-		float x = -CRANKSHAFT_RADIUS * std::sin(angleRad);
-		float y = CRANKSHAFT_CENTER + CRANKSHAFT_RADIUS * std::cos(angleRad);
+		float radians = degrees * std::numbers::pi_v<float> / 180;
+		float x = -CRANKSHAFT_RADIUS * std::sin(radians);
+		float y = CRANKSHAFT_CENTER + CRANKSHAFT_RADIUS * std::cos(radians);
 		return { x, y };
 	}
 
@@ -70,11 +70,10 @@ private:
 	{
 		// phi = asin(xc / L)
 		float radians = std::asin(crankPinPosition.x / CONNECTING_ROD_LENGTH);
-		float degrees = radians * 180.0f / std::numbers::pi_v<float>;
+		float degrees = radians * 180 / std::numbers::pi_v<float>;
 		return degrees;
 	}
 
-private:
 	void BuildStaticBlock()
 	{
 		auto block = std::make_shared<CompositeDrawable>();
