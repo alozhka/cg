@@ -26,9 +26,28 @@ find_package(OpenGL REQUIRED)
 
 add_executable(asteroids main.cpp
         src/app/AsteroidsApplication.hpp
-        src/app/AsteroidsApplication.hpp
         src/app/GuiApplication.cpp
-        src/graphics/ShaderProgram.hpp)
+        src/app/GuiApplication.h
+        src/graphics/ShaderProgram.hpp
+        src/graphics/Drawable.hpp
+        src/graphics/CompositeDrawable.hpp
+        src/graphics/Mesh.hpp
+        src/graphics/Mat3.hpp
+        src/graphics/Vec2f.hpp
+        src/graphics/Color.hpp
+        src/model/Ship.hpp
+        src/model/Asteroid.hpp
+        src/model/Bullet.hpp
+        src/model/Debris.hpp
+        src/model/CollisionDetector.hpp
+        src/model/GameModel.hpp
+        src/viewmodel/InputState.hpp
+        src/viewmodel/GameViewModel.hpp
+        src/view/ShipView.hpp
+        src/view/AsteroidView.hpp
+        src/view/BulletView.hpp
+        src/view/DebrisView.hpp
+        src/view/GameView.hpp)
 
 target_include_directories(asteroids PRIVATE ${GLAD_DIR}/include)
 target_link_libraries(asteroids glfw glad OpenGL::GL)

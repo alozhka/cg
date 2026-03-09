@@ -22,6 +22,8 @@ protected:
 	virtual void OnMouseButton(int button, int action, Vec2f p);
 	virtual void OnMouseMove(Vec2f p);
 
+	GLFWwindow* GetWindow() const { return m_window; }
+
 private:
 	struct Size
 	{
