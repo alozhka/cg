@@ -10,7 +10,9 @@
 #include "SparkPlug.hpp"
 #include "Valve.hpp"
 
+#include <cmath>
 #include <memory>
+#include <numbers>
 
 class Engine final : public CompositeObject
 {
@@ -25,6 +27,39 @@ public:
 	void Update(float dt) override
 	{
 		CompositeObject::Update(dt);
+
+		constexpr float R = 35.0f; // radius of CrankShaft
+		constexpr float L = 95.0f; // length of ConnectingRod
+		constexpr float crankShaftCenter = -50.0f;
+
+		// 1. Update crank angle
+		float speed = 180.0f; // degrees per second
+		m_crankAngle += speed * dt;
+		if (m_crankAngle > 360.0f)
+		{
+			m_crankAngle -= 360.0f;
+		}
+
+		m_crankShaft->SetRotation(m_crankAngle);
+
+		// 2. Calculate Crank pin position
+		float angleRad = m_crankAngle * std::numbers::pi_v<float> / 180.0f;
+		float xc = -R * std::sin(angleRad);
+		float yc = crankShaftCenter + R * std::cos(angleRad);
+
+		// 3. Update ConnectingRod position (top head on crank pin)
+		m_connRod->SetPosition(xc, yc);
+
+		// 4. Calculate Piston position
+		// yp = yc + sqrt(L^2 - xc^2)
+		float yp = yc + std::sqrt(L * L - xc * xc);
+		m_piston->SetPosition(0, yp + 5.0f);
+
+		// 5. Calculate ConnectingRod rotation
+		// phi = asin(xc / L)
+		float phiRad = std::asin(xc / L);
+		float phiDeg = phiRad * 180.0f / std::numbers::pi_v<float>;
+		m_connRod->SetRotation(phiDeg);
 	}
 
 private:
@@ -65,7 +100,7 @@ private:
 		AddChild(m_crankShaft);
 
 		m_connRod = std::make_shared<EngineParts::ConnectingRod>(95.0);
-		m_connRod->SetPosition(0, crankShaftCenter + 35.0);
+		m_connRod->SetPosition(0, crankShaftCenter);
 		AddChild(m_connRod);
 
 		m_piston = std::make_shared<EngineParts::Piston>(60.0, 45.0);
@@ -76,17 +111,13 @@ private:
 
 	void BuildCylinderHead()
 	{
-		auto headGroup = std::make_shared<CompositeObject>();
-		float headY = 70 + 140.0 / 2 + 15;
+		float headY = 155;
 
-		// 1. Головка блока (Крышка)
-		headGroup->AddChild(std::make_shared<Rectangle>(
+		auto headBlock = std::make_shared<Rectangle>(
 			Vec2f{ 0, headY }, 120, 50,
-			Palette::CastIron));
+			Palette::CastIron);
+		AddChild(headBlock);
 
-		AddChild(headGroup);
-
-		// 2. Впускной канал (Труба слева) - повернутый прямоугольник
 		auto intakePipe = std::make_shared<EngineParts::Pipe>(-20.0);
 		intakePipe->SetPosition(-50, headY - 20);
 		AddChild(intakePipe);
@@ -95,8 +126,7 @@ private:
 		exhaustPipe->SetPosition(50, headY - 20);
 		AddChild(exhaustPipe);
 
-		// 4. Клапаны
-		double valveY = headY - 10;
+		float valveY = headY - 10;
 
 		auto leftValve = std::make_shared<EngineParts::Valve>();
 		leftValve->SetPosition(-15, valveY);
@@ -111,7 +141,8 @@ private:
 		AddChild(sparkPlug);
 	}
 
-	std::shared_ptr<CompositeObject> m_crankShaft;
-	std::shared_ptr<CompositeObject> m_piston;
-	std::shared_ptr<CompositeObject> m_connRod;
+	std::shared_ptr<EngineParts::CrankShaft> m_crankShaft;
+	std::shared_ptr<EngineParts::Piston> m_piston;
+	std::shared_ptr<EngineParts::ConnectingRod> m_connRod;
+	float m_crankAngle = 0.0f;
 };

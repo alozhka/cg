@@ -22,8 +22,7 @@ private:
 			Vec2f{ 10, m_rodLength / 2 },
 			14,
 			m_rodLength,
-			Palette::DarkSteel,
-			15);
+			Palette::DarkSteel);
 		AddChild(rod);
 
 		auto bottomConnectingRodHead = std::make_shared<Circle>(
