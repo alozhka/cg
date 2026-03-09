@@ -4,15 +4,14 @@
 #include "../graphics/Mat3.hpp"
 #include "../graphics/Mesh.hpp"
 #include "../graphics/ShaderProgram.hpp"
-#include "../model/Debris.hpp"
+#include "../viewmodel/ViewData.hpp"
 
-#include <memory>
 #include <vector>
 
 class DebrisView
 {
 public:
-	void Render(ShaderProgram& shader, const Mat3& projection, const std::vector<Debris>& debrisList)
+	void Render(ShaderProgram& shader, const Mat3& projection, const std::vector<DebrisViewModel>& debrisList)
 	{
 		for (const auto& d : debrisList)
 		{
@@ -26,7 +25,7 @@ public:
 				* Mat3::Rotate(d.angle);
 			Mat3 mvp = projection * model;
 
-			Color c{ 1.0f, 1.0f, 1.0f, d.GetAlpha() };
+			Color c{ 1.0f, 1.0f, 1.0f, d.alpha };
 
 			shader.SetUniformMat3("uViewProjection", mvp.ToFloatArray());
 			shader.SetUniformVec4("uColor", c.ToFloatArray());

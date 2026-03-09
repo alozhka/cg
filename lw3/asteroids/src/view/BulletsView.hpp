@@ -4,17 +4,17 @@
 #include "../graphics/Mat3.hpp"
 #include "../graphics/Mesh.hpp"
 #include "../graphics/ShaderProgram.hpp"
-#include "../model/Bullet.hpp"
+#include "../viewmodel/ViewData.hpp"
 
 #include <memory>
 #include <vector>
 
-class BulletView
+class BulletsView
 {
 public:
-	BulletView()
+	BulletsView()
 	{
-		float s = 2.0f;
+		constexpr float s = 2.0f;
 		std::vector<float> data = {
 			-s, -s,
 			 s, -s,
@@ -26,7 +26,7 @@ public:
 		m_mesh = std::make_unique<Mesh>(data, GL_TRIANGLES);
 	}
 
-	void Render(ShaderProgram& shader, const Mat3& projection, const std::vector<Bullet>& bullets)
+	void Render(ShaderProgram& shader, const Mat3& projection, const std::vector<BulletViewModel>& bullets)
 	{
 		shader.SetUniformVec4("uColor", m_color.ToFloatArray());
 

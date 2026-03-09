@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../viewmodel/GameViewModel.hpp"
-#include "AsteroidView.hpp"
-#include "BulletView.hpp"
+#include "AsteroidsView.hpp"
+#include "BulletsView.hpp"
 #include "DebrisView.hpp"
 #include "ShipView.hpp"
 
@@ -11,20 +11,20 @@ class GameView
 public:
 	void Render(ShaderProgram& shader, const Mat3& projection, const GameViewModel& vm)
 	{
-		m_asteroidView.Render(shader, projection, vm.GetAsteroids());
-		m_bulletView.Render(shader, projection, vm.GetBullets());
-		m_shipView.Render(shader, projection, vm.GetShip());
-		m_debrisView.Render(shader, projection, vm.GetDebris());
+		m_asteroidsView.Render(shader, projection, vm.GetAsteroidsViewModel());
+		m_bulletsView.Render(shader, projection, vm.GetBulletsViewModel());
+		m_shipView.Render(shader, projection, vm.GetShipViewModel());
+		m_debrisView.Render(shader, projection, vm.GetDebrisViewModel());
 	}
 
 	void OnRestart()
 	{
-		m_asteroidView.ClearMeshes();
+		m_asteroidsView.ClearMeshes();
 	}
 
 private:
 	ShipView m_shipView;
-	AsteroidView m_asteroidView;
-	BulletView m_bulletView;
+	AsteroidsView m_asteroidsView;
+	BulletsView m_bulletsView;
 	DebrisView m_debrisView;
 };

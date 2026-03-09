@@ -2,7 +2,10 @@
 
 #include "../model/GameModel.hpp"
 #include "InputState.hpp"
+#include "ViewData.hpp"
 
+#include <cmath>
+#include <numbers>
 #include <string>
 
 class GameViewModel
@@ -51,10 +54,65 @@ public:
 
 	void SetWorldSize(float w, float h) { m_model.SetWorldSize(w, h); }
 
-	const Ship& GetShip() const { return m_model.GetShip(); }
-	const std::vector<Asteroid>& GetAsteroids() const { return m_model.GetAsteroids(); }
-	const std::vector<Bullet>& GetBullets() const { return m_model.GetBullets(); }
-	const std::vector<Debris>& GetDebris() const { return m_model.GetDebris(); }
+	ShipViewModel GetShipViewModel() const
+	{
+		const Ship& ship = m_model.GetShip();
+
+		ShipViewModel vm;
+		vm.position = ship.position;
+		vm.angle = ship.angle;
+		vm.alive = ship.alive;
+		vm.thrusting = ship.thrusting;
+		vm.vertices = Ship::GetShipVertices();
+		vm.flameVertices = BuildFlameVertices();
+		return vm;
+	}
+
+	std::vector<AsteroidViewModel> GetAsteroidsViewModel() const
+	{
+		std::vector<AsteroidViewModel> result;
+		result.reserve(m_model.GetAsteroids().size());
+		for (const auto& a : m_model.GetAsteroids())
+		{
+			AsteroidViewModel vm;
+			vm.position = a.position;
+			vm.angle = a.angle;
+			vm.vertices = a.vertices;
+			result.push_back(std::move(vm));
+		}
+		return result;
+	}
+
+	std::vector<BulletViewModel> GetBulletsViewModel() const
+	{
+		std::vector<BulletViewModel> result;
+		result.reserve(m_model.GetBullets().size());
+		for (const auto& b : m_model.GetBullets())
+		{
+			BulletViewModel vm;
+			vm.position = b.position;
+			result.push_back(vm);
+		}
+		return result;
+	}
+
+	std::vector<DebrisViewModel> GetDebrisViewModel() const
+	{
+		std::vector<DebrisViewModel> result;
+		result.reserve(m_model.GetDebris().size());
+		for (const auto& d : m_model.GetDebris())
+		{
+			DebrisViewModel vm;
+			vm.position = d.position;
+			vm.angle = d.angle;
+			vm.lineStart = d.lineStart;
+			vm.lineEnd = d.lineEnd;
+			vm.alpha = d.GetAlpha();
+			result.push_back(std::move(vm));
+		}
+		return result;
+	}
+
 	int GetScore() const { return m_model.GetScore(); }
 	int GetLives() const { return m_model.GetLives(); }
 	GameState GetGameState() const { return m_model.GetState(); }
@@ -66,11 +124,18 @@ public:
 			+ " | Lives: " + std::to_string(m_model.GetLives());
 	}
 
-	void RestartGame()
-	{
-		m_model.Reset();
-	}
+	void RestartGame() { m_model.Reset(); }
 
 private:
+	static std::vector<Vec2f> BuildFlameVertices()
+	{
+		constexpr float r = Ship::SHIP_RADIUS;
+		return {
+			{ -r * 0.3f, -r * 0.4f },
+			{ 0.0f, -r * 1.1f },
+			{ r * 0.3f, -r * 0.4f },
+		};
+	}
+
 	GameModel m_model;
 };

@@ -4,7 +4,7 @@
 #include "../graphics/Mat3.hpp"
 #include "../graphics/Mesh.hpp"
 #include "../graphics/ShaderProgram.hpp"
-#include "../model/Ship.hpp"
+#include "../viewmodel/ViewData.hpp"
 
 class ShipView
 {
@@ -28,7 +28,7 @@ public:
 		m_flameMesh = std::make_unique<Mesh>(flameData, GL_LINE_LOOP);
 	}
 
-	void Render(ShaderProgram& shader, const Mat3& projection, const Ship& ship)
+	void Render(ShaderProgram& shader, const Mat3& projection, const ShipViewModel& ship)
 	{
 		if (!ship.alive) return;
 

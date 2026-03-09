@@ -45,7 +45,6 @@ add_executable(asteroids main.cpp
         src/viewmodel/GameViewModel.hpp
         src/view/ShipView.hpp
         src/view/AsteroidView.hpp
-        src/view/BulletView.hpp
         src/view/DebrisView.hpp
         src/view/GameView.hpp)
 
