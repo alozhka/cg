@@ -10,6 +10,10 @@ GuiApplication::GuiApplication(int width, int height, const std::string& title)
 		throw std::runtime_error("Failed to initialize window");
 	}
 
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 	m_window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
 	if (!m_window)
 	{
@@ -123,9 +127,9 @@ void GuiApplication::MainLoop()
 Mat3 GuiApplication::GetProjectionMatrix() const
 {
 	Size size = GetWindowSize();
-	double viewWidth = size.width;
-	double viewHeight = size.height;
-	double currentAspectRatio = viewWidth / viewHeight;
+	float viewWidth = size.width;
+	float viewHeight = size.height;
+	float currentAspectRatio = viewWidth / viewHeight;
 
 	if (currentAspectRatio > 1)
 	{
@@ -136,8 +140,8 @@ Mat3 GuiApplication::GetProjectionMatrix() const
 		viewHeight = viewWidth / currentAspectRatio;
 	}
 
-	double halfWidth = 0.5 * viewWidth;
-	double halfHeight = 0.5 * viewHeight;
+	float halfWidth = 0.5 * viewWidth;
+	float halfHeight = 0.5 * viewHeight;
 
 	return Mat3::Ortho(-halfWidth, halfWidth, -halfHeight, halfHeight);
 }
