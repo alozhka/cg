@@ -1,7 +1,7 @@
 #pragma once
 #include "../graphics/Color.hpp"
-#include "../graphics/CompositeObject.hpp"
-#include "../graphics/SceneObject.hpp"
+#include "../graphics/CompositeDrawable.hpp"
+#include "../graphics/Drawable.hpp"
 #include "../shapes/Rectangle.hpp"
 #include "ConnectingRod.hpp"
 #include "CrankShaft.hpp"
@@ -14,7 +14,7 @@
 #include <memory>
 #include <numbers>
 
-class Engine final : public CompositeObject
+class Engine final : public CompositeDrawable
 {
 public:
 	Engine()
@@ -26,7 +26,7 @@ public:
 
 	void Update(float dt) override
 	{
-		CompositeObject::Update(dt);
+		CompositeDrawable::Update(dt);
 
 		UpdateCrankAngle(dt);
 		m_crankShaft->SetRotation(m_crankAngle);
@@ -77,7 +77,7 @@ private:
 private:
 	void BuildStaticBlock()
 	{
-		auto block = std::make_shared<CompositeObject>();
+		auto block = std::make_shared<CompositeDrawable>();
 
 		auto carter = std::make_shared<Rectangle>(
 			Vec2f{ 0, -50 },

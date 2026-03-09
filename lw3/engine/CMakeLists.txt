@@ -27,8 +27,8 @@ find_package(OpenGL REQUIRED)
 add_executable(engine main.cpp
         src/app/GuiApplication.cpp
         src/graphics/Color.hpp
-        src/graphics/SceneObject.hpp
-        src/graphics/CompositeObject.hpp
+        src/graphics/Drawable.hpp
+        src/graphics/CompositeDrawable.hpp
         src/shapes/Rectangle.hpp
         src/shapes/Circle.hpp
         src/engine/Engine.hpp

@@ -1,10 +1,10 @@
 #pragma once
-#include "../graphics/CompositeObject.hpp"
+#include "../graphics/CompositeDrawable.hpp"
 #include "../shapes/Rectangle.hpp"
 
 namespace EngineParts
 {
-class Pipe final : public CompositeObject
+class Pipe final : public CompositeDrawable
 {
 public:
 	explicit Pipe(float degrees)

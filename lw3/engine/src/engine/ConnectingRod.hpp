@@ -1,11 +1,11 @@
 #pragma once
-#include "../graphics/CompositeObject.hpp"
+#include "../graphics/CompositeDrawable.hpp"
 #include "../shapes/Circle.hpp"
 #include "../shapes/Rectangle.hpp"
 
 namespace EngineParts
 {
-class ConnectingRod final : public CompositeObject
+class ConnectingRod final : public CompositeDrawable
 {
 
 public:

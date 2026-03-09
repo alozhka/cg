@@ -1,6 +1,6 @@
 #pragma once
 #include "../engine/Engine.hpp"
-#include "../graphics/CompositeObject.hpp"
+#include "../graphics/CompositeDrawable.hpp"
 #include "../graphics/ShaderProgram.hpp"
 #include "GuiApplication.h"
 

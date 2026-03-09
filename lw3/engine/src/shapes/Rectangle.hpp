@@ -1,13 +1,13 @@
 #pragma once
 #include "../graphics/Color.hpp"
+#include "../graphics/Drawable.hpp"
 #include "../graphics/Mesh.hpp"
-#include "../graphics/SceneObject.hpp"
 
-class Rectangle : public SceneObject
+class Rectangle : public Drawable
 {
 public:
 	Rectangle(Vec2f p, float width, float height, const Color& color, float rotation = 0)
-		: SceneObject(p, rotation, 1)
+		: Drawable(p, rotation, 1)
 		, m_width(width)
 		, m_height(height)
 		, m_color(color)

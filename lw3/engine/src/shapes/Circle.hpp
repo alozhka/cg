@@ -1,13 +1,13 @@
 #pragma once
 #include "../graphics/Color.hpp"
+#include "../graphics/Drawable.hpp"
 #include "../graphics/Mesh.hpp"
-#include "../graphics/SceneObject.hpp"
 
-class Circle : public SceneObject
+class Circle : public Drawable
 {
 public:
 	Circle(Vec2f center, Color color, float radius, int segments = 30)
-		: SceneObject(center, 0, 1)
+		: Drawable(center, 0, 1)
 		, m_radius(radius)
 		, m_color(color)
 		, m_mesh(CreateMesh(radius, segments))

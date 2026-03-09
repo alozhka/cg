@@ -1,10 +1,10 @@
 #pragma once
-#include "../graphics/CompositeObject.hpp"
+#include "../graphics/CompositeDrawable.hpp"
 #include "../shapes/Rectangle.hpp"
 
 namespace EngineParts
 {
-class SparkPlug final : public CompositeObject
+class SparkPlug final : public CompositeDrawable
 {
 public:
 	explicit SparkPlug()

@@ -1,10 +1,10 @@
 #pragma once
-#include "../graphics/CompositeObject.hpp"
+#include "../graphics/CompositeDrawable.hpp"
 #include "../shapes/Rectangle.hpp"
 
 namespace EngineParts
 {
-class Valve final : public CompositeObject
+class Valve final : public CompositeDrawable
 {
 public:
 	Valve()

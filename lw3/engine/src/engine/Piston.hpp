@@ -1,9 +1,9 @@
 #pragma once
-#include "../graphics/CompositeObject.hpp"
+#include "../graphics/CompositeDrawable.hpp"
 
 namespace EngineParts
 {
-class Piston final : public CompositeObject
+class Piston final : public CompositeDrawable
 {
 public:
 	Piston(float pistonWidth, float pistonHeight)
