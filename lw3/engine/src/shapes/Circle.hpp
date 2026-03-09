@@ -1,6 +1,7 @@
 #pragma once
-#include "../shared/Color.hpp"
-#include "../shared/SceneObject.hpp"
+#include "../graphics/Color.hpp"
+#include "../graphics/Mesh.hpp"
+#include "../graphics/SceneObject.hpp"
 
 class Circle : public SceneObject
 {

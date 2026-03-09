@@ -1,8 +1,8 @@
 #pragma once
+#include "../graphics/Color.hpp"
+#include "../graphics/CompositeObject.hpp"
+#include "../graphics/SceneObject.hpp"
 #include "../shapes/Rectangle.hpp"
-#include "../shared/Color.hpp"
-#include "../shared/CompositeObject.hpp"
-#include "../shared/SceneObject.hpp"
 #include "ConnectingRod.hpp"
 #include "CrankShaft.hpp"
 #include "Pipe.hpp"

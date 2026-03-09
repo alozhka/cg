@@ -1,7 +1,7 @@
 #pragma once
 #define GLFW_INCLUDE_NONE
-#include "../render/Mat3.hpp"
-#include "../render/Vec2f.hpp"
+#include "../graphics/Mat3.hpp"
+#include "../graphics/Vec2f.hpp"
 #include "GLFW/glfw3.h"
 
 #include <string>

@@ -26,9 +26,9 @@ find_package(OpenGL REQUIRED)
 
 add_executable(engine main.cpp
         src/app/GuiApplication.cpp
-        src/shared/Color.hpp
-        src/shared/SceneObject.hpp
-        src/shared/CompositeObject.hpp
+        src/graphics/Color.hpp
+        src/graphics/SceneObject.hpp
+        src/graphics/CompositeObject.hpp
         src/shapes/Rectangle.hpp
         src/shapes/Circle.hpp
         src/engine/Engine.hpp
@@ -38,10 +38,10 @@ add_executable(engine main.cpp
         src/engine/SparkPlug.hpp
         src/engine/Valve.hpp
         src/engine/Pipe.hpp
-        src/render/ShaderProgram.hpp
-        src/render/Mat3.hpp
-        src/render/Mesh.hpp
-        src/render/Vec2f.hpp)
+        src/graphics/ShaderProgram.hpp
+        src/graphics/Mat3.hpp
+        src/graphics/Mesh.hpp
+        src/graphics/Vec2f.hpp)
 
 target_include_directories(engine PRIVATE ${GLAD_DIR}/include)
 target_link_libraries(engine glfw glad OpenGL::GL)
@@ -49,6 +49,6 @@ target_link_libraries(engine glfw glad OpenGL::GL)
 add_custom_command(
         TARGET engine PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/render/assets
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/assets
         $<TARGET_FILE_DIR:engine>/assets
 )

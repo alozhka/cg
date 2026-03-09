@@ -1,7 +1,7 @@
 #pragma once
 #include "../engine/Engine.hpp"
-#include "../render/ShaderProgram.hpp"
-#include "../shared/CompositeObject.hpp"
+#include "../graphics/CompositeObject.hpp"
+#include "../graphics/ShaderProgram.hpp"
 #include "GuiApplication.h"
 
 class EngineApplication : public GuiApplication

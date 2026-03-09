@@ -1,5 +1,5 @@
 #pragma once
-#include "../shared/CompositeObject.hpp"
+#include "../graphics/CompositeObject.hpp"
 
 namespace EngineParts
 {

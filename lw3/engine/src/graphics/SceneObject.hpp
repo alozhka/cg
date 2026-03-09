@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../render/Mat3.hpp"
-#include "../render/ShaderProgram.hpp"
-#include "../render/Vec2f.hpp"
+#include "Mat3.hpp"
+#include "ShaderProgram.hpp"
+#include "Vec2f.hpp"
 
 #include <memory>
 

@@ -1,7 +1,7 @@
 #pragma once
+#include "../graphics/CompositeObject.hpp"
 #include "../shapes/Circle.hpp"
 #include "../shapes/Rectangle.hpp"
-#include "../shared/CompositeObject.hpp"
 
 namespace EngineParts
 {
