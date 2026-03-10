@@ -5,6 +5,7 @@
 #include "../shapes/Rectangle.hpp"
 #include "ConnectingRod.hpp"
 #include "CrankShaft.hpp"
+#include "Explosion.hpp"
 #include "Pipe.hpp"
 #include "Piston.hpp"
 #include "SparkPlug.hpp"
@@ -21,6 +22,7 @@ public:
 	{
 		BuildStaticBlock();
 		BuildMovingParts();
+		BuildExplosion();
 		BuildCylinderHead();
 	}
 
@@ -30,6 +32,8 @@ public:
 
 		UpdateCrankAngle(dt);
 		m_crankShaft->SetRotation(m_crankAngle);
+
+		TriggerExplosion();
 
 		Vec2f crankPinPos = ComputeCrankPinPosition(m_crankAngle);
 		m_connRod->SetPosition(crankPinPos);
@@ -49,6 +53,14 @@ private:
 		if (m_crankAngle > 360)
 		{
 			m_crankAngle -= 360;
+		}
+	}
+
+	void TriggerExplosion()
+	{
+		if (m_crankAngle > 300)
+		{
+			m_explosion->Trigger();
 		}
 	}
 
@@ -120,6 +132,13 @@ private:
 		AddChild(m_piston);
 	}
 
+	void BuildExplosion()
+	{
+		m_explosion = std::make_shared<Explosion>(25, 0.6);
+		m_explosion->SetPosition(0, 135);
+		AddChild(m_explosion);
+	}
+
 	void BuildCylinderHead()
 	{
 		auto headBlock = std::make_shared<Rectangle>(
@@ -157,4 +176,5 @@ private:
 	std::shared_ptr<EngineParts::CrankShaft> m_crankShaft;
 	std::shared_ptr<EngineParts::Piston> m_piston;
 	std::shared_ptr<EngineParts::ConnectingRod> m_connRod;
+	std::shared_ptr<Explosion> m_explosion;
 };
