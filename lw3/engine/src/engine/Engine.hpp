@@ -44,6 +44,7 @@ public:
 private:
 	void UpdateCrankAngle(float dt)
 	{
+		// θ(t)= θ0 + ω⋅t
 		m_crankAngle += ANGLE_SPEED * dt;
 		if (m_crankAngle > 360)
 		{
@@ -54,21 +55,23 @@ private:
 	static Vec2f ComputeCrankPinPosition(float degrees)
 	{
 		float radians = degrees * std::numbers::pi_v<float> / 180;
-		float x = -CRANKSHAFT_RADIUS * std::sin(radians);
+		// xc = x0 + R * sin(θ)
+		float x = -(0 + CRANKSHAFT_RADIUS * std::sin(radians));
+		// yc = y0 + R * cos(θ)
 		float y = CRANKSHAFT_CENTER + CRANKSHAFT_RADIUS * std::cos(radians);
 		return { x, y };
 	}
 
 	static Vec2f ComputePistonPosition(Vec2f crankPinPosition)
 	{
-		// y = y0 + sqrt(L^2 - x0^2)
+		// y = y0 + sqrt(с^2 - x0^2)
 		float y = crankPinPosition.y + std::sqrt(std::pow(CONNECTING_ROD_LENGTH, 2) - std::pow(crankPinPosition.x, 2));
 		return { 0, y };
 	}
 
 	static float ComputeConnectingRodRotation(Vec2f crankPinPosition)
 	{
-		// phi = asin(xc / L)
+		// φ = arcsin(Lx/c)
 		float radians = std::asin(crankPinPosition.x / CONNECTING_ROD_LENGTH);
 		float degrees = radians * 180 / std::numbers::pi_v<float>;
 		return degrees;
