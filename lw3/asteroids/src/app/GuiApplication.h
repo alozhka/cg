@@ -3,6 +3,7 @@
 #include "../graphics/Mat3.hpp"
 #include "../graphics/Vec2f.hpp"
 #include "GLFW/glfw3.h"
+#include "KeyboardReader.hpp"
 
 #include <string>
 
@@ -21,6 +22,8 @@ protected:
 	virtual void OnDraw(const Mat3& projection) = 0;
 	virtual void OnMouseButton(int button, int action, Vec2f p);
 	virtual void OnMouseMove(Vec2f p);
+
+	KeyboardReader CreateKeyboardReader() const;
 
 private:
 	struct Size

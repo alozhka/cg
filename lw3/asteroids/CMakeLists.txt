@@ -35,7 +35,8 @@ add_executable(asteroids main.cpp
         src/asteroids/view/SpaceshipView.hpp
         src/asteroids/viewModel/AsteroidsGameViewModel.hpp
         src/asteroids/viewModel/SpaceshipViewModel.hpp
-        src/graphics/Drawable.hpp)
+        src/graphics/Drawable.hpp
+        src/app/KeyboardReader.hpp)
 
 target_include_directories(asteroids PRIVATE ${GLAD_DIR}/include)
 target_link_libraries(asteroids glfw glad OpenGL::GL)

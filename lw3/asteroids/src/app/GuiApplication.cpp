@@ -48,6 +48,11 @@ void GuiApplication::OnMouseMove(Vec2f p)
 {
 }
 
+KeyboardReader GuiApplication::CreateKeyboardReader() const
+{
+	return KeyboardReader(m_window);
+}
+
 void GuiApplication::MouseButtonCallback(GLFWwindow* window, int button, int action, int)
 {
 	if (GuiApplication* app = GetInstance(window))
