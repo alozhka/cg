@@ -45,6 +45,19 @@ private:
 		{
 			m_asteroidsGame.GetSpaceship()->ApplyThrust(dt);
 		}
+
+		bool shouldRotateLeft = m_keyboard.IsButtonPressed(GLFW_KEY_LEFT);
+		if (shouldRotateLeft)
+		{
+			m_asteroidsGame.GetSpaceship()->ApplyLeftRotation();
+		}
+
+		bool shouldRotateRight = m_keyboard.IsButtonPressed(GLFW_KEY_RIGHT);
+		if (shouldRotateRight)
+		{
+			m_asteroidsGame.GetSpaceship()->ApplyRightRotation();
+		}
+
 		m_asteroidsGame.GetSpaceship()->Update(dt);
 	}
 

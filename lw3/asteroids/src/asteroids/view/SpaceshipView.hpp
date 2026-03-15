@@ -16,9 +16,9 @@ public:
 	void Draw(ShaderProgram& shader, const Mat3& projection)
 	{
 		Vec2f pos = m_viewModel.GetPosition();
-		Mat3 mvp = Mat3::Translate(pos.x, pos.y)
-			* Mat3::Rotate(m_viewModel.GetAngle())
-			* projection;
+		Mat3 mvp = projection
+			* Mat3::Translate(pos.x, pos.y)
+			* Mat3::Rotate(m_viewModel.GetAngle());
 
 		shader.SetUniformMat3("uViewProjection", mvp.ToFloatArray());
 		shader.SetUniformVec4("uColor", m_shipColor.ToFloatArray());

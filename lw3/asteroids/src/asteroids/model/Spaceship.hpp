@@ -22,10 +22,27 @@ public:
 		}
 	}
 
+	void ApplyLeftRotation()
+	{
+		m_angularVelocity = MAX_ANGLE_SPEED;
+	}
+
+	void ApplyRightRotation()
+	{
+		m_angularVelocity = -MAX_ANGLE_SPEED;
+	}
+
 	void Update(float dt)
 	{
 		m_velocity *= FRICTION;
 		m_position += m_velocity * dt;
+
+		m_angularVelocity *= ANGLE_FRICTION;
+		m_angleInDegrees += m_angularVelocity * dt;
+		if (m_angleInDegrees >= 360)
+		{
+			m_angleInDegrees -= 360;
+		}
 	}
 
 	std::vector<Vec2f> ListVertices()
@@ -45,25 +62,26 @@ public:
 
 	float GetAngle() const
 	{
-		return m_angle;
+		return m_angleInDegrees;
 	}
 
 private:
 	Vec2f GetNoseDirection() const
 	{
-		float radians = m_angle * std::numbers::pi_v<float> / 180;
+		float radians = m_angleInDegrees * std::numbers::pi_v<float> / 180;
 		return { -std::sin(radians), std::cos(radians) };
 	}
 
-	static constexpr float THRUST_FORCE = 2;
-	static constexpr float MAX_SPEED = 10;
+	static constexpr float THRUST_FORCE = 400;
+	static constexpr float MAX_SPEED = 500;
+	static constexpr float MAX_ANGLE_SPEED = 250;
 	static constexpr float FRICTION = 0.98;
 	static constexpr float ANGLE_FRICTION = 0.8;
 
 	bool m_isThrusting = false;
 	Vec2f m_position{ 0, 0 };
 	Vec2f m_velocity{ 0, 0 };
-	float m_angle = 0;
+	float m_angleInDegrees = 0;
 	float m_angularVelocity = 0;
 };
 
