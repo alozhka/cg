@@ -5,6 +5,7 @@
 #include "../shapes/Rectangle.hpp"
 #include "ConnectingRod.hpp"
 #include "CrankShaft.hpp"
+#include "Explosion.hpp"
 #include "Pipe.hpp"
 #include "Piston.hpp"
 #include "SparkPlug.hpp"
@@ -21,6 +22,7 @@ public:
 	{
 		BuildStaticBlock();
 		BuildMovingParts();
+		BuildExplosion();
 		BuildCylinderHead();
 	}
 
@@ -30,6 +32,8 @@ public:
 
 		UpdateCrankAngle(dt);
 		m_crankShaft->SetRotation(m_crankAngle);
+
+		TriggerExplosion();
 
 		Vec2f crankPinPos = ComputeCrankPinPosition(m_crankAngle);
 		m_connRod->SetPosition(crankPinPos);
@@ -44,37 +48,47 @@ public:
 private:
 	void UpdateCrankAngle(float dt)
 	{
+		// θ(t)= θ0 + ω⋅t
 		m_crankAngle += ANGLE_SPEED * dt;
-		if (m_crankAngle > 360.0f)
+		if (m_crankAngle > 360)
 		{
-			m_crankAngle -= 360.0f;
+			m_crankAngle -= 360;
 		}
 	}
 
-	static Vec2f ComputeCrankPinPosition(float angle)
+	void TriggerExplosion()
 	{
-		float angleRad = angle * std::numbers::pi_v<float> / 180.0f;
-		float x = -CRANKSHAFT_RADIUS * std::sin(angleRad);
-		float y = CRANKSHAFT_CENTER + CRANKSHAFT_RADIUS * std::cos(angleRad);
+		if (m_crankAngle > 300)
+		{
+			m_explosion->Trigger();
+		}
+	}
+
+	static Vec2f ComputeCrankPinPosition(float degrees)
+	{
+		float radians = degrees * std::numbers::pi_v<float> / 180;
+		// xc = x0 + R * sin(θ)
+		float x = -(0 + CRANKSHAFT_RADIUS * std::sin(radians));
+		// yc = y0 + R * cos(θ)
+		float y = CRANKSHAFT_CENTER + CRANKSHAFT_RADIUS * std::cos(radians);
 		return { x, y };
 	}
 
 	static Vec2f ComputePistonPosition(Vec2f crankPinPosition)
 	{
-		// y = y0 + sqrt(L^2 - x0^2)
+		// y = y0 + sqrt(с^2 - x0^2)
 		float y = crankPinPosition.y + std::sqrt(std::pow(CONNECTING_ROD_LENGTH, 2) - std::pow(crankPinPosition.x, 2));
 		return { 0, y };
 	}
 
 	static float ComputeConnectingRodRotation(Vec2f crankPinPosition)
 	{
-		// phi = asin(xc / L)
+		// φ = arcsin(Lx/c)
 		float radians = std::asin(crankPinPosition.x / CONNECTING_ROD_LENGTH);
-		float degrees = radians * 180.0f / std::numbers::pi_v<float>;
+		float degrees = radians * 180 / std::numbers::pi_v<float>;
 		return degrees;
 	}
 
-private:
 	void BuildStaticBlock()
 	{
 		auto block = std::make_shared<CompositeDrawable>();
@@ -113,41 +127,43 @@ private:
 		m_connRod->SetPosition(0, CRANKSHAFT_CENTER + 50);
 		AddChild(m_connRod);
 
-		m_piston = std::make_shared<EngineParts::Piston>(60.0, 45.0);
-		// Позиция: Центр коленвала + Радиус + Длина шатуна
+		m_piston = std::make_shared<EngineParts::Piston>(60, 45);
 		m_piston->SetPosition(0, CRANKSHAFT_CENTER + CRANKSHAFT_RADIUS + CONNECTING_ROD_LENGTH);
 		AddChild(m_piston);
 	}
 
+	void BuildExplosion()
+	{
+		m_explosion = std::make_shared<Explosion>(25, 0.6);
+		m_explosion->SetPosition(0, 135);
+		AddChild(m_explosion);
+	}
+
 	void BuildCylinderHead()
 	{
-		float headY = 155;
-
 		auto headBlock = std::make_shared<Rectangle>(
-			Vec2f{ 0, headY }, 120, 50,
+			Vec2f{ 0, 155 }, 120, 50,
 			Palette::CastIron);
 		AddChild(headBlock);
 
-		auto intakePipe = std::make_shared<EngineParts::Pipe>(-20.0);
-		intakePipe->SetPosition(-50, headY - 20);
+		auto intakePipe = std::make_shared<EngineParts::Pipe>(-20);
+		intakePipe->SetPosition(-50, 135);
 		AddChild(intakePipe);
 
 		auto exhaustPipe = std::make_shared<EngineParts::Pipe>(20);
-		exhaustPipe->SetPosition(50, headY - 20);
+		exhaustPipe->SetPosition(50, 135);
 		AddChild(exhaustPipe);
 
-		float valveY = headY - 10;
-
 		auto leftValve = std::make_shared<EngineParts::Valve>();
-		leftValve->SetPosition(-15, valveY);
+		leftValve->SetPosition(-15, 145);
 		AddChild(leftValve);
 
 		auto rightValve = std::make_shared<EngineParts::Valve>();
-		rightValve->SetPosition(15, valveY);
+		rightValve->SetPosition(15, 145);
 		AddChild(rightValve);
 
 		auto sparkPlug = std::make_shared<EngineParts::SparkPlug>();
-		sparkPlug->SetPosition(0, headY);
+		sparkPlug->SetPosition(0, 155);
 		AddChild(sparkPlug);
 	}
 
@@ -160,4 +176,5 @@ private:
 	std::shared_ptr<EngineParts::CrankShaft> m_crankShaft;
 	std::shared_ptr<EngineParts::Piston> m_piston;
 	std::shared_ptr<EngineParts::ConnectingRod> m_connRod;
+	std::shared_ptr<Explosion> m_explosion;
 };

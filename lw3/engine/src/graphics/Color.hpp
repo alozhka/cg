@@ -21,4 +21,5 @@ constexpr Color DarkSteel{ 0.50, 0.50, 0.55 };
 constexpr Color CrankGreen{ 0.60, 0.70, 0.60 };
 constexpr Color ValveColor{ 0.40, 0.30, 0.20 };
 constexpr Color SparkPlug{ 0.90, 0.90, 0.80 };
+constexpr Color Explosion{ 1.0f, 0.5f, 0.1f };
 } // namespace Palette
