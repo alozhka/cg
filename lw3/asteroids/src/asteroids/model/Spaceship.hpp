@@ -1,5 +1,6 @@
 #pragma once
 #include "../../graphics/Vec2f.hpp"
+#include "Coordinates.hpp"
 
 #include <memory>
 #include <vector>
@@ -60,7 +61,7 @@ public:
 	{
 		m_velocity *= FRICTION;
 		m_position += m_velocity * dt;
-		WrapPosition();
+		m_position = Coordinates::Wrap(m_position, m_worldWidth, m_worldHeight);
 	}
 
 	void UpdateAnglePosition(float dt)
@@ -92,6 +93,22 @@ public:
 		};
 	}
 
+	Vec2f GetNoseDirection() const
+	{
+		float radians = m_angleInDegrees * std::numbers::pi_v<float> / 180;
+		return { -std::sin(radians), std::cos(radians) };
+	}
+
+	Vec2f GetNosePosition() const
+	{
+		return m_position + GetNoseDirection() * SPACESHIP_RADIUS;
+	}
+
+	Vec2f GetVelocity() const
+	{
+		return m_velocity;
+	}
+
 	Vec2f GetPosition() const
 	{
 		return m_position;
@@ -108,35 +125,7 @@ public:
 	}
 
 private:
-	void WrapPosition()
-	{
-		float halfWidth = m_worldWidth * 0.5f;
-		float halfHeight = m_worldHeight * 0.5f;
-
-		if (m_position.x < -halfWidth)
-		{
-			m_position.x += m_worldWidth;
-		}
-		if (m_position.x > halfWidth)
-		{
-			m_position.x -= m_worldWidth;
-		}
-		if (m_position.y < -halfHeight)
-		{
-			m_position.y += m_worldHeight;
-		}
-		if (m_position.y > halfHeight)
-		{
-			m_position.y -= m_worldHeight;
-		}
-	}
-
-	Vec2f GetNoseDirection() const
-	{
-		float radians = m_angleInDegrees * std::numbers::pi_v<float> / 180;
-		return { -std::sin(radians), std::cos(radians) };
-	}
-
+	static constexpr float SPACESHIP_RADIUS = 15;
 	static constexpr float THRUST_FORCE = 600;
 	static constexpr float MAX_SPEED = 900;
 	static constexpr float MAX_ANGLE_SPEED = 250;

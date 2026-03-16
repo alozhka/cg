@@ -9,7 +9,7 @@ class AsteroidsApplication final : public GuiApplication
 public:
 	AsteroidsApplication(int width, int height, const std::string& title)
 		: GuiApplication(width, height, title)
-		, m_asteroidsGame(width, height)
+		, m_asteroidsGame(std::make_shared<AsteroidsGame>(width, height))
 		, m_asteroidsGameViewModel(m_asteroidsGame)
 		, m_asteroidsGameView(m_asteroidsGameViewModel)
 		, m_keyboard(CreateKeyboardReader())
@@ -35,34 +35,39 @@ private:
 	void Update()
 	{
 		float dt = GetDeltaTime();
-		UpdateSpaceship(dt);
+		HandleKeyboardClicks();
+		m_asteroidsGame->Update(dt);
 	}
 
-	void UpdateSpaceship(float dt)
+	void HandleKeyboardClicks()
 	{
 		bool shouldThrust = m_keyboard.IsButtonPressed(GLFW_KEY_UP);
 		if (shouldThrust)
 		{
-			m_asteroidsGame.GetSpaceship()->BeginThrust();
+			m_asteroidsGame->GetSpaceship()->BeginThrust();
 		}
 		else
 		{
-			m_asteroidsGame.GetSpaceship()->FinishThrust();
+			m_asteroidsGame->GetSpaceship()->FinishThrust();
 		}
 
 		bool shouldRotateLeft = m_keyboard.IsButtonPressed(GLFW_KEY_LEFT);
 		if (shouldRotateLeft)
 		{
-			m_asteroidsGame.GetSpaceship()->ApplyLeftRotation();
+			m_asteroidsGame->GetSpaceship()->ApplyLeftRotation();
 		}
 
 		bool shouldRotateRight = m_keyboard.IsButtonPressed(GLFW_KEY_RIGHT);
 		if (shouldRotateRight)
 		{
-			m_asteroidsGame.GetSpaceship()->ApplyRightRotation();
+			m_asteroidsGame->GetSpaceship()->ApplyRightRotation();
 		}
 
-		m_asteroidsGame.GetSpaceship()->Update(dt);
+		bool shouldShoot = m_keyboard.IsButtonPressed(GLFW_KEY_SPACE);
+		if (shouldShoot)
+		{
+			m_asteroidsGame->FireBullet();
+		}
 	}
 
 	float GetDeltaTime()
@@ -79,7 +84,7 @@ private:
 		return static_cast<float>(glfwGetTime());
 	}
 
-	AsteroidsGame m_asteroidsGame;
+	AsteroidsGamePtr m_asteroidsGame;
 	AsteroidsGameViewModel m_asteroidsGameViewModel;
 	AsteroidsGameView m_asteroidsGameView;
 

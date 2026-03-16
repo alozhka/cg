@@ -1,20 +1,26 @@
 #pragma once
 #include "../model/AsteroidsGame.hpp"
+#include "BulletsViewModel.hpp"
 #include "SpaceshipViewModel.hpp"
 
 class AsteroidsGameViewModel
 {
 public:
-	explicit AsteroidsGameViewModel(const AsteroidsGame& asteroidsGame)
+	explicit AsteroidsGameViewModel(const AsteroidsGamePtr& asteroidsGame)
 		: m_asteroidsGame(asteroidsGame)
 	{
 	}
 
-	SpaceshipViewModel GetSpaceshipViewModel() const
+	SpaceshipViewModel CreateSpaceshipViewModel() const
 	{
-		return SpaceshipViewModel(m_asteroidsGame.GetSpaceship());
+		return SpaceshipViewModel(m_asteroidsGame->GetSpaceship());
+	}
+
+	BulletsViewModel CreateBulletsViewModel() const
+	{
+		return BulletsViewModel(m_asteroidsGame);
 	}
 
 private:
-	AsteroidsGame m_asteroidsGame;
+	AsteroidsGamePtr m_asteroidsGame;
 };

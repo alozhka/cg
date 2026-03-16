@@ -19,6 +19,12 @@ struct Vec2f
 	{
 		return { x * n, y * n };
 	}
+
+	Vec2f operator+(const Vec2f& other) const
+	{
+		return { x + other.x, y + other.y };
+	}
+
 	Vec2f operator*=(float n)
 	{
 		x *= n;
