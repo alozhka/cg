@@ -17,6 +17,7 @@ public:
 		m_shader.LoadFromFile(
 			"assets/vertex.glsl",
 			"assets/fragment.glsl");
+		m_asteroidsGame->StartGame();
 	}
 
 protected:

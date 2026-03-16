@@ -1,6 +1,7 @@
 #pragma once
 #include "../../graphics/Vec2f.hpp"
 #include "Coordinates.hpp"
+#include <vector>
 
 class Bullet
 {
@@ -17,7 +18,6 @@ public:
 
 		m_position += m_velocity * dt;
 		m_position = Coordinates::Wrap(m_position, width, height);
-
 	}
 
 	bool IsAlive() const

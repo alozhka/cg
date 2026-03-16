@@ -1,5 +1,6 @@
 #pragma once
 #include "../model/AsteroidsGame.hpp"
+#include "AsteroidsViewModel.h"
 #include "BulletsViewModel.hpp"
 #include "SpaceshipViewModel.hpp"
 
@@ -19,6 +20,11 @@ public:
 	BulletsViewModel CreateBulletsViewModel() const
 	{
 		return BulletsViewModel(m_asteroidsGame);
+	}
+
+	AsteroidsViewModel CreateAsteroidsViewModel() const
+	{
+		return AsteroidsViewModel(m_asteroidsGame);
 	}
 
 private:

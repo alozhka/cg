@@ -39,8 +39,13 @@ add_executable(asteroids main.cpp
         src/app/KeyboardReader.hpp
         src/asteroids/model/Bullet.hpp
         src/asteroids/model/Coordinates.hpp
-        src/asteroids/view/BulletsView.h
-        src/asteroids/viewModel/BulletsViewModel.hpp)
+        src/asteroids/view/BulletsView.hpp
+        src/asteroids/viewModel/BulletsViewModel.hpp
+        src/asteroids/view/AsteroidsView.hpp
+        src/asteroids/model/Asteroid.hpp
+        src/asteroids/viewModel/AsteroidsViewModel.h
+        src/asteroids/model/Randomizer.hpp
+)
 
 target_include_directories(asteroids PRIVATE ${GLAD_DIR}/include)
 target_link_libraries(asteroids glfw glad OpenGL::GL)
