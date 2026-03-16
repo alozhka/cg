@@ -45,6 +45,7 @@ add_executable(asteroids main.cpp
         src/asteroids/model/Asteroid.hpp
         src/asteroids/viewModel/AsteroidsViewModel.h
         src/asteroids/model/Randomizer.hpp
+        src/asteroids/model/Collision.hpp
 )
 
 target_include_directories(asteroids PRIVATE ${GLAD_DIR}/include)

@@ -1,6 +1,7 @@
 #pragma once
 #include "Asteroid.hpp"
 #include "Bullet.hpp"
+#include "Collision.hpp"
 #include "Randomizer.hpp"
 #include "Spaceship.hpp"
 
@@ -52,6 +53,7 @@ public:
 		m_spaceship->Update(dt);
 		UpdateBullets(dt);
 		UpdateAsteroids(dt);
+		CheckBulletHitsAsteroid();
 	}
 
 	SpaceshipPtr GetSpaceship() const
@@ -100,6 +102,32 @@ private:
 		{
 			a.Update(dt, m_width, m_height);
 		}
+	}
+
+	void CheckBulletHitsAsteroid()
+	{
+		std::vector<Asteroid> asteroidsToAdd;
+		for (auto asteroidIt = m_asteroids.begin(); asteroidIt != m_asteroids.end();)
+		{
+			std::vector<Vec2f> verticesInWorld = asteroidIt->ListWorldVertices();
+			auto bulletIt = std::ranges::find_if(m_bullets, [&](const Bullet& b) {
+				return Collision::PointInPolygon(b.GetPosition(), asteroidIt->GetPosition(), verticesInWorld);
+			});
+
+			if (bulletIt == m_bullets.end())
+			{
+				++asteroidIt;
+			}
+			else
+			{
+				std::vector<Asteroid> children = asteroidIt->Split();
+				asteroidsToAdd.insert(asteroidsToAdd.end(), children.begin(), children.end());
+				m_bullets.erase(bulletIt);
+				asteroidIt = m_asteroids.erase(asteroidIt);
+			}
+		}
+
+		m_asteroids.insert(m_asteroids.end(), asteroidsToAdd.begin(), asteroidsToAdd.end());
 	}
 
 	static constexpr float MAX_SHOOT_COOLDOWN = 0.25;

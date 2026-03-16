@@ -1,4 +1,6 @@
 #pragma once
+#include "Vec2f.hpp"
+
 #include <array>
 #include <cmath>
 #include <numbers>
@@ -24,6 +26,14 @@ struct Mat3
 		}
 
 		return r;
+	}
+
+	Vec2f operator*(Vec2f p) const
+	{
+		return {
+			m[0][0] * p.x + m[0][1] * p.y + m[0][2],
+			m[1][0] * p.x + m[1][1] * p.y + m[1][2]
+		};
 	}
 
 	static Mat3 Identity()

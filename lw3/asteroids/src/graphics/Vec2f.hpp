@@ -1,4 +1,5 @@
 #pragma once
+#include <cmath>
 
 struct Vec2f
 {
@@ -25,6 +26,11 @@ struct Vec2f
 		return { x + other.x, y + other.y };
 	}
 
+	Vec2f operator-(const Vec2f& other) const
+	{
+		return { x - other.x, y - other.y };
+	}
+
 	Vec2f operator*=(float n)
 	{
 		x *= n;
@@ -37,5 +43,10 @@ struct Vec2f
 		x += other.x;
 		y += other.y;
 		return *this;
+	}
+
+	float Cross(const Vec2f& other) const
+	{
+		return x * other.y - y * other.x;
 	}
 };
