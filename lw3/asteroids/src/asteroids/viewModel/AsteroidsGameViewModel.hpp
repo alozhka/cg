@@ -2,6 +2,7 @@
 #include "../model/AsteroidsGame.hpp"
 #include "AsteroidsViewModel.h"
 #include "BulletsViewModel.hpp"
+#include "DebrisViewModel.hpp"
 #include "SpaceshipViewModel.hpp"
 
 class AsteroidsGameViewModel
@@ -25,6 +26,11 @@ public:
 	AsteroidsViewModel CreateAsteroidsViewModel() const
 	{
 		return AsteroidsViewModel(m_asteroidsGame);
+	}
+
+	DebrisViewModel CreateDebrisViewModel() const
+	{
+		return DebrisViewModel(m_asteroidsGame);
 	}
 
 private:

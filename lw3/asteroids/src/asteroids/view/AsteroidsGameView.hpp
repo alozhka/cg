@@ -4,6 +4,7 @@
 #include "../viewModel/AsteroidsGameViewModel.hpp"
 #include "AsteroidsView.hpp"
 #include "BulletsView.hpp"
+#include "DebrisView.hpp"
 #include "SpaceshipView.hpp"
 
 class AsteroidsGameView
@@ -13,6 +14,7 @@ public:
 		: m_spaceshipView(gameViewModel.CreateSpaceshipViewModel())
 		, m_bulletsView(gameViewModel.CreateBulletsViewModel())
 		, m_asteroidsView(gameViewModel.CreateAsteroidsViewModel())
+		, m_debrisView(gameViewModel.CreateDebrisViewModel())
 	{
 	}
 
@@ -21,10 +23,12 @@ public:
 		m_spaceshipView.Draw(shader, projection);
 		m_bulletsView.Draw(shader, projection);
 		m_asteroidsView.Draw(shader, projection);
+		m_debrisView.Draw(shader, projection);
 	}
 
 private:
 	SpaceshipView m_spaceshipView;
 	BulletsView m_bulletsView;
 	AsteroidsView m_asteroidsView;
+	DebrisView m_debrisView;
 };

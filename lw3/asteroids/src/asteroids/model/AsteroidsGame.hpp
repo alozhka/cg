@@ -2,6 +2,7 @@
 #include "Asteroid.hpp"
 #include "Bullet.hpp"
 #include "Collision.hpp"
+#include "Debris.hpp"
 #include "Randomizer.hpp"
 #include "Spaceship.hpp"
 
@@ -28,6 +29,7 @@ public:
 	{
 		m_asteroids.clear();
 		m_bullets.clear();
+		m_debris.clear();
 		m_lives = INITIAL_LIVES;
 		m_score = 0;
 		m_spaceship->Reset();
@@ -61,6 +63,7 @@ public:
 		m_spaceship->Update(dt);
 		UpdateBullets(dt);
 		UpdateAsteroids(dt);
+		UpdateDebris(dt);
 		CheckBulletHitsAsteroid();
 		CheckAsteroidHitsSpaceship();
 	}
@@ -78,6 +81,11 @@ public:
 	std::vector<Asteroid> ListAsteroids() const
 	{
 		return m_asteroids;
+	}
+
+	std::vector<Debris> ListDebris() const
+	{
+		return m_debris;
 	}
 
 	int GetLives() const
@@ -128,6 +136,15 @@ private:
 		}
 	}
 
+	void UpdateDebris(float dt)
+	{
+		for (Debris& d : m_debris)
+		{
+			d.Update(dt, m_width, m_height);
+		}
+		std::erase_if(m_debris, [](const Debris& d) { return !d.IsAlive(); });
+	}
+
 	void CheckBulletHitsAsteroid()
 	{
 		std::vector<Asteroid> asteroidsToAdd;
@@ -160,24 +177,26 @@ private:
 
 		for (auto it = m_asteroids.begin(); it != m_asteroids.end(); ++it)
 		{
-			if (!Collision::PolygonsOverlap(shipVertices,
-					it->GetPosition(), it->ListWorldVertices()))
+			if (Collision::PolygonsOverlap(shipVertices,
+					it->GetPosition(),
+					it->ListWorldVertices()))
 			{
-				continue;
+				auto children = it->Split();
+				m_asteroids.erase(it);
+				m_asteroids.insert(m_asteroids.end(), children.begin(), children.end());
+
+				auto newDebris = Debris::CreateFromSpaceship(m_spaceship);
+				m_debris.insert(m_debris.end(), newDebris.begin(), newDebris.end());
+
+				m_lives--;
+				m_spaceship->Reset();
+
+				if (m_lives <= 0)
+				{
+					m_state = GameState::GameOver;
+				}
+				return;
 			}
-
-			auto children = it->Split();
-			m_asteroids.erase(it);
-			m_asteroids.insert(m_asteroids.end(), children.begin(), children.end());
-
-			m_lives--;
-			m_spaceship->Reset();
-
-			if (m_lives <= 0)
-			{
-				m_state = GameState::GameOver;
-			}
-			return;
 		}
 	}
 
@@ -193,6 +212,7 @@ private:
 	SpaceshipPtr m_spaceship;
 	std::vector<Bullet> m_bullets{};
 	std::vector<Asteroid> m_asteroids;
+	std::vector<Debris> m_debris;
 };
 
 using AsteroidsGamePtr = std::shared_ptr<AsteroidsGame>;

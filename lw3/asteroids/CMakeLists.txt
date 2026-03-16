@@ -39,8 +39,11 @@ add_executable(asteroids main.cpp
         src/app/KeyboardReader.hpp
         src/asteroids/model/Bullet.hpp
         src/asteroids/model/Coordinates.hpp
+        src/asteroids/model/Debris.hpp
         src/asteroids/view/BulletsView.hpp
+        src/asteroids/view/DebrisView.hpp
         src/asteroids/viewModel/BulletsViewModel.hpp
+        src/asteroids/viewModel/DebrisViewModel.hpp
         src/asteroids/view/AsteroidsView.hpp
         src/asteroids/model/Asteroid.hpp
         src/asteroids/viewModel/AsteroidsViewModel.h
