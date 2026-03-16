@@ -43,7 +43,11 @@ private:
 		bool shouldThrust = m_keyboard.IsButtonPressed(GLFW_KEY_UP);
 		if (shouldThrust)
 		{
-			m_asteroidsGame.GetSpaceship()->ApplyThrust(dt);
+			m_asteroidsGame.GetSpaceship()->BeginThrust();
+		}
+		else
+		{
+			m_asteroidsGame.GetSpaceship()->FinishThrust();
 		}
 
 		bool shouldRotateLeft = m_keyboard.IsButtonPressed(GLFW_KEY_LEFT);

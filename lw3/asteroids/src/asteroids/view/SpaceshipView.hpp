@@ -9,7 +9,8 @@ class SpaceshipView
 public:
 	explicit SpaceshipView(const SpaceshipViewModel& viewModel)
 		: m_viewModel(viewModel)
-		, m_mesh(CreateMesh())
+		, m_spaceshipMesh(CreateSpaceshipMesh())
+		, m_flameMesh(CreateFlameMesh())
 	{
 	}
 
@@ -23,18 +24,31 @@ public:
 		shader.SetUniformMat3("uViewProjection", mvp.ToFloatArray());
 		shader.SetUniformVec4("uColor", m_shipColor.ToFloatArray());
 
-		m_mesh.Draw();
+		m_spaceshipMesh.Draw();
+
+		if (m_viewModel.IsThrusting())
+		{
+			shader.SetUniformVec4("uColor", m_flameColor.ToFloatArray());
+			m_flameMesh.Draw();
+		}
 	}
 
 private:
-	Mesh CreateMesh() const
+	Mesh CreateSpaceshipMesh() const
 	{
 		std::vector<float> vertices = m_viewModel.ListVertices();
 		return Mesh{ vertices, GL_LINE_LOOP };
 	}
 
+	Mesh CreateFlameMesh() const
+	{
+		std::vector<float> vertices = m_viewModel.ListFlameVertices();
+		return Mesh{ vertices, GL_TRIANGLE_FAN };
+	}
+
 	SpaceshipViewModel m_viewModel;
-	Mesh m_mesh;
+	Mesh m_spaceshipMesh;
+	Mesh m_flameMesh;
 
 	Color m_shipColor{ 1, 1, 1, 1 };
 	Color m_flameColor{ 1, 0.5, 0, 1 };

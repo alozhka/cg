@@ -12,8 +12,20 @@ public:
 		, m_worldHeight(worldHeight)
 	{
 	}
+
+	void BeginThrust()
+	{
+		m_isThrusting = true;
+	}
+
+	void FinishThrust()
+	{
+		m_isThrusting = false;
+	}
+
 	void ApplyThrust(float dt)
 	{
+		m_isThrusting = true;
 		Vec2f direction = GetNoseDirection();
 		m_velocity += direction * THRUST_FORCE * dt;
 
@@ -35,10 +47,24 @@ public:
 
 	void Update(float dt)
 	{
+		if (m_isThrusting)
+		{
+			ApplyThrust(dt);
+		}
+
+		UpdatePosition(dt);
+		UpdateAnglePosition(dt);
+	}
+
+	void UpdatePosition(float dt)
+	{
 		m_velocity *= FRICTION;
 		m_position += m_velocity * dt;
 		WrapPosition();
+	}
 
+	void UpdateAnglePosition(float dt)
+	{
 		m_angularVelocity *= ANGLE_FRICTION;
 		m_angleInDegrees += m_angularVelocity * dt;
 		if (m_angleInDegrees >= 360)
@@ -47,13 +73,22 @@ public:
 		}
 	}
 
-	std::vector<Vec2f> ListVertices()
+	std::vector<Vec2f> ListVertices() const
 	{
 		return {
 			{ 0, 15 },
 			{ -8, -9.4 },
 			{ 0, -6 },
 			{ 8, -9.4 }
+		};
+	}
+
+	std::vector<Vec2f> ListFlameVertices() const
+	{
+		return {
+			{ -4.5, -6 },
+			{ 0, -15 },
+			{ 4.5, -6 }
 		};
 	}
 
@@ -65,6 +100,11 @@ public:
 	float GetAngle() const
 	{
 		return m_angleInDegrees;
+	}
+
+	bool IsThrusting() const
+	{
+		return m_isThrusting;
 	}
 
 private:
@@ -79,7 +119,7 @@ private:
 		}
 		if (m_position.x > halfWidth)
 		{
-			m_position.y -= m_worldWidth;
+			m_position.x -= m_worldWidth;
 		}
 		if (m_position.y < -halfHeight)
 		{

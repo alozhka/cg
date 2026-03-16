@@ -14,10 +14,24 @@ public:
 		std::vector<Vec2f> vertices = m_spaceship->ListVertices();
 		std::vector<float> newVertices;
 
-		for (Vec2f& vertex : vertices)
+		for (Vec2f& v : vertices)
 		{
-			newVertices.push_back(vertex.x);
-			newVertices.push_back(vertex.y);
+			newVertices.push_back(v.x);
+			newVertices.push_back(v.y);
+		}
+
+		return newVertices;
+	}
+
+	std::vector<float> ListFlameVertices() const
+	{
+		std::vector<Vec2f> vertices = m_spaceship->ListFlameVertices();
+		std::vector<float> newVertices;
+
+		for (Vec2f& v : vertices)
+		{
+			newVertices.push_back(v.x);
+			newVertices.push_back(v.y);
 		}
 
 		return newVertices;
@@ -31,6 +45,11 @@ public:
 	float GetAngle() const
 	{
 		return m_spaceship->GetAngle();
+	}
+
+	bool IsThrusting() const
+	{
+		return m_spaceship->IsThrusting();
 	}
 
 private:
