@@ -1,4 +1,5 @@
 #pragma once
+#include "../../graphics/Mat3.hpp"
 #include "../../graphics/Vec2f.hpp"
 #include "Coordinates.hpp"
 
@@ -122,6 +123,30 @@ public:
 	bool IsThrusting() const
 	{
 		return m_isThrusting;
+	}
+
+	std::vector<Vec2f> ListWorldVertices() const
+	{
+		std::vector<Vec2f> vertices = ListVertices();
+		std::vector<Vec2f> world;
+		world.reserve(vertices.size());
+
+		Mat3 transform = Mat3::Translate(m_position.x, m_position.y) * Mat3::Rotate(m_angleInDegrees);
+		for (const Vec2f& v : vertices)
+		{
+			world.push_back(transform * v);
+		}
+
+		return world;
+	}
+
+	void Reset()
+	{
+		m_position = { 0, 0 };
+		m_velocity = { 0, 0 };
+		m_angleInDegrees = 0;
+		m_angularVelocity = 0;
+		m_isThrusting = false;
 	}
 
 private:

@@ -28,6 +28,9 @@ public:
 	{
 		m_asteroids.clear();
 		m_bullets.clear();
+		m_lives = INITIAL_LIVES;
+		m_score = 0;
+		m_spaceship->Reset();
 		SpawnInitialAsteroids();
 		m_state = GameState::Playing;
 	}
@@ -50,10 +53,16 @@ public:
 
 	void Update(float dt)
 	{
+		if (m_state != GameState::Playing)
+		{
+			return;
+		}
+
 		m_spaceship->Update(dt);
 		UpdateBullets(dt);
 		UpdateAsteroids(dt);
 		CheckBulletHitsAsteroid();
+		CheckAsteroidHitsSpaceship();
 	}
 
 	SpaceshipPtr GetSpaceship() const
@@ -69,6 +78,21 @@ public:
 	std::vector<Asteroid> ListAsteroids() const
 	{
 		return m_asteroids;
+	}
+
+	int GetLives() const
+	{
+		return m_lives;
+	}
+
+	int GetScore() const
+	{
+		return m_score;
+	}
+
+	GameState GetState() const
+	{
+		return m_state;
 	}
 
 private:
@@ -130,12 +154,42 @@ private:
 		m_asteroids.insert(m_asteroids.end(), asteroidsToAdd.begin(), asteroidsToAdd.end());
 	}
 
+	void CheckAsteroidHitsSpaceship()
+	{
+		auto shipVertices = m_spaceship->ListWorldVertices();
+
+		for (auto it = m_asteroids.begin(); it != m_asteroids.end(); ++it)
+		{
+			if (!Collision::PolygonsOverlap(shipVertices,
+					it->GetPosition(), it->ListWorldVertices()))
+			{
+				continue;
+			}
+
+			auto children = it->Split();
+			m_asteroids.erase(it);
+			m_asteroids.insert(m_asteroids.end(), children.begin(), children.end());
+
+			m_lives--;
+			m_spaceship->Reset();
+
+			if (m_lives <= 0)
+			{
+				m_state = GameState::GameOver;
+			}
+			return;
+		}
+	}
+
+	static constexpr int INITIAL_LIVES = 3;
 	static constexpr float MAX_SHOOT_COOLDOWN = 0.25;
 	static constexpr float ASTEROIDS_SPAWN_AMOUNT = 5;
 
 	GameState m_state = GameState::Idle;
 	float m_width, m_height;
 	float m_shootCooldown = 0;
+	int m_lives = INITIAL_LIVES;
+	int m_score = 0;
 	SpaceshipPtr m_spaceship;
 	std::vector<Bullet> m_bullets{};
 	std::vector<Asteroid> m_asteroids;
