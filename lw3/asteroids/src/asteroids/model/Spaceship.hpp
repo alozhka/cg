@@ -7,10 +7,11 @@
 class Spaceship
 {
 public:
-	Spaceship()
+	Spaceship(float worldWidth, float worldHeight)
+		: m_worldWidth(worldWidth)
+		, m_worldHeight(worldHeight)
 	{
 	}
-
 	void ApplyThrust(float dt)
 	{
 		Vec2f direction = GetNoseDirection();
@@ -36,6 +37,7 @@ public:
 	{
 		m_velocity *= FRICTION;
 		m_position += m_velocity * dt;
+		WrapPosition();
 
 		m_angularVelocity *= ANGLE_FRICTION;
 		m_angleInDegrees += m_angularVelocity * dt;
@@ -66,23 +68,47 @@ public:
 	}
 
 private:
+	void WrapPosition()
+	{
+		float halfWidth = m_worldWidth * 0.5f;
+		float halfHeight = m_worldHeight * 0.5f;
+
+		if (m_position.x < -halfWidth)
+		{
+			m_position.x += m_worldWidth;
+		}
+		if (m_position.x > halfWidth)
+		{
+			m_position.y -= m_worldWidth;
+		}
+		if (m_position.y < -halfHeight)
+		{
+			m_position.y += m_worldHeight;
+		}
+		if (m_position.y > halfHeight)
+		{
+			m_position.y -= m_worldHeight;
+		}
+	}
+
 	Vec2f GetNoseDirection() const
 	{
 		float radians = m_angleInDegrees * std::numbers::pi_v<float> / 180;
 		return { -std::sin(radians), std::cos(radians) };
 	}
 
-	static constexpr float THRUST_FORCE = 400;
-	static constexpr float MAX_SPEED = 500;
+	static constexpr float THRUST_FORCE = 600;
+	static constexpr float MAX_SPEED = 900;
 	static constexpr float MAX_ANGLE_SPEED = 250;
 	static constexpr float FRICTION = 0.98;
-	static constexpr float ANGLE_FRICTION = 0.8;
+	static constexpr float ANGLE_FRICTION = 0.9;
 
 	bool m_isThrusting = false;
 	Vec2f m_position{ 0, 0 };
 	Vec2f m_velocity{ 0, 0 };
 	float m_angleInDegrees = 0;
 	float m_angularVelocity = 0;
+	float m_worldWidth, m_worldHeight;
 };
 
 using SpaceshipPtr = std::shared_ptr<Spaceship>;

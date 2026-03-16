@@ -7,7 +7,7 @@
 class AsteroidsGameView
 {
 public:
-	AsteroidsGameView(const AsteroidsGameViewModel& gameViewModel)
+	explicit AsteroidsGameView(const AsteroidsGameViewModel& gameViewModel)
 		: m_spaceshipView(gameViewModel.GetSpaceshipViewModel())
 	{
 	}

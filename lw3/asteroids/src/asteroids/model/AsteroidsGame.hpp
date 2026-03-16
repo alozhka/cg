@@ -14,6 +14,7 @@ public:
 	AsteroidsGame(float width, float height)
 		: m_width(width)
 		, m_height(height)
+		, m_spaceship(std::make_shared<Spaceship>(width, height))
 	{
 	}
 
@@ -25,5 +26,5 @@ public:
 private:
 	float m_width, m_height;
 	GameStatus status = GameStatus::Idle;
-	SpaceshipPtr m_spaceship = std::make_shared<Spaceship>();
+	SpaceshipPtr m_spaceship;
 };
