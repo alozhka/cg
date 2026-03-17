@@ -33,7 +33,7 @@ public:
 		m_lives = INITIAL_LIVES;
 		m_score = 0;
 		m_spaceship->Reset();
-		SpawnInitialAsteroids();
+		EnsureAsteroidsAreMax();
 		m_state = GameState::Playing;
 	}
 
@@ -66,6 +66,7 @@ public:
 		UpdateDebris(dt);
 		CheckBulletHitsAsteroid();
 		CheckAsteroidHitsSpaceship();
+		EnsureAsteroidsAreMax();
 	}
 
 	SpaceshipPtr GetSpaceship() const
@@ -104,13 +105,14 @@ public:
 	}
 
 private:
-	void SpawnInitialAsteroids()
+	void EnsureAsteroidsAreMax()
 	{
-		for (int i = 0; i < ASTEROIDS_SPAWN_AMOUNT; i++)
+		int size = m_asteroids.size();
+		for (int i = size; i <= ASTEROIDS_SPAWN_AMOUNT; i++)
 		{
 			Vec2f pos{
-				Randomizer::RandomRange(-m_width * 0.4, m_width * 0.4),
-				Randomizer::RandomRange(-m_height * 0.4, m_height * 0.4)
+				Randomizer::RandomRange(-m_width * 1.2, m_width * 1.2),
+				Randomizer::RandomRange(-m_height * 1.2, m_height * 1.2)
 			};
 			m_asteroids.emplace_back(AsteroidSize::Large, pos);
 		}
