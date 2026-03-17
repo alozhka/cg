@@ -25,7 +25,7 @@ public:
 	void Update(float dt, float width, float height)
 	{
 		m_position += m_velocity * dt;
-		m_position = Coordinates::Wrap(m_position, width, height, ScaleForAsteroidSize(m_size));
+		m_position = Coordinates::Wrap(m_position, width, height, RadiusForAsteroidSize(m_size));
 		m_angle += m_angularVelocity * dt;
 		m_angle = Coordinates::WrapAngle(m_angle);
 	}
@@ -86,19 +86,18 @@ private:
 	{
 		std::vector<Vec2f> vertices;
 		vertices.reserve(AMOUNT_VERTICES);
-		float scale = ScaleForAsteroidSize(size);
 
 		for (int i = 0; i < AMOUNT_VERTICES; i++)
 		{
 			float angle = 360 / AMOUNT_VERTICES * i * std::numbers::pi_v<float> / 180;
-			float radius = scale * (0.8 + Randomizer::RandomRange(0, 0.8));
+			float radius = RadiusForAsteroidSize(size) * (0.8 + Randomizer::RandomRange(0, 0.8));
 			vertices.push_back({ radius * std::cos(angle), radius * std::sin(angle) });
 		}
 
 		return vertices;
 	}
 
-	static float ScaleForAsteroidSize(AsteroidSize size)
+	static float RadiusForAsteroidSize(AsteroidSize size)
 	{
 		switch (size)
 		{

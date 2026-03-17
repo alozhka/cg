@@ -11,7 +11,10 @@ class Debris
 public:
 	Debris(Vec2f position, Vec2f initialVelocity, float lifetime)
 		: m_position(position)
-		, m_velocity(initialVelocity + Vec2f{ Randomizer::RandomRange(-SPREAD_VELOCITY, SPREAD_VELOCITY), Randomizer::RandomRange(-SPREAD_VELOCITY, SPREAD_VELOCITY) })
+		, m_velocity(initialVelocity + Vec2f{
+			Randomizer::RandomRange(-SPREAD_VELOCITY, SPREAD_VELOCITY),
+			Randomizer::RandomRange(-SPREAD_VELOCITY, SPREAD_VELOCITY)
+		})
 		, m_lifetime(lifetime)
 	{
 	}

@@ -39,11 +39,18 @@ public:
 private:
 	static bool PointInTriangle(Vec2f p, Vec2f a, Vec2f b, Vec2f c)
 	{
-		float d1 = (b - a).Cross(p - a);
-		float d2 = (c - b).Cross(p - b);
-		float d3 = (a - c).Cross(p - c);
-		bool hasNegative = (d1 < 0) || (d2 < 0) || (d3 < 0);
-		bool hasPositive = (d1 > 0) || (d2 > 0) || (d3 > 0);
+		float z1 = CrossZ(p, a, b);
+		float z2 = CrossZ(p, b, c);
+		float z3 = CrossZ(p, c, a);
+		bool hasNegative = z1 < 0 || z2 < 0 || z3 < 0;
+		bool hasPositive = z1 > 0 || z2 > 0 || z3 > 0;
 		return !(hasNegative && hasPositive);
+	}
+
+	static float CrossZ(Vec2f point, Vec2f v1, Vec2f v2)
+	{
+		Vec2f triangleEdge = v2 - v1;
+		Vec2f edgeToPoint = point - v1;
+		return triangleEdge.CrossZ(edgeToPoint);
 	}
 };
