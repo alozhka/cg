@@ -161,6 +161,7 @@ private:
 			}
 			else
 			{
+				ScoreAsteroidHit(asteroidIt->GetSize());
 				std::vector<Asteroid> children = asteroidIt->Split();
 				asteroidsToAdd.insert(asteroidsToAdd.end(), children.begin(), children.end());
 				m_bullets.erase(bulletIt);
@@ -197,6 +198,26 @@ private:
 				}
 				return;
 			}
+		}
+	}
+
+	void ScoreAsteroidHit(AsteroidSize size)
+	{
+		m_score += ScoreForAsteroidSize(size);
+	}
+
+	static int ScoreForAsteroidSize(AsteroidSize size)
+	{
+		switch (size)
+		{
+		case AsteroidSize::Large:
+			return 20;
+		case AsteroidSize::Medium:
+			return 50;
+		case AsteroidSize::Small:
+			return 100;
+		default:
+			throw std::invalid_argument("Asteroid size is not supported");
 		}
 	}
 

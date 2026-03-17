@@ -23,6 +23,7 @@ protected:
 	virtual void OnMouseButton(int button, int action, Vec2f p);
 	virtual void OnMouseMove(Vec2f p);
 
+	void SetWindowTitle(const std::string& title);
 	KeyboardReader CreateKeyboardReader() const;
 
 private:

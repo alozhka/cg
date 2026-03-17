@@ -57,6 +57,11 @@ public:
 		return m_angle;
 	}
 
+	AsteroidSize GetSize() const
+	{
+		return m_size;
+	}
+
 	std::vector<Vec2f> ListVertices() const
 	{
 		return m_vertices;

@@ -4,6 +4,8 @@
 #include "GuiApplication.h"
 #include "KeyboardReader.hpp"
 
+#include <string>
+
 class AsteroidsApplication final : public GuiApplication
 {
 public:
@@ -27,6 +29,7 @@ protected:
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		Update();
+		UpdateWindowTitle();
 		m_asteroidsGameView.Draw(m_shader, projection);
 
 		m_shader.Use();
@@ -38,6 +41,28 @@ private:
 		float dt = GetDeltaTime();
 		HandleKeyboardClicks();
 		m_asteroidsGame->Update(dt);
+	}
+
+	void UpdateWindowTitle()
+	{
+		auto state = m_asteroidsGame->GetState();
+		int lives = m_asteroidsGame->GetLives();
+		int score = m_asteroidsGame->GetScore();
+
+		std::string title = "Asteroids";
+		if (state == AsteroidsGame::GameState::Playing)
+		{
+			title += " | Lives: " + std::to_string(lives) + " | Score: " + std::to_string(score);
+		}
+		else if (state == AsteroidsGame::GameState::GameOver)
+		{
+			title += " | Game Over | Final Score: " + std::to_string(score);
+		}
+		else if (state == AsteroidsGame::GameState::Idle)
+		{
+			title += " | Ready";
+		}
+		SetWindowTitle(title);
 	}
 
 	void HandleKeyboardClicks()

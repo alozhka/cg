@@ -53,6 +53,14 @@ KeyboardReader GuiApplication::CreateKeyboardReader() const
 	return KeyboardReader(m_window);
 }
 
+void GuiApplication::SetWindowTitle(const std::string& title)
+{
+	if (m_window)
+	{
+		glfwSetWindowTitle(m_window, title.c_str());
+	}
+}
+
 void GuiApplication::MouseButtonCallback(GLFWwindow* window, int button, int action, int)
 {
 	if (GuiApplication* app = GetInstance(window))
