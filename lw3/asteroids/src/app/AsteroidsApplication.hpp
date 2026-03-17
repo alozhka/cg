@@ -56,7 +56,7 @@ private:
 		}
 		else if (state == AsteroidsGame::GameState::GameOver)
 		{
-			title += " | Game Over | Final Score: " + std::to_string(score);
+			title += " | Game Over | Final Score: " + std::to_string(score) + " | Press R to restart";
 		}
 		else if (state == AsteroidsGame::GameState::Idle)
 		{
@@ -66,6 +66,23 @@ private:
 	}
 
 	void HandleKeyboardClicks()
+	{
+		HandleGameActions();
+		HandleSpaceshipActions();
+	}
+
+	void HandleGameActions()
+	{
+		if (m_asteroidsGame->GetState() == AsteroidsGame::GameState::GameOver)
+		{
+			if (m_keyboard.IsButtonPressed(GLFW_KEY_R))
+			{
+				m_asteroidsGame->StartGame();
+			}
+		}
+	}
+
+	void HandleSpaceshipActions()
 	{
 		bool shouldThrust = m_keyboard.IsButtonPressed(GLFW_KEY_UP);
 		if (shouldThrust)

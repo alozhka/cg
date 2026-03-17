@@ -190,11 +190,14 @@ private:
 				m_debris.insert(m_debris.end(), newDebris.begin(), newDebris.end());
 
 				m_lives--;
-				m_spaceship->Reset();
 
 				if (m_lives <= 0)
 				{
 					m_state = GameState::GameOver;
+				}
+				else
+				{
+					m_spaceship->Reset();
 				}
 				return;
 			}
