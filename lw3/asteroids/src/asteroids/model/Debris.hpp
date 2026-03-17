@@ -20,7 +20,7 @@ public:
 	{
 		m_lifetime = std::max(m_lifetime - dt, 0.0f);
 		m_position += m_velocity * dt;
-		m_position = Coordinates::Wrap(m_position, width, height);
+		m_position = Coordinates::Wrap(m_position, width, height, 4);
 		m_angle += m_angularVelocity * dt;
 		m_angle = Coordinates::WrapAngle(m_angle);
 	}

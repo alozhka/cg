@@ -62,7 +62,7 @@ public:
 	{
 		m_velocity *= FRICTION;
 		m_position += m_velocity * dt;
-		m_position = Coordinates::Wrap(m_position, m_worldWidth, m_worldHeight);
+		m_position = Coordinates::Wrap(m_position, m_worldWidth, m_worldHeight, SPACESHIP_RADIUS);
 	}
 
 	void UpdateAnglePosition(float dt)

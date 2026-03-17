@@ -25,7 +25,7 @@ public:
 	void Update(float dt, float width, float height)
 	{
 		m_position += m_velocity * dt;
-		m_position = Coordinates::Wrap(m_position, width, height);
+		m_position = Coordinates::Wrap(m_position, width, height, ScaleForAsteroidSize(m_size));
 		m_angle += m_angularVelocity * dt;
 		m_angle = Coordinates::WrapAngle(m_angle);
 	}
