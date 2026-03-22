@@ -4,7 +4,8 @@ project(polyhedron)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(polyhedron main.cpp
-        src/PolyhedronApp.h)
+        src/PolyhedronApp.h
+        ../../vendors/graphics/Mat4.h)
 
 add_subdirectory(
         ${CMAKE_CURRENT_SOURCE_DIR}/../../vendors/graphics

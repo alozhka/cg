@@ -25,5 +25,5 @@ target_include_directories(glad PUBLIC ${GLAD_DIR}/include)
 find_package(OpenGL REQUIRED)
 
 add_library(graphics INTERFACE)
-target_include_directories(graphics INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
+target_include_directories(graphics INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 target_link_libraries(graphics INTERFACE glad glfw OpenGL::GL)

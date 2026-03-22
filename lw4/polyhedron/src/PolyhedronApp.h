@@ -1,13 +1,11 @@
 #pragma once
-#include <Mat3.hpp>
+#include <graphics/windows/GraphicsApplication.hpp>
 
-#include <windows/GuiApplication.hpp>
-
-class PolyhedronApp final : public GuiApplication
+class PolyhedronApp final : public GraphicsApplication
 {
 public:
 	explicit PolyhedronApp(int width, int height, const std::string& title)
-		: GuiApplication(width, height, title)
+		: GraphicsApplication(width, height, title)
 	{
 	}
 

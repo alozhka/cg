@@ -1,16 +1,16 @@
 #pragma once
 #define GLFW_INCLUDE_NONE
+#include "../Mat3.hpp"
 #include "../Vec2f.hpp"
-#include "GLFW/glfw3.h"
 #include "KeyboardReader.hpp"
-#include "Mat3.hpp"
 
+#include <GLFW/glfw3.h>
 #include <algorithm>
 #include <glad/glad.h>
 #include <stdexcept>
 #include <string>
 
-class GuiApplication
+class GraphicsApplication
 {
 public:
 	void MainLoop()
@@ -24,11 +24,11 @@ public:
 		}
 	}
 
-	GuiApplication(const GuiApplication&) = delete;
-	GuiApplication& operator=(const GuiApplication&) = delete;
+	GraphicsApplication(const GraphicsApplication&) = delete;
+	GraphicsApplication& operator=(const GraphicsApplication&) = delete;
 
 protected:
-	GuiApplication(int width, int height, const std::string& title)
+	GraphicsApplication(int width, int height, const std::string& title)
 	{
 
 		if (!glfwInit())
@@ -53,11 +53,11 @@ protected:
 		glfwSetWindowUserPointer(m_window, this);
 		SetupInitialViewport();
 
-		glfwSetMouseButtonCallback(m_window, &GuiApplication::MouseButtonCallback);
-		glfwSetCursorPosCallback(m_window, &GuiApplication::CursorPosCallback);
+		glfwSetMouseButtonCallback(m_window, &GraphicsApplication::MouseButtonCallback);
+		glfwSetCursorPosCallback(m_window, &GraphicsApplication::CursorPosCallback);
 	}
 
-	virtual ~GuiApplication()
+	virtual ~GraphicsApplication()
 	{
 		if (m_window)
 		{
@@ -111,6 +111,7 @@ private:
 			viewHeight = viewWidth / currentAspectRatio;
 		}
 
+
 		float halfWidth = 0.5 * viewWidth;
 		float halfHeight = 0.5 * viewHeight;
 
@@ -149,7 +150,7 @@ private:
 
 	static void MouseButtonCallback(GLFWwindow* window, int button, int action, int)
 	{
-		if (GuiApplication* app = GetInstance(window))
+		if (GraphicsApplication* app = GetInstance(window))
 		{
 			double x, y;
 			glfwGetCursorPos(window, &x, &y);
@@ -158,7 +159,7 @@ private:
 	}
 	static void CursorPosCallback(GLFWwindow* window, double x, double y)
 	{
-		if (GuiApplication* app = GetInstance(window))
+		if (GraphicsApplication* app = GetInstance(window))
 		{
 			app->OnMouseMove(app->NormalizeCoords(x, y));
 		}
@@ -175,10 +176,14 @@ private:
 		glfwGetWindowSize(m_window, &w, &h);
 		return { w, h };
 	}
-	static GuiApplication* GetInstance(GLFWwindow* window)
+	static GraphicsApplication* GetInstance(GLFWwindow* window)
 	{
-		return static_cast<GuiApplication*>(glfwGetWindowUserPointer(window));
+		return static_cast<GraphicsApplication*>(glfwGetWindowUserPointer(window));
 	}
+
+	static constexpr float ZNEAR = 0.5;
+	static constexpr float ZFAR = 10;
+	static constexpr float FIELD_OF_VIEW = 60;
 
 	GLFWwindow* m_window;
 };
