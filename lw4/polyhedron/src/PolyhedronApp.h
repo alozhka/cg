@@ -1,5 +1,6 @@
 #pragma once
-#include <graphics/windows/GraphicsApplication.hpp>
+#include <graphics/Mesh.hpp>
+#include <graphics/windows/3d/GraphicsApplication.hpp>
 
 class PolyhedronApp final : public GraphicsApplication
 {
@@ -10,7 +11,11 @@ public:
 	}
 
 protected:
-	void OnDraw(const Mat3& projection) override
+	void OnDraw(const Mat4& projection) override
 	{
+		Mat4 view = Mat4::LookAt();
 	}
+
+private:
+	Mesh m_rect;
 };

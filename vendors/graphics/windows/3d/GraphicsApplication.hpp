@@ -1,8 +1,9 @@
 #pragma once
 #define GLFW_INCLUDE_NONE
-#include "../Mat3.hpp"
-#include "../Vec2f.hpp"
-#include "KeyboardReader.hpp"
+#include "../../Mat4.hpp"
+#include "../../Vec2f.hpp"
+#include "../../Size.hpp"
+#include "../KeyboardReader.hpp"
 
 #include <GLFW/glfw3.h>
 #include <algorithm>
@@ -18,8 +19,8 @@ public:
 		while (!glfwWindowShouldClose(m_window))
 		{
 			glfwPollEvents();
-			Mat3 projection = GetProjectionMatrix();
-			OnDraw(projection);
+			Mat4 perspective = GetPerspectiveMatrix();
+			OnDraw(perspective);
 			glfwSwapBuffers(m_window);
 		}
 	}
@@ -66,7 +67,7 @@ protected:
 		glfwTerminate();
 	}
 
-	virtual void OnDraw(const Mat3& projection) = 0;
+	virtual void OnDraw(const Mat4& projection) = 0;
 
 	virtual void OnMouseButton(int button, int action, Vec2f p)
 	{
@@ -90,12 +91,7 @@ protected:
 	}
 
 private:
-	struct Size
-	{
-		int width = 0, height = 0;
-	};
-
-	Mat3 GetProjectionMatrix() const
+	Mat4 GetPerspectiveMatrix() const
 	{
 		Size size = GetWindowSize();
 		float viewWidth = size.width;
@@ -111,11 +107,10 @@ private:
 			viewHeight = viewWidth / currentAspectRatio;
 		}
 
-
 		float halfWidth = 0.5 * viewWidth;
 		float halfHeight = 0.5 * viewHeight;
 
-		return Mat3::Ortho(-halfWidth, halfWidth, -halfHeight, halfHeight);
+		return Mat4::Perspective(-halfWidth, halfWidth, -halfHeight, halfHeight);
 	}
 
 	Vec2f NormalizeCoords(double x, double y) const
@@ -176,6 +171,7 @@ private:
 		glfwGetWindowSize(m_window, &w, &h);
 		return { w, h };
 	}
+
 	static GraphicsApplication* GetInstance(GLFWwindow* window)
 	{
 		return static_cast<GraphicsApplication*>(glfwGetWindowUserPointer(window));

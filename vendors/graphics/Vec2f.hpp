@@ -45,7 +45,7 @@ struct Vec2f
 		return *this;
 	}
 
-	float Cross(const Vec2f& other) const
+	float CrossZ(const Vec2f& other) const
 	{
 		return x * other.y - y * other.x;
 	}

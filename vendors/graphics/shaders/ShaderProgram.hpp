@@ -9,7 +9,7 @@ class ShaderProgram
 {
 public:
 	ShaderProgram()
-		: m_programId(0)
+		: m_program(0)
 	{
 	}
 
@@ -18,15 +18,15 @@ public:
 
 	~ShaderProgram()
 	{
-		if (m_programId)
+		if (m_program)
 		{
-			glDeleteProgram(m_programId);
+			glDeleteProgram(m_program);
 		}
 	}
 
 	void Use()
 	{
-		glUseProgram(m_programId);
+		glUseProgram(m_program);
 	}
 
 	void LoadFromFile(const std::string& vertexFilePath, const std::string& fragmentFilePath)
@@ -34,30 +34,30 @@ public:
 		GLuint vertexShader = CompileShader(GL_VERTEX_SHADER, vertexFilePath);
 		GLuint fragmentShader = CompileShader(GL_FRAGMENT_SHADER, fragmentFilePath);
 
-		m_programId = glCreateProgram();
+		m_program = glCreateProgram();
 
-		glAttachShader(m_programId, vertexShader);
-		glAttachShader(m_programId, fragmentShader);
+		glAttachShader(m_program, vertexShader);
+		glAttachShader(m_program, fragmentShader);
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
 
-		glLinkProgram(m_programId);
-		if (HasLinkErrors(m_programId))
+		glLinkProgram(m_program);
+		if (HasLinkErrors(m_program))
 		{
-			glDeleteProgram(m_programId);
-			m_programId = 0;
+			glDeleteProgram(m_program);
+			m_program = 0;
 		}
 	}
 
 	void SetUniformMat3(const std::string& str, const std::array<float, 9>& data)
 	{
-		GLint location = glGetUniformLocation(m_programId, str.c_str());
+		GLint location = glGetUniformLocation(m_program, str.c_str());
 		glUniformMatrix3fv(location, 1, GL_FALSE, data.data());
 	}
 
 	void SetUniformVec4(const std::string& str, const std::array<float, 4>& data)
 	{
-		GLint location = glGetUniformLocation(m_programId, str.c_str());
+		GLint location = glGetUniformLocation(m_program, str.c_str());
 		glUniform4f(location, data[0], data[1], data[2], data[3]);
 	}
 
@@ -151,5 +151,5 @@ private:
 		return logInfo;
 	}
 
-	GLuint m_programId;
+	GLuint m_program;
 };
