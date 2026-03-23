@@ -27,3 +27,12 @@ find_package(OpenGL REQUIRED)
 add_library(graphics INTERFACE)
 target_include_directories(graphics INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
 target_link_libraries(graphics INTERFACE glad glfw OpenGL::GL)
+
+function(graphics_copy_shader_assets target_name)
+    add_custom_command(
+            TARGET ${target_name} PRE_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/shaders/assets
+            $<TARGET_FILE_DIR:${target_name}>/assets
+    )
+endfunction()

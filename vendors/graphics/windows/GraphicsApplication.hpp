@@ -1,9 +1,9 @@
 #pragma once
 #define GLFW_INCLUDE_NONE
-#include "../../Mat4.hpp"
-#include "../../Vec2f.hpp"
-#include "../../Size.hpp"
-#include "../KeyboardReader.hpp"
+#include "../Mat4.hpp"
+#include "../Size.hpp"
+#include "../Vec2f.hpp"
+#include "KeyboardReader.hpp"
 
 #include <GLFW/glfw3.h>
 #include <algorithm>
@@ -94,23 +94,9 @@ private:
 	Mat4 GetPerspectiveMatrix() const
 	{
 		Size size = GetWindowSize();
-		float viewWidth = size.width;
-		float viewHeight = size.height;
-		float currentAspectRatio = viewWidth / viewHeight;
+		float currentAspectRatio = size.width / size.height;
 
-		if (currentAspectRatio > 1)
-		{
-			viewWidth = viewHeight * currentAspectRatio;
-		}
-		else
-		{
-			viewHeight = viewWidth / currentAspectRatio;
-		}
-
-		float halfWidth = 0.5 * viewWidth;
-		float halfHeight = 0.5 * viewHeight;
-
-		return Mat4::Perspective(-halfWidth, halfWidth, -halfHeight, halfHeight);
+		return Mat4::Perspective(FIELD_OF_VIEW, currentAspectRatio, ZNEAR, ZFAR);
 	}
 
 	Vec2f NormalizeCoords(double x, double y) const

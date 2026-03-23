@@ -8,9 +8,10 @@
 class Mesh
 {
 public:
-	Mesh(const std::vector<float>& vertices, GLenum drawMode)
+	Mesh(const std::vector<float>& vertices, GLenum drawMode, GLsizei componentsPerVertex)
 		: m_drawMode(drawMode)
-		, m_vertexCount(vertices.size() / 2)
+		, m_vertexCount(vertices.size() / componentsPerVertex)
+		, m_componentsPerVertex(componentsPerVertex)
 	{
 		glGenVertexArrays(1, &m_vao);
 		glGenBuffers(1, &m_vbo);
@@ -20,7 +21,7 @@ public:
 		GLsizeiptr size = vertices.size() * sizeof(float);
 		glBufferData(GL_ARRAY_BUFFER, size, vertices.data(), GL_STATIC_DRAW);
 
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
+		glVertexAttribPointer(0, m_componentsPerVertex, GL_FLOAT, GL_FALSE, m_componentsPerVertex * sizeof(float), nullptr);
 		glEnableVertexAttribArray(0);
 
 		glBindVertexArray(0);
@@ -40,6 +41,7 @@ public:
 		, m_vao(other.m_vao)
 		, m_vbo(other.m_vbo)
 		, m_vertexCount(other.m_vertexCount)
+		, m_componentsPerVertex(other.m_componentsPerVertex)
 	{
 		other.m_vao = 0;
 		other.m_vbo = 0;
@@ -57,4 +59,5 @@ private:
 	GLuint m_vao = 0;
 	GLuint m_vbo = 0;
 	GLsizei m_vertexCount = 0;
+	const GLsizei m_componentsPerVertex;
 };

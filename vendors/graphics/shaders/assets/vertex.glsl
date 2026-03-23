@@ -1,11 +1,10 @@
 #version 330 core
 
-layout (location = 0) in vec2 aPos;
+layout (location = 0) in vec3 aPos;
 
-uniform mat3 uViewProjection;
+uniform mat4 uMVP;
 
 void main()
 {
-    vec3 pos = uViewProjection * vec3(aPos, 1);
-    gl_Position = vec4(pos.x, pos.y, 0, 1);
+    gl_Position = uMVP * vec4(aPos, 1);
 }

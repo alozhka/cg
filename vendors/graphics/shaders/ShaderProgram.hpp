@@ -49,10 +49,10 @@ public:
 		}
 	}
 
-	void SetUniformMat3(const std::string& str, const std::array<float, 9>& data)
+	void SetUniformMat4(const std::string& str, const std::array<float, 16>& data)
 	{
 		GLint location = glGetUniformLocation(m_program, str.c_str());
-		glUniformMatrix3fv(location, 1, GL_FALSE, data.data());
+		glUniformMatrix4fv(location, 1, GL_FALSE, data.data());
 	}
 
 	void SetUniformVec4(const std::string& str, const std::array<float, 4>& data)
