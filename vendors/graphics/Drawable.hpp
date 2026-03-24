@@ -1,8 +1,6 @@
 #pragma once
 
-#include "Mat3.hpp"
-#include "ShaderProgram.hpp"
-#include "Vec2f.hpp"
+#include "shaders/ShaderProgram.hpp"
 
 #include <memory>
 
@@ -19,7 +17,7 @@ public:
 	{
 	}
 
-	Drawable(const Vec2f& pos, float rotation = 0, float scale = 1)
+	Drawable(const glm::vec2& pos, float rotation = 0, float scale = 1)
 		: m_pos(pos)
 		, m_rotation(rotation)
 		, m_scale(scale)
@@ -33,7 +31,7 @@ public:
 		m_pos = { x, y };
 	}
 
-	void SetPosition(Vec2f pos)
+	void SetPosition(glm::vec2 pos)
 	{
 		m_pos = pos;
 	}
@@ -52,17 +50,21 @@ public:
 	{
 	}
 
-	virtual void Draw(ShaderProgram& shader, const Mat3& parentTransform) = 0;
+	virtual void Draw(ShaderProgram& shader, const glm::mat4& parentTransform) = 0;
 
 protected:
-	Mat3 GetTransformMatrix() const
+	glm::mat4 GetTransformMatrix() const
 	{
-		return Mat3::Translate(m_pos.x, m_pos.y)
-			* Mat3::Rotate(m_rotation)
-			* Mat3::Scale(m_scale, m_scale);
+		glm::mat4 transform(1);
+
+		transform = glm::translate(transform, glm::vec3(m_pos, 0));
+		transform = glm::rotate(transform, glm::radians(m_rotation), glm::vec3(0, 0, 1));
+		transform = glm::scale(transform, glm::vec3(m_scale, m_scale, 1));
+
+		return transform;
 	}
 
-	Vec2f m_pos;
+	glm::vec2 m_pos;
 	float m_rotation;
 	float m_scale;
 };

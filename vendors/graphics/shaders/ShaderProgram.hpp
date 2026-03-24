@@ -1,8 +1,8 @@
 #pragma once
-#include <array>
 #include <format>
 #include <fstream>
 #include <glad/glad.h>
+#include <glm/gtc/type_ptr.hpp>
 #include <string>
 
 class ShaderProgram
@@ -49,16 +49,16 @@ public:
 		}
 	}
 
-	void SetUniformMat4(const std::string& str, const std::array<float, 16>& data)
+	void SetUniformMat4(const std::string& str, const glm::mat4& m)
 	{
 		GLint location = glGetUniformLocation(m_program, str.c_str());
-		glUniformMatrix4fv(location, 1, GL_FALSE, data.data());
+		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(m));
 	}
 
-	void SetUniformVec4(const std::string& str, const std::array<float, 4>& data)
+	void SetUniformVec4(const std::string& str, const glm::vec4& v)
 	{
 		GLint location = glGetUniformLocation(m_program, str.c_str());
-		glUniform4f(location, data[0], data[1], data[2], data[3]);
+		glUniform4fv(location, 1, glm::value_ptr(v));
 	}
 
 private:

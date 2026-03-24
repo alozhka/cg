@@ -5,10 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(polyhedron main.cpp
         src/PolyhedronApp.h
-        ../../vendors/graphics/Mat4.hpp
         ../../vendors/graphics/Size.hpp
-        ../../vendors/graphics/Vec3.hpp
-        src/Rectangle3d.hpp)
+        src/Cube.hpp)
 
 add_subdirectory(
         ${CMAKE_CURRENT_SOURCE_DIR}/../../vendors/graphics

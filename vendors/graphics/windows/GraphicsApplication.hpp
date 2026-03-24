@@ -1,8 +1,5 @@
 #pragma once
-#define GLFW_INCLUDE_NONE
-#include "../Mat4.hpp"
 #include "../Size.hpp"
-#include "../Vec2f.hpp"
 #include "KeyboardReader.hpp"
 
 #include <GLFW/glfw3.h>
@@ -19,7 +16,7 @@ public:
 		while (!glfwWindowShouldClose(m_window))
 		{
 			glfwPollEvents();
-			Mat4 perspective = GetPerspectiveMatrix();
+			glm::mat4 perspective = GetPerspectiveMatrix();
 			OnDraw(perspective);
 			glfwSwapBuffers(m_window);
 		}
@@ -67,13 +64,13 @@ protected:
 		glfwTerminate();
 	}
 
-	virtual void OnDraw(const Mat4& projection) = 0;
+	virtual void OnDraw(const glm::mat4& projection) = 0;
 
-	virtual void OnMouseButton(int button, int action, Vec2f p)
+	virtual void OnMouseButton(int button, int action, glm::vec2 p)
 	{
 	}
 
-	virtual void OnMouseMove(Vec2f p)
+	virtual void OnMouseMove(glm::vec2 p)
 	{
 	}
 
@@ -91,15 +88,15 @@ protected:
 	}
 
 private:
-	Mat4 GetPerspectiveMatrix() const
+	glm::mat4 GetPerspectiveMatrix() const
 	{
 		Size size = GetWindowSize();
 		float currentAspectRatio = size.width / size.height;
 
-		return Mat4::Perspective(FIELD_OF_VIEW, currentAspectRatio, ZNEAR, ZFAR);
+		return glm::perspective(FIELD_OF_VIEW, currentAspectRatio, ZNEAR, ZFAR);
 	}
 
-	Vec2f NormalizeCoords(double x, double y) const
+	glm::vec2 NormalizeCoords(double x, double y) const
 	{
 		Size size = GetWindowSize();
 
@@ -109,7 +106,7 @@ private:
 		normalizedX = std::clamp(normalizedX, -1.0f, 1.0f);
 		normalizedY = std::clamp(normalizedY, -1.0f, 1.0f);
 
-		return Vec2f{ normalizedX, normalizedY };
+		return glm::vec2{ normalizedX, normalizedY };
 	}
 
 	void SetupInitialViewport()

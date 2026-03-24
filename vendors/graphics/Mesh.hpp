@@ -54,6 +54,13 @@ public:
 		glBindVertexArray(0);
 	}
 
+	void Draw(GLint first, GLsizei count)
+	{
+		glBindVertexArray(m_vao);
+		glDrawArrays(m_drawMode, first, count);
+		glBindVertexArray(0);
+	}
+
 private:
 	GLenum m_drawMode;
 	GLuint m_vao = 0;
