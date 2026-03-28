@@ -39,13 +39,13 @@ public:
 		glm::vec2 delta = p - m_lastMousePos;
 		m_lastMousePos = p;
 
-		m_camera.AddYaw(delta.x * m_sensitivity);
-		m_camera.AddPitch(-delta.y * m_sensitivity);
+		m_camera.AddYaw(-delta.x * m_sensitivity);
+		m_camera.AddPitch(delta.y * m_sensitivity);
 	}
 
 private:
 	OrbitalCamera& m_camera;
 	bool m_isDragging = false;
 	glm::vec2 m_lastMousePos = { 0, 0 };
-	float m_sensitivity = 2.5;
+	float m_sensitivity = 1.5;
 };
