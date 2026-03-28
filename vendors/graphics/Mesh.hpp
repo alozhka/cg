@@ -61,6 +61,8 @@ public:
 		glBindVertexArray(0);
 	}
 
+	GLuint GetVAO() const { return m_vao; }
+
 private:
 	GLenum m_drawMode;
 	GLuint m_vao = 0;

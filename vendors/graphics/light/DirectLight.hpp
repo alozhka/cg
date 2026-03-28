@@ -1,7 +1,5 @@
 #pragma once
-#include "glad/glad.h"
 
-#include <array>
 #include <glm/vec3.hpp>
 
 class DirectLight
@@ -41,19 +39,20 @@ public:
 		m_specular[3] = a;
 	}
 
-	void SetLight(GLenum light)
+	void Apply(ShaderProgram& shader, const glm::mat4& view)
 	{
-		float lightDirection[4] = { m_direction.x, m_direction.y, m_direction.z, 0 };
+		glm::mat3 viewRot(view);
+		glm::vec3 dirView = glm::normalize(viewRot * glm::normalize(m_direction));
 
-		glLightfv(light, GL_POSITION, lightDirection);
-		glLightfv(light, GL_DIFFUSE, m_diffuse.data());
-		glLightfv(light, GL_AMBIENT, m_ambient.data());
-		glLightfv(light, GL_SPECULAR, m_specular.data());
+		shader.SetUniformVec3("uDirectLight.direction", dirView);
+		shader.SetUniformVec3("uDirectLight.diffuse", m_diffuse);
+		shader.SetUniformVec3("uDirectLight.ambient", m_ambient);
+		shader.SetUniformVec3("uDirectLight.specular", m_specular);
 	}
 
 private:
 	glm::vec3 m_direction;
-	std::array<float, 4> m_diffuse{ 0.8, 0.8, 0.8, 1 };
-	std::array<float, 4> m_ambient{ 0.2, 0.2, 0.2, 1 };
-	std::array<float, 4> m_specular{ 0.5, 0.5, 0.5, 1 };
+	glm::vec4 m_diffuse{ 0.8, 0.8, 0.8, 1 };
+	glm::vec4 m_ambient{ 0.2, 0.2, 0.2, 1 };
+	glm::vec4 m_specular{ 0.5, 0.5, 0.5, 1 };
 };

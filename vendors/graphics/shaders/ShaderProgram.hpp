@@ -49,16 +49,22 @@ public:
 		}
 	}
 
-	void SetUniformMat4(const std::string& str, const glm::mat4& m)
+	void SetUniformMat4(const std::string& name, const glm::mat4& m)
 	{
-		GLint location = glGetUniformLocation(m_program, str.c_str());
+		GLint location = glGetUniformLocation(m_program, name.c_str());
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(m));
 	}
 
-	void SetUniformVec4(const std::string& str, const glm::vec4& v)
+	void SetUniformVec4(const std::string& name, const glm::vec4& v)
 	{
-		GLint location = glGetUniformLocation(m_program, str.c_str());
+		GLint location = glGetUniformLocation(m_program, name.c_str());
 		glUniform4fv(location, 1, glm::value_ptr(v));
+	}
+
+	void SetUniformVec3(const std::string& name, const glm::vec3& v)
+	{
+		GLint location = glGetUniformLocation(m_program, name.c_str());
+		glUniform3fv(location, 1, glm::value_ptr(v));
 	}
 
 private:
