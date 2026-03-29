@@ -1,43 +1,43 @@
 #pragma once
-#include "ThirdStellatedDodecahedron.hpp"
-#include "graphics/light/DirectLight.hpp"
+
+#include "KleinBottle.hpp"
 
 #include <graphics/camera/OrbitalCamera.hpp>
+#include <graphics/light/DirectLight.hpp>
 #include <graphics/shaders/ShaderProgram.hpp>
 #include <graphics/windows/CameraController.hpp>
 #include <graphics/windows/GraphicsApplication.hpp>
 
-class PolyhedronApp final : public GraphicsApplication
+class KleinBottleApp final : public GraphicsApplication
 {
 public:
-	explicit PolyhedronApp(int width, int height, const std::string& title)
+	KleinBottleApp(int width, int height, const std::string& title)
 		: GraphicsApplication(width, height, title)
 		, m_cameraController(m_camera)
-		, m_light({ 1, 1, 3 })
+		, m_light({ 1.f, 2.f, 3.f })
 	{
 		m_shader.LoadFromFile("assets/vertex.glsl", "assets/fragment.glsl");
 		glEnable(GL_DEPTH_TEST);
 
-		m_light.SetDiffuseIntensity(0.5, 0.5, 0.5);
-		m_light.SetAmbientIntensity(0.2, 0.2, 0.2);
-		m_light.SetSpecularIntensity(0.3, 0.3, 0.3);
+		m_light.SetDiffuseIntensity(0.7f, 0.7f, 0.7f);
+		m_light.SetAmbientIntensity(0.25f, 0.25f, 0.25f);
+		m_light.SetSpecularIntensity(0.5f, 0.5f, 0.5f);
 	}
 
 protected:
 	void OnDraw(const glm::mat4& projection) override
 	{
-		glClearColor(0.08, 0.08, 0.1, 1);
+		glClearColor(0.05f, 0.05f, 0.1f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glm::mat4 view = m_camera.GetViewMatrix();
+		glDisable(GL_CULL_FACE);
 
 		m_shader.Use();
 		m_light.Apply(m_shader);
 		m_shader.SetUniformVec3("uCameraPos", m_camera.GetPosition());
 
-		glm::mat4 viewProjection = projection * view;
-
-		m_polyhedron.Draw(m_shader, viewProjection);
+		glm::mat4 vp = projection * m_camera.GetViewMatrix();
+		m_bottle.Draw(m_shader, vp);
 	}
 
 	void OnMouseButton(int button, int action, glm::vec2 p) override
@@ -54,7 +54,6 @@ private:
 	OrbitalCamera m_camera;
 	CameraController m_cameraController;
 	ShaderProgram m_shader;
-
-	ThirdStellatedDodecahedron m_polyhedron{};
+	KleinBottle m_bottle;
 	DirectLight m_light;
 };
