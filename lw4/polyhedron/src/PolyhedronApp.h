@@ -16,8 +16,9 @@ public:
 		, m_light({ 1, 1, 3 })
 	{
 		m_shader.LoadFromFile("assets/vertex.glsl", "assets/fragment.glsl");
+		glEnable(GL_DEPTH_TEST);
 
-		m_cube.SetScale(3.2);
+		m_cube.SetScale(5);
 
 		m_light.SetDiffuseIntensity(0.5, 0.5, 0.5);
 		m_light.SetAmbientIntensity(0.2, 0.2, 0.2);
@@ -32,12 +33,12 @@ protected:
 
 		glm::mat4 view = m_camera.GetViewMatrix();
 
-		m_light.Apply(m_shader, view);
-
-		glm::mat4 mvp = projection * view;
 		m_shader.Use();
+		m_light.Apply(m_shader);
+		m_shader.SetUniformVec3("uCameraPos", m_camera.GetPosition());
 
-		m_cube.Draw(m_shader, mvp);
+		glm::mat4 viewProjection = projection * view;
+		m_cube.Draw(m_shader, viewProjection);
 	}
 
 	void OnMouseButton(int button, int action, glm::vec2 p) override

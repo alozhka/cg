@@ -1,28 +1,41 @@
 #pragma once
 
-#include <cmath>
+#include "Vertex.hpp"
+
 #include <glad/glad.h>
-#include <numbers>
 #include <vector>
 
 class Mesh
 {
 public:
-	Mesh(const std::vector<float>& vertices, GLenum drawMode, GLsizei componentsPerVertex)
+	Mesh(const std::vector<Vertex>& vertices, GLenum drawMode)
 		: m_drawMode(drawMode)
-		, m_vertexCount(vertices.size() / componentsPerVertex)
-		, m_componentsPerVertex(componentsPerVertex)
+		, m_vertexCount(static_cast<GLsizei>(vertices.size()))
 	{
 		glGenVertexArrays(1, &m_vao);
 		glGenBuffers(1, &m_vbo);
 
 		glBindVertexArray(m_vao);
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-		GLsizeiptr size = vertices.size() * sizeof(float);
-		glBufferData(GL_ARRAY_BUFFER, size, vertices.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), reinterpret_cast<const float*>(vertices.data()), GL_STATIC_DRAW);
 
-		glVertexAttribPointer(0, m_componentsPerVertex, GL_FLOAT, GL_FALSE, m_componentsPerVertex * sizeof(float), nullptr);
+		glVertexAttribPointer(
+			0,
+			3,
+			GL_FLOAT,
+			GL_FALSE,
+			sizeof(Vertex),
+			reinterpret_cast<void*>(offsetof(Vertex, position)));
 		glEnableVertexAttribArray(0);
+
+		glVertexAttribPointer(
+			1,
+			3,
+			GL_FLOAT,
+			GL_FALSE,
+			sizeof(Vertex),
+			reinterpret_cast<void*>(offsetof(Vertex, normal)));
+		glEnableVertexAttribArray(1);
 
 		glBindVertexArray(0);
 	}
@@ -41,7 +54,6 @@ public:
 		, m_vao(other.m_vao)
 		, m_vbo(other.m_vbo)
 		, m_vertexCount(other.m_vertexCount)
-		, m_componentsPerVertex(other.m_componentsPerVertex)
 	{
 		other.m_vao = 0;
 		other.m_vbo = 0;
@@ -68,5 +80,4 @@ private:
 	GLuint m_vao = 0;
 	GLuint m_vbo = 0;
 	GLsizei m_vertexCount = 0;
-	const GLsizei m_componentsPerVertex;
 };

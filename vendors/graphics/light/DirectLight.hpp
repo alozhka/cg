@@ -39,15 +39,12 @@ public:
 		m_specular[3] = a;
 	}
 
-	void Apply(ShaderProgram& shader, const glm::mat4& view)
+	void Apply(ShaderProgram& shader)
 	{
-		glm::mat3 viewRot(view);
-		glm::vec3 dirView = glm::normalize(viewRot * glm::normalize(m_direction));
-
-		shader.SetUniformVec3("uDirectLight.direction", dirView);
-		shader.SetUniformVec3("uDirectLight.diffuse", m_diffuse);
-		shader.SetUniformVec3("uDirectLight.ambient", m_ambient);
-		shader.SetUniformVec3("uDirectLight.specular", m_specular);
+		shader.SetUniformVec3("uDirectLight.direction", glm::normalize(m_direction));
+		shader.SetUniformVec3("uDirectLight.diffuse", glm::vec3(m_diffuse));
+		shader.SetUniformVec3("uDirectLight.ambient", glm::vec3(m_ambient));
+		shader.SetUniformVec3("uDirectLight.specular", glm::vec3(m_specular));
 	}
 
 private:
