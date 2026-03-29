@@ -160,9 +160,9 @@ private:
 		return static_cast<GraphicsApplication*>(glfwGetWindowUserPointer(window));
 	}
 
-	static constexpr float ZNEAR = 0.5;
+	static constexpr float ZNEAR = 0.1;
 	static constexpr float ZFAR = 10;
-	static constexpr float FIELD_OF_VIEW = 60;
+	static constexpr float FIELD_OF_VIEW = 55;
 
 	GLFWwindow* m_window;
 };

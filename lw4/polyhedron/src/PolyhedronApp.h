@@ -1,5 +1,5 @@
 #pragma once
-#include "Cube.hpp"
+#include "ThirdStellatedDodecahedron.hpp"
 #include "graphics/light/DirectLight.hpp"
 
 #include <graphics/camera/OrbitalCamera.hpp>
@@ -17,8 +17,6 @@ public:
 	{
 		m_shader.LoadFromFile("assets/vertex.glsl", "assets/fragment.glsl");
 		glEnable(GL_DEPTH_TEST);
-
-		m_cube.SetScale(5);
 
 		m_light.SetDiffuseIntensity(0.5, 0.5, 0.5);
 		m_light.SetAmbientIntensity(0.2, 0.2, 0.2);
@@ -38,7 +36,8 @@ protected:
 		m_shader.SetUniformVec3("uCameraPos", m_camera.GetPosition());
 
 		glm::mat4 viewProjection = projection * view;
-		m_cube.Draw(m_shader, viewProjection);
+
+		m_polyhedron.Draw(m_shader, viewProjection);
 	}
 
 	void OnMouseButton(int button, int action, glm::vec2 p) override
@@ -56,6 +55,6 @@ private:
 	CameraController m_cameraController;
 	ShaderProgram m_shader;
 
-	Cube m_cube{};
+	ThirdStellatedDodecahedron m_polyhedron{};
 	DirectLight m_light;
 };

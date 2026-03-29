@@ -1,0 +1,141 @@
+#pragma once
+
+#include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+#include <graphics/Drawable.hpp>
+#include <graphics/Mesh.hpp>
+#include <cmath>
+#include <vector>
+
+class ThirdStellatedDodecahedron final : public Drawable
+{
+public:
+    ThirdStellatedDodecahedron()
+       : m_mesh(CreateVertices(), GL_TRIANGLES)
+    {
+    }
+
+    void Draw(ShaderProgram& shader, const glm::mat4& viewProjection) override
+    {
+       glm::mat4 model = GetTransformMatrix();
+       glm::mat3 normalMatrix = glm::transpose(glm::inverse(glm::mat3(model)));
+
+       shader.SetUniformMat4("uViewProjection", viewProjection);
+       shader.SetUniformMat4("uModel", model);
+       shader.SetUniformMat3("uNormalMatrix", normalMatrix);
+
+       // У нас 12 звёзд. Каждая звезда состоит из 5 треугольников (15 вершин)
+       constexpr GLsizei vertsPerFace = 15;
+       for (int face = 0; face < 12; ++face)
+       {
+          shader.SetUniformVec4("uColor", FaceColor(face));
+          m_mesh.Draw(face * vertsPerFace, vertsPerFace);
+       }
+    }
+
+private:
+    static std::vector<Vertex> CreateVertices()
+    {
+       const float phi = (1.0f + std::sqrt(5.0f)) / 2.0f;
+
+       // 12 вершин базового (внутреннего) икосаэдра
+       glm::vec3 V[12] = {
+          { -1,  phi,  0 }, {  1,  phi,  0 }, { -1, -phi,  0 }, {  1, -phi,  0 },
+          {  0, -1,  phi }, {  0,  1,  phi }, {  0, -1, -phi }, {  0,  1, -phi },
+          {  phi,  0, -1 }, {  phi,  0,  1 }, { -phi,  0, -1 }, { -phi,  0,  1 }
+       };
+
+       for (int i = 0; i < 12; ++i) {
+           V[i] = glm::normalize(V[i]);
+       }
+
+       int faces[20][3] = {
+          {0, 11, 5}, {0, 5, 1}, {0, 1, 7}, {0, 7, 10}, {0, 10, 11},
+          {1, 5, 9}, {5, 11, 4}, {11, 10, 2}, {10, 7, 6}, {7, 1, 8},
+          {3, 9, 4}, {3, 4, 2}, {3, 2, 6}, {3, 6, 8}, {3, 8, 9},
+          {4, 9, 5}, {2, 4, 11}, {6, 2, 10}, {8, 6, 7}, {9, 8, 1}
+       };
+
+       // Временные корзины для 12 плоских звёзд
+       std::vector<Vertex> starTriangles[12];
+
+       // Магическая константа: точный коэффициент для Большого звёздчатого додекаэдра
+       const float stellationFactor = 15.0f - 6.0f * std::sqrt(5.0f) + 1;
+
+       for (int f = 0; f < 20; ++f)
+       {
+          glm::vec3 A = V[faces[f][0]];
+          glm::vec3 B = V[faces[f][1]];
+          glm::vec3 C = V[faces[f][2]];
+
+          glm::vec3 center = (A + B + C) / 3.0f;
+          glm::vec3 tip = center * stellationFactor;
+          glm::vec3 base[3] = { A, B, C };
+
+          for (int i = 0; i < 3; ++i)
+          {
+             glm::vec3 p1 = base[i];
+             glm::vec3 p2 = base[(i + 1) % 3];
+
+             glm::vec3 normal = glm::normalize(glm::cross(p2 - p1, tip - p1));
+
+             if (glm::dot(normal, center) < 0)
+             {
+                normal = -normal;
+                std::swap(p1, p2); // Сохраняем обход CCW
+             }
+
+             // Группировка: находим, к какой из 12 граней-звёзд принадлежит этот треугольник.
+             // У Большого звёздчатого додекаэдра нормали 12 граней точно совпадают с векторами вершин икосаэдра.
+             int starIndex = 0;
+             float maxDot = -1.0f;
+             for (int j = 0; j < 12; ++j)
+             {
+                 float d = std::abs(glm::dot(normal, V[j]));
+                 if (d > maxDot)
+                 {
+                     maxDot = d;
+                     starIndex = j;
+                 }
+             }
+
+             // Для идеального освещения (без артефактов float-погрешностей)
+             // принудительно задаём треугольнику идеальную математическую нормаль его звезды.
+             glm::vec3 idealNormal = V[starIndex];
+             if (glm::dot(idealNormal, normal) < 0) {
+                 idealNormal = -idealNormal;
+             }
+
+             starTriangles[starIndex].push_back({ p1, idealNormal });
+             starTriangles[starIndex].push_back({ p2, idealNormal });
+             starTriangles[starIndex].push_back({ tip, idealNormal });
+          }
+       }
+
+       // Сливаем все звёзды в единый плотный буфер
+       std::vector<Vertex> vertices;
+       vertices.reserve(12 * 5 * 3);
+       for (int i = 0; i < 12; ++i) {
+          vertices.insert(vertices.end(), starTriangles[i].begin(), starTriangles[i].end());
+       }
+
+       return vertices;
+    }
+
+    static glm::vec4 FaceColor(int faceIndex)
+    {
+       // 12 классических цветов для 12 звёзд
+       static const glm::vec4 colors[12] = {
+          { 0.85f, 0.25f, 0.2f, 1.f }, { 0.2f, 0.75f, 0.9f, 1.f },
+          { 0.35f, 0.85f, 0.35f, 1.f }, { 0.85f, 0.35f, 0.85f, 1.f },
+          { 0.3f, 0.45f, 0.95f, 1.f }, { 0.95f, 0.85f, 0.25f, 1.f },
+          { 0.95f, 0.55f, 0.2f, 1.f }, { 0.4f, 0.9f, 0.6f, 1.f },
+          { 0.7f, 0.3f, 0.9f, 1.f }, { 0.9f, 0.7f, 0.8f, 1.f },
+          { 0.6f, 0.8f, 0.3f, 1.f }, { 0.5f, 0.7f, 0.9f, 1.f },
+       };
+       return colors[faceIndex];
+    }
+
+    Mesh m_mesh;
+};
