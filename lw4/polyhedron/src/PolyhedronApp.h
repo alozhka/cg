@@ -17,6 +17,7 @@ public:
 	{
 		m_shader.LoadFromFile("assets/vertex.glsl", "assets/fragment.glsl");
 		glEnable(GL_DEPTH_TEST);
+		glDepthMask(GL_TRUE);
 
 		m_light.SetDiffuseIntensity(0.5, 0.5, 0.5);
 		m_light.SetAmbientIntensity(0.2, 0.2, 0.2);

@@ -5,7 +5,6 @@ layout (location = 1) in vec3 aNormal;
 
 uniform mat4 uViewProjection;
 uniform mat4 uModel;
-uniform mat3 uNormalMatrix;
 
 out vec3 vNormal;
 out vec3 vFragPos;
@@ -14,5 +13,5 @@ void main()
 {
     gl_Position = uViewProjection * uModel * vec4(aPos, 1);
     vFragPos = vec3(uModel * vec4(aPos, 1.0));
-    vNormal = normalize(uNormalMatrix * aNormal);
+    vNormal = mat3(uModel) * aNormal;
 }
