@@ -59,7 +59,7 @@ protected:
 
 		transform = glm::translate(transform, glm::vec3(m_pos, 0));
 		transform = glm::rotate(transform, glm::radians(m_rotation), glm::vec3(0, 0, 1));
-		transform = glm::scale(transform, glm::vec3(m_scale, m_scale, 1));
+		transform = glm::scale(transform, glm::vec3(m_scale, m_scale, m_scale));
 
 		return transform;
 	}

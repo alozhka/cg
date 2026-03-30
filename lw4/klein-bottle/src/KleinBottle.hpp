@@ -14,11 +14,11 @@ public:
 		: m_mesh(GenerateVertices(), GL_TRIANGLES)
 	{
 	}
-
-	void Draw(ShaderProgram& shader, const glm::mat4& viewProjection) override
+	void Draw(ShaderProgram& shader, const glm::mat4& parentTransform) override
 	{
-		glm::mat4 model(1.0f);
-		shader.SetUniformMat4("uViewProjection", viewProjection);
+		glm::mat4 model = GetTransformMatrix();
+
+		shader.SetUniformMat4("uViewProjection", parentTransform);
 		shader.SetUniformMat4("uModel", model);
 		shader.SetUniformVec4("uColor", { 0.2f, 0.55f, 0.9f, 1.0f });
 		m_mesh.Draw();
@@ -27,7 +27,6 @@ public:
 private:
 	static constexpr int NU = 100;
 	static constexpr int NV = 80;
-	static constexpr float SCALE = 1.0f / 8.0f;
 	static constexpr float EPS = 1e-4f;
 
 	static glm::vec3 EvalPoint(float u, float v)
@@ -48,7 +47,7 @@ private:
 			z = f * std::sin(v);
 		}
 
-		return glm::vec3(x, y, z) * SCALE;
+		return glm::vec3(x, y, z);
 	}
 
 	static glm::vec3 ComputeNormal(float u, float v)
@@ -58,7 +57,7 @@ private:
 		glm::vec3 n = glm::cross(dPdu, dPdv);
 		float len = glm::length(n);
 		if (len < 1e-8f)
-			return glm::vec3(0.0f, 1.0f, 0.0f);
+			return {0.0f, 1.0f, 0.0f};
 		return n / len;
 	}
 

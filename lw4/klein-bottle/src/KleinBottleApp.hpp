@@ -17,6 +17,7 @@ public:
 		, m_light({ 1.f, 2.f, 3.f })
 	{
 		m_shader.LoadFromFile("assets/vertex.glsl", "assets/fragment.glsl");
+		m_bottle.SetScale(0.125);
 		glEnable(GL_DEPTH_TEST);
 
 		m_light.SetDiffuseIntensity(0.7f, 0.7f, 0.7f);
