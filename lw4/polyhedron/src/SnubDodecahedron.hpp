@@ -43,33 +43,47 @@ private:
 		std::vector<Vertex> vertices;
 		vertices.reserve(pentagons.size() * VertsPerPentagon + triangles.size() * 3);
 
-		for (const std::vector<int>& pentagon : pentagons)
+		AddPentagons(vertices, obj.vertices, pentagons);
+		AddTriangles(vertices, obj.vertices, triangles);
+
+		return vertices;
+	}
+
+	void AddPentagons(
+		std::vector<Vertex>& vertices,
+		const std::vector<glm::vec3>& rawVertices,
+		const std::vector<std::vector<int>>& pentagonsIndexes)
+	{
+		for (const std::vector<int>& pentagonIndexes : pentagonsIndexes)
 		{
-			glm::vec3 p0 = obj.vertices[pentagon[0]];
-			glm::vec3 p1 = obj.vertices[pentagon[1]];
-			glm::vec3 p2 = obj.vertices[pentagon[2]];
-			glm::vec3 p3 = obj.vertices[pentagon[3]];
-			glm::vec3 p4 = obj.vertices[pentagon[4]];
+			glm::vec3 p0 = rawVertices[pentagonIndexes[0]];
+			glm::vec3 p1 = rawVertices[pentagonIndexes[1]];
+			glm::vec3 p2 = rawVertices[pentagonIndexes[2]];
+			glm::vec3 p3 = rawVertices[pentagonIndexes[3]];
+			glm::vec3 p4 = rawVertices[pentagonIndexes[4]];
+
+			m_faces.push_back({ static_cast<GLint>(vertices.size()), VertsPerPentagon });
 
 			AddTriangle(vertices, p0, p1, p2);
 			AddTriangle(vertices, p0, p2, p3);
 			AddTriangle(vertices, p0, p3, p4);
-
-			m_faces.push_back({ static_cast<GLint>(vertices.size()) - VertsPerPentagon, VertsPerPentagon });
 		}
+	}
 
-		for (const std::vector<int>& triangle : triangles)
+	void AddTriangles(
+		std::vector<Vertex>& vertices,
+		const std::vector<glm::vec3>& rawVertices,
+		const std::vector<std::vector<int>>& trianglesIndexes)
+	{
+		for (const std::vector<int>& triangleIndex : trianglesIndexes)
 		{
-			glm::vec3 p0 = obj.vertices[triangle[0]];
-			glm::vec3 p1 = obj.vertices[triangle[1]];
-			glm::vec3 p2 = obj.vertices[triangle[2]];
+			glm::vec3 p0 = rawVertices[triangleIndex[0]];
+			glm::vec3 p1 = rawVertices[triangleIndex[1]];
+			glm::vec3 p2 = rawVertices[triangleIndex[2]];
+			m_faces.push_back({ static_cast<GLint>(vertices.size()), 3 });
 
 			AddTriangle(vertices, p0, p1, p2);
-
-			m_faces.push_back({ static_cast<GLint>(vertices.size()) - 3, 3 });
 		}
-
-		return vertices;
 	}
 
 	static void AddTriangle(
