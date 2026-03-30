@@ -1,5 +1,5 @@
 #pragma once
-#include "ThirdStellatedDodecahedron.hpp"
+#include "SnubDodecahedron.hpp"
 #include "graphics/light/DirectLight.hpp"
 
 #include <graphics/camera/OrbitalCamera.hpp>
@@ -55,6 +55,6 @@ private:
 	CameraController m_cameraController;
 	ShaderProgram m_shader;
 
-	ThirdStellatedDodecahedron m_polyhedron{};
+	SnubDodecahedron m_polyhedron{};
 	DirectLight m_light;
 };
