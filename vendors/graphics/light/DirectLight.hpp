@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/vec3.hpp>
+#include <graphics/shaders/ShaderProgram.hpp>
 
 class DirectLight
 {

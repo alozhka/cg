@@ -64,7 +64,7 @@ protected:
 		glfwTerminate();
 	}
 
-	virtual void OnDraw(const glm::mat4& projection) = 0;
+	virtual void OnDraw(const glm::mat4& perspective) = 0;
 
 	virtual void OnMouseButton(int button, int action, glm::vec2 p)
 	{
