@@ -24,10 +24,6 @@ void main()
     vec3 lightDirection = normalize(uDirectLight.direction);
     vec3 viewDirection = normalize(uCameraPos - vFragPos);
 
-    // Invert normal if it looks away from the camera
-    if (dot(norm, viewDirection) > 0.0)
-        norm = -norm;
-
     // Ambient
     vec3 ambient = uDirectLight.ambient * uColor.rgb;
 
