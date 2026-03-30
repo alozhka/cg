@@ -59,44 +59,49 @@ private:
 		return { EvaluatePoint(u, v), EvaluateNormal(u, v) };
 	}
 
+	// P(u, v) = ( (R + v·hw·cos(u/2))·cos(u),
+	//             (R + v·hw·cos(u/2))·sin(u),
+	//              v·hw·sin(u/2) )
 	glm::vec3 EvaluatePoint(float u, float v) const
 	{
-		float radialOffset = v * m_width * 0.5f * glm::cos(u / 2);
-		float r = m_radius + radialOffset;
-
+		const float hw = m_width * 0.5f;
+		const float r = m_radius + v * hw * glm::cos(u / 2);
 		return {
 			r * glm::cos(u),
 			r * glm::sin(u),
-			v * m_width * 0.5 * glm::sin(u / 2),
+			v * hw * glm::sin(u / 2),
 		};
 	}
 
+	// N = (∂P/∂u) × (∂P/∂v)
 	glm::vec3 EvaluateNormal(float u, float v) const
 	{
-		const float halfU = u * 0.5f;
+		const float hw = m_width * 0.5f;
 		const float cosU = std::cos(u);
 		const float sinU = std::sin(u);
-		const float cosHalf = std::cos(halfU);
-		const float sinHalf = std::sin(halfU);
+		const float cosHalf = std::cos(u * 0.5f);
+		const float sinHalf = std::sin(u * 0.5f);
+		const float r = m_radius + v * hw * cosHalf;
 
-		// ∂P/∂u: производная по углу (вдоль ленты)
-		const float dr_du = -v * m_width * 0.25f * sinHalf;
-		const float dPdu_x = dr_du * cosU - (m_radius + v * m_width * 0.5f * cosHalf) * sinU;
-		const float dPdu_y = dr_du * sinU + (m_radius + v * m_width * 0.5f * cosHalf) * cosU;
-		const float dPdu_z = v * m_width * 0.25f * cosHalf;
+		// ∂P/∂u = ( -v·hw·1/2·sin(u/2)·cos(u) - r·sin(u),
+		//            -v·hw·1/2·sin(u/2)·sin(u) + r·cos(u),
+		//             v·hw·1/2·cos(u/2) )
+		const glm::vec3 tangentU = {
+			-v * hw * 0.5 * sinHalf * cosU - r * sinU,
+			-v * hw * 0.5 * sinHalf * sinU + r * cosU,
+			v * hw * 0.5 * cosHalf,
+		};
 
-		// ∂P/∂v: производная по ширине (поперёк ленты)
-		const float dPdv_x = m_width * 0.5f * cosHalf * cosU;
-		const float dPdv_y = m_width * 0.5f * cosHalf * sinU;
-		const float dPdv_z = m_width * 0.5f * sinHalf;
+		// ∂P/∂v = ( hw·cos(u/2)·cos(u),
+		//           hw·cos(u/2)·sin(u),
+		//           hw·sin(u/2) )
+		const glm::vec3 tangentV = {
+			hw * cosHalf * cosU,
+			hw * cosHalf * sinU,
+			hw * sinHalf,
+		};
 
-		glm::vec3 tangentU(dPdu_x, dPdu_y, dPdu_z);
-		glm::vec3 tangentV(dPdv_x, dPdv_y, dPdv_z);
-
-		glm::vec3 normal = glm::cross(tangentU, tangentV);
-		const float len = glm::length(normal);
-
-		return normal / len;
+		return glm::normalize(glm::cross(tangentU, tangentV));
 	}
 
 	float m_radius;
