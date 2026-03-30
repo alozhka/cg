@@ -55,6 +55,6 @@ private:
 	CameraController m_cameraController;
 	ShaderProgram m_shader;
 
-	SnubDodecahedron m_polyhedron{};
+	SnubDodecahedron m_polyhedron{ "assets/snub_dodecahedron.obj" };
 	DirectLight m_light;
 };
