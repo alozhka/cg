@@ -15,19 +15,6 @@ public:
 	SnubDodecahedron()
 		: m_mesh(CreateVertices(), GL_TRIANGLES)
 	{
-		// Пятиугольники
-		for (int i = 0; i < PentagonCount; ++i)
-		{
-			m_faceOffsets[i] = i * VertsPerPentagon;
-			m_faceSizes[i] = VertsPerPentagon;
-		}
-		// Треугольники
-		constexpr GLsizei triStart = PentagonCount * VertsPerPentagon;
-		for (int i = 0; i < TriangleCount; ++i)
-		{
-			m_faceOffsets[PentagonCount + i] = triStart + i * 3;
-			m_faceSizes[PentagonCount + i] = 3;
-		}
 	}
 
 	void Draw(ShaderProgram& shader, const glm::mat4& viewProjection) override
@@ -36,10 +23,10 @@ public:
 		shader.SetUniformMat4("uViewProjection", viewProjection);
 		shader.SetUniformMat4("uModel", model);
 
-		for (size_t i = 0; i < m_faceCount; ++i)
+		for (size_t i = 0; i < TotalFaces; ++i)
 		{
 			shader.SetUniformVec4("uColor", FaceColor(static_cast<int>(i)));
-			m_mesh.Draw(m_faceOffsets[i], m_faceSizes[i]);
+			m_mesh.Draw(m_faces[i].offset, m_faces[i].size);
 		}
 	}
 
@@ -293,13 +280,48 @@ private:
 	static glm::vec4 FaceColor(int index)
 	{
 		if (index < PentagonCount)
-			return { 0.95f, 0.45f, 0.15f, 1.0f }; // пятиугольники — оранжево-красные
-		else
-			return { 0.15f, 0.75f, 0.95f, 1.0f }; // треугольники — сине-зелёные
+		{
+			return { 0.95, 0.45, 0.15, 1 };
+		}
+
+		int mod = index % 3;
+
+		if (mod == 0)
+		{
+			return { 0.15, 0.75, 0.95, 1 };
+		}
+		if (mod == 1)
+		{
+			return { 0.05, 0.95, 0.05, 1 };
+		}
+
+		return { 0.95, 0.05, 0.95, 1 };
 	}
 
+	struct Face
+	{
+		GLint offset, size;
+	};
+
+	static std::array<Face, TotalFaces> SetupFacesSizeAndOffset()
+	{
+		std::array<Face, TotalFaces> faces{};
+		for (int i = 0; i < PentagonCount; ++i)
+		{
+			faces[i].offset = i * 9;
+			faces[i].size = 9;
+		}
+
+		constexpr int trianglesOffset = PentagonCount * VertsPerPentagon;
+		for (int i = 0; i < TriangleCount; ++i)
+		{
+			faces[PentagonCount + i].offset = trianglesOffset + i * 3;
+			faces[PentagonCount + i].size = 3;
+		}
+
+		return faces;
+	}
+
+	std::array<Face, TotalFaces> m_faces = SetupFacesSizeAndOffset();
 	Mesh m_mesh;
-	std::array<GLsizei, TotalFaces> m_faceOffsets{};
-	std::array<GLsizei, TotalFaces> m_faceSizes{};
-	size_t m_faceCount = TotalFaces;
 };
