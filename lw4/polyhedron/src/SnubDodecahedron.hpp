@@ -37,6 +37,42 @@ private:
 	static constexpr int TotalFaces = PentagonCount + TriangleCount;
 	static constexpr GLsizei VertsPerPentagon = 9; // 3 треугольника по 3 вершины
 
+	static std::vector<Vertex> CreateVertices()
+	{
+		std::array<glm::vec3, VertexCount> rawVertices = GenerateVertices();
+		std::vector<Vertex> vertices;
+		vertices.reserve(TriangleCount * 3 + PentagonCount * VertsPerPentagon);
+
+		for (const std::array<int, 5>& pentagon : Pentagons)
+		{
+			AddTriangle(rawVertices, vertices, pentagon[0], pentagon[1], pentagon[2]);
+			AddTriangle(rawVertices, vertices, pentagon[0], pentagon[2], pentagon[3]);
+			AddTriangle(rawVertices, vertices, pentagon[0], pentagon[3], pentagon[4]);
+		}
+
+		for (const std::array<int, 3>& triangle : Triangles)
+		{
+			AddTriangle(rawVertices, vertices, triangle[0], triangle[1], triangle[2]);
+		}
+
+		return vertices;
+	}
+
+	static void AddTriangle(
+		const std::array<glm::vec3, VertexCount>& rawVertices,
+		std::vector<Vertex>& vertices,
+		int index0,
+		int index1,
+		int index2)
+	{
+		glm::vec3 p0 = rawVertices[index0], p1 = rawVertices[index1], p2 = rawVertices[index2];
+		glm::vec3 normal = glm::normalize(glm::cross(p1 - p0, p2 - p0));
+
+		vertices.push_back({ p0, normal });
+		vertices.push_back({ p1, normal });
+		vertices.push_back({ p2, normal });
+	}
+
 	static std::array<glm::vec3, VertexCount> GenerateVertices()
 	{
 		float c0 = 0.192893711352359022108262546061;
@@ -243,58 +279,8 @@ private:
 		{ { 51, 59, 55 } },
 	} };
 
-	// === Создание меша ===
-	static std::vector<Vertex> CreateVertices()
-	{
-		auto V = GenerateVertices();
-		std::vector<Vertex> vertices;
-		vertices.reserve(TriangleCount * 3 + PentagonCount * VertsPerPentagon);
-
-		auto addTriangle = [&](int i0, int i1, int i2) {
-			glm::vec3 p0 = V[i0], p1 = V[i1], p2 = V[i2];
-			glm::vec3 normal = glm::normalize(glm::cross(p1 - p0, p2 - p0));
-			glm::vec3 center = (p0 + p1 + p2) * 0.333f;
-			if (glm::dot(normal, center) < 0)
-			{
-				normal = -normal;
-				std::swap(p1, p2);
-			}
-			vertices.push_back({ p0, normal });
-			vertices.push_back({ p1, normal });
-			vertices.push_back({ p2, normal });
-		};
-
-		for (const auto& pent : Pentagons)
-		{
-			addTriangle(pent[0], pent[1], pent[2]);
-			addTriangle(pent[0], pent[2], pent[3]);
-			addTriangle(pent[0], pent[3], pent[4]);
-		}
-
-		for (const auto& tri : Triangles)
-			addTriangle(tri[0], tri[1], tri[2]);
-
-		return vertices;
-	}
-
 	static glm::vec4 FaceColor(int index)
 	{
-		if (index < PentagonCount)
-		{
-			return { 0.95, 0.45, 0.15, 1 };
-		}
-
-		int mod = index % 3;
-
-		if (mod == 0)
-		{
-			return { 0.15, 0.75, 0.95, 1 };
-		}
-		if (mod == 1)
-		{
-			return { 0.05, 0.95, 0.05, 1 };
-		}
-
 		return { 0.95, 0.05, 0.95, 1 };
 	}
 
