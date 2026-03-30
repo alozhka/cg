@@ -41,34 +41,39 @@ private:
 	{
 		std::array<glm::vec3, VertexCount> rawVertices = GenerateVertices();
 		std::vector<Vertex> vertices;
-		vertices.reserve(TriangleCount * 3 + PentagonCount * VertsPerPentagon);
+		vertices.reserve(PentagonCount * VertsPerPentagon + TriangleCount * 3);
 
 		for (const std::array<int, 5>& pentagon : Pentagons)
 		{
-			AddTriangle(rawVertices, vertices, pentagon[0], pentagon[1], pentagon[2]);
-			AddTriangle(rawVertices, vertices, pentagon[0], pentagon[2], pentagon[3]);
-			AddTriangle(rawVertices, vertices, pentagon[0], pentagon[3], pentagon[4]);
+			glm::vec3 p0 = rawVertices[pentagon[0]];
+			glm::vec3 p1 = rawVertices[pentagon[1]];
+			glm::vec3 p2 = rawVertices[pentagon[2]];
+			glm::vec3 p3 = rawVertices[pentagon[3]];
+			glm::vec3 p4 = rawVertices[pentagon[4]];
+
+			AddTriangle(vertices, p0, p1, p2);
+			AddTriangle(vertices, p0, p2, p3);
+			AddTriangle(vertices, p0, p3, p4);
 		}
 
 		for (const std::array<int, 3>& triangle : Triangles)
 		{
-			AddTriangle(rawVertices, vertices, triangle[0], triangle[1], triangle[2]);
+			glm::vec3 p0 = rawVertices[triangle[0]];
+			glm::vec3 p1 = rawVertices[triangle[1]];
+			glm::vec3 p2 = rawVertices[triangle[2]];
+
+			AddTriangle(vertices, p0, p1, p2);
 		}
 
 		return vertices;
 	}
 
 	static void AddTriangle(
-		const std::array<glm::vec3, VertexCount>& rawVertices,
 		std::vector<Vertex>& vertices,
-		int index0,
-		int index1,
-		int index2)
+		glm::vec3 p0,
+		glm::vec3 p1,
+		glm::vec3 p2)
 	{
-		glm::vec3 p0 = rawVertices[index0];
-		glm::vec3 p1 = rawVertices[index1];
-		glm::vec3 p2 = rawVertices[index2];
-
 		glm::vec3 normal = glm::normalize(glm::cross(p1 - p0, p2 - p0));
 
 		vertices.push_back({ p0, normal });
@@ -94,19 +99,21 @@ private:
 		float c13 = 1.97783896542021867236841272616;
 		float c14 = 2.097053835252087992403959052348;
 
-		std::array<glm::vec3, VertexCount> V{};
+		std::array<glm::vec3, VertexCount> rawVertices{};
 		int idx = 0;
 
 		auto add = [&](float vx, float vy, float vz) {
-			V[idx++] = glm::vec3{ vx, vy, vz };
+			rawVertices[idx++] = glm::vec3{ vx, vy, vz };
 		};
 
 #include "data/SnubDodecahedronVertices.inc"
 
-		for (auto& v : V)
+		for (glm::vec3& v : rawVertices)
+		{
 			v = glm::normalize(v);
+		}
 
-		return V;
+		return rawVertices;
 	}
 
 	static constexpr std::array<std::array<int, 5>, PentagonCount> Pentagons = { {
