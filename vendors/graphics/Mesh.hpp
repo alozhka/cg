@@ -8,9 +8,8 @@
 class Mesh
 {
 public:
-	Mesh(const std::vector<Vertex>& vertices, GLenum drawMode)
-		: m_drawMode(drawMode)
-		, m_vertexCount(static_cast<GLsizei>(vertices.size()))
+	Mesh(const std::vector<Vertex>& vertices)
+		: m_vertexCount(static_cast<GLsizei>(vertices.size()))
 	{
 		glGenVertexArrays(1, &m_vao);
 		glGenBuffers(1, &m_vbo);
@@ -50,8 +49,7 @@ public:
 	Mesh& operator=(const Mesh&) = delete;
 
 	Mesh(Mesh&& other) noexcept
-		: m_drawMode(other.m_drawMode)
-		, m_vao(other.m_vao)
+		: m_vao(other.m_vao)
 		, m_vbo(other.m_vbo)
 		, m_vertexCount(other.m_vertexCount)
 	{
@@ -59,24 +57,23 @@ public:
 		other.m_vbo = 0;
 	}
 
-	void Draw()
+	void Draw(GLenum drawMode)
 	{
 		glBindVertexArray(m_vao);
-		glDrawArrays(m_drawMode, 0, m_vertexCount);
+		glDrawArrays(drawMode, 0, m_vertexCount);
 		glBindVertexArray(0);
 	}
 
-	void Draw(GLint first, GLsizei count)
+	void Draw(GLenum drawMode, GLint first, GLsizei count)
 	{
 		glBindVertexArray(m_vao);
-		glDrawArrays(m_drawMode, first, count);
+		glDrawArrays(drawMode, first, count);
 		glBindVertexArray(0);
 	}
 
 	GLuint GetVAO() const { return m_vao; }
 
 private:
-	GLenum m_drawMode;
 	GLuint m_vao = 0;
 	GLuint m_vbo = 0;
 	GLsizei m_vertexCount = 0;

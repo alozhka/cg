@@ -21,6 +21,7 @@ public:
 		m_light.SetDiffuseIntensity(0.5, 0.5, 0.5);
 		m_light.SetAmbientIntensity(0.2, 0.2, 0.2);
 		m_light.SetSpecularIntensity(0.3, 0.3, 0.3);
+		m_polyhedron.SetScale(2);
 	}
 
 protected:

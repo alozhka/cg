@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD 20)
 add_executable(polyhedron main.cpp
         src/PolyhedronApp.h
         ../../vendors/graphics/Size.hpp
-        src/Cube.hpp
         src/ObjLoader.hpp
         src/SnubDodecahedron.hpp
 )

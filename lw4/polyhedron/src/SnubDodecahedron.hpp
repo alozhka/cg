@@ -13,7 +13,7 @@ class SnubDodecahedron final : public Drawable
 {
 public:
 	explicit SnubDodecahedron(const std::string& objPath)
-		: m_mesh(CreateVertices(objPath), GL_TRIANGLES)
+		: m_mesh(CreateVertices(objPath))
 	{
 	}
 
@@ -23,15 +23,24 @@ public:
 		shader.SetUniformMat4("uViewProjection", viewProjection);
 		shader.SetUniformMat4("uModel", model);
 
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(1, 1);
 		for (size_t i = 0; i < m_faces.size(); ++i)
 		{
-			shader.SetUniformVec4("uColor", FaceColor(static_cast<int>(i)));
-			m_mesh.Draw(m_faces[i].offset, m_faces[i].size);
+			shader.SetUniformVec4("uColor", FaceColor(i));
+			m_mesh.Draw(m_faces[i].drawMode, m_faces[i].offset, m_faces[i].size);
+		}
+		glDisable(GL_POLYGON_OFFSET_FILL);
+
+		shader.SetUniformVec4("uColor", { 0, 0, 0, 1 });
+		for (const Face& face : m_faces)
+		{
+			m_mesh.Draw(GL_LINE_LOOP, face.offset, face.size);
 		}
 	}
 
 private:
-	static constexpr GLsizei VertsPerPentagon = 9; // 3 треугольника по 3 вершины
+	static constexpr GLsizei VertsPerPentagon = 5; // вершины веера для GL_TRIANGLE_FAN
 
 	std::vector<Vertex> CreateVertices(const std::string& objPath)
 	{
@@ -62,11 +71,14 @@ private:
 			glm::vec3 p3 = rawVertices[pentagonIndexes[3]];
 			glm::vec3 p4 = rawVertices[pentagonIndexes[4]];
 
-			m_faces.push_back({ static_cast<GLint>(vertices.size()), VertsPerPentagon });
+			glm::vec3 normal = glm::normalize(glm::cross(p1 - p0, p2 - p0));
+			m_faces.push_back({ static_cast<GLint>(vertices.size()), VertsPerPentagon, GL_TRIANGLE_FAN });
 
-			AddTriangle(vertices, p0, p1, p2);
-			AddTriangle(vertices, p0, p2, p3);
-			AddTriangle(vertices, p0, p3, p4);
+			vertices.push_back({ p0, normal });
+			vertices.push_back({ p1, normal });
+			vertices.push_back({ p2, normal });
+			vertices.push_back({ p3, normal });
+			vertices.push_back({ p4, normal });
 		}
 	}
 
@@ -80,7 +92,7 @@ private:
 			glm::vec3 p0 = rawVertices[triangleIndex[0]];
 			glm::vec3 p1 = rawVertices[triangleIndex[1]];
 			glm::vec3 p2 = rawVertices[triangleIndex[2]];
-			m_faces.push_back({ static_cast<GLint>(vertices.size()), 3 });
+			m_faces.push_back({ static_cast<GLint>(vertices.size()), 3, GL_TRIANGLES });
 
 			AddTriangle(vertices, p0, p1, p2);
 		}
@@ -99,7 +111,7 @@ private:
 		vertices.push_back({ p2, normal });
 	}
 
-	static glm::vec4 FaceColor(int index)
+	static glm::vec4 FaceColor(size_t index)
 	{
 		return { 0.95, 0.05, 0.95, 1 };
 	}
@@ -107,6 +119,7 @@ private:
 	struct Face
 	{
 		GLint offset, size;
+		GLenum drawMode;
 	};
 
 	std::vector<Face> m_faces;
