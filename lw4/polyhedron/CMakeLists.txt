@@ -7,6 +7,7 @@ add_executable(polyhedron main.cpp
         src/PolyhedronApp.h
         ../../vendors/graphics/Size.hpp
         src/Cube.hpp
+        src/SnubDodecahedron.hpp
 )
 
 add_subdirectory(
