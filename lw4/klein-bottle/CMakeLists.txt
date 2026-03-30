@@ -4,7 +4,8 @@ project(klein_bottle)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(klein_bottle main.cpp
-        src/KleinBottleApp.hpp)
+        src/KleinBottleApp.hpp
+        src/MobiusStrip.hpp)
 
 add_subdirectory(
         ${CMAKE_CURRENT_SOURCE_DIR}/../../vendors/graphics

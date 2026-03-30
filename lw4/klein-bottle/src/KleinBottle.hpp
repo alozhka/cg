@@ -57,7 +57,7 @@ private:
 		glm::vec3 n = glm::cross(dPdu, dPdv);
 		float len = glm::length(n);
 		if (len < 1e-8f)
-			return {0.0f, 1.0f, 0.0f};
+			return { 0.0f, 1.0f, 0.0f };
 		return n / len;
 	}
 
