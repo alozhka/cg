@@ -8,7 +8,6 @@
 class OrbitalCamera
 {
 public:
-	// Сдвигает точку фокуса (камера поедет следом, так как позиция зависит от m_target)
 	void Move(const glm::vec3& delta)
 	{
 		m_target += delta;
@@ -49,7 +48,6 @@ public:
 private:
 	glm::vec3 m_target{ 0.f, 0.f, 0.f };
 
-	// Храним только сферические координаты относительно m_target
 	float m_radius = 3.5f;
 	float m_yaw = 0.f;
 	float m_pitch = 0.f;
