@@ -73,6 +73,12 @@ public:
 		glUniform3fv(location, 1, glm::value_ptr(v));
 	}
 
+	void SetUniformInt(const std::string& name, int value)
+	{
+		GLint location = glGetUniformLocation(m_program, name.c_str());
+		glUniform1i(location, value);
+	}
+
 private:
 	static GLuint CompileShader(GLenum shaderType, const std::string& filename)
 	{

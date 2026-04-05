@@ -3,7 +3,7 @@ project(texture_maze)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(texture_maze main.cpp)
+add_executable(texture_maze main.cpp src/stb_image_impl.cpp)
 
 add_subdirectory(
         ${CMAKE_CURRENT_SOURCE_DIR}/../../vendors/graphics
@@ -12,3 +12,10 @@ add_subdirectory(
 
 target_link_libraries(texture_maze PRIVATE graphics)
 graphics_copy_shader_assets(texture_maze)
+
+add_custom_command(
+        TARGET texture_maze POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/assets
+        $<TARGET_FILE_DIR:texture_maze>/assets
+)

@@ -9,6 +9,8 @@
 #include <graphics/windows/FirstPersonCameraController.hpp>
 #include <graphics/windows/GraphicsApplication.hpp>
 
+#include <stb/stb_image.h>
+
 class TextureMazeApp final : public GraphicsApplication
 {
 public:
@@ -19,6 +21,8 @@ public:
 		, m_light({ 0, 1, 0 })
 	{
 		m_zfar = 100.f;
+
+		stbi_set_flip_vertically_on_load(true);
 
 		m_shader.LoadFromFile("assets/vertex.glsl", "assets/fragment.glsl");
 		glEnable(GL_DEPTH_TEST);
