@@ -1,9 +1,9 @@
 #pragma once
 
+#include "CollisionDetector.hpp"
 #include "../../../vendors/graphics/camera/FirstPersonCamera.hpp"
 #include "Maze.hpp"
 
-#include <cmath>
 #include <graphics/light/DirectLight.hpp>
 #include <graphics/shaders/ShaderProgram.hpp>
 #include <graphics/windows/GraphicsApplication.hpp>
@@ -84,39 +84,7 @@ private:
 		move = glm::normalize(move) * MOVE_SPEED * dt;
 
 		glm::vec3 pos = m_camera.GetPosition();
-		glm::vec3 newPos = pos + move;
-
-		float margin = 0.2f;
-
-		if (!Maze::IsWall(newPos.x + margin, newPos.z + margin)
-			&& !Maze::IsWall(newPos.x - margin, newPos.z + margin)
-			&& !Maze::IsWall(newPos.x + margin, newPos.z - margin)
-			&& !Maze::IsWall(newPos.x - margin, newPos.z - margin))
-		{
-			m_camera.SetPosition(newPos);
-		}
-		else
-		{
-			glm::vec3 tryX = pos + glm::vec3(move.x, 0, 0);
-			if (!Maze::IsWall(tryX.x + margin, tryX.z + margin)
-				&& !Maze::IsWall(tryX.x - margin, tryX.z + margin)
-				&& !Maze::IsWall(tryX.x + margin, tryX.z - margin)
-				&& !Maze::IsWall(tryX.x - margin, tryX.z - margin))
-			{
-				m_camera.SetPosition(tryX);
-			}
-			else
-			{
-				glm::vec3 tryZ = pos + glm::vec3(0, 0, move.z);
-				if (!Maze::IsWall(tryZ.x + margin, tryZ.z + margin)
-					&& !Maze::IsWall(tryZ.x - margin, tryZ.z + margin)
-					&& !Maze::IsWall(tryZ.x + margin, tryZ.z - margin)
-					&& !Maze::IsWall(tryZ.x - margin, tryZ.z - margin))
-				{
-					m_camera.SetPosition(tryZ);
-				}
-			}
-		}
+		m_camera.SetPosition(m_collision.ResolveMovement(pos, move));
 	}
 
 	static constexpr float MOVE_SPEED = 3.0f;
@@ -127,5 +95,6 @@ private:
 	ShaderProgram m_shader;
 	DirectLight m_light;
 	Maze m_maze;
+	CollisionDetector m_collision;
 	float m_lastTime = 0.f;
 };
