@@ -40,16 +40,14 @@ public:
 
 	glm::mat4 GetViewMatrix() const
 	{
-		return glm::lookAt(GetPosition(), m_target, glm::vec3{ 0.f, 1.f, 0.f });
+		return glm::lookAt(GetPosition(), m_target, glm::vec3{ 0, 1, 0 });
 	}
 
-	const glm::vec3& GetTarget() const { return m_target; }
-
 private:
-	glm::vec3 m_target{ 0.f, 0.f, 0.f };
+	glm::vec3 m_target{ 0, 0, 0 };
 
-	float m_radius = 3.5f;
-	float m_yaw = 0.f;
-	float m_pitch = 0.f;
+	float m_radius = 3.5;
+	float m_yaw = 0.;
+	float m_pitch = 0;
 	float m_pitchLimit = glm::radians(80.f);
 };

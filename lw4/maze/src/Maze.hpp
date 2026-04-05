@@ -5,7 +5,6 @@
 #include <graphics/Vertex.hpp>
 #include <graphics/shaders/ShaderProgram.hpp>
 
-#include <glm/glm.hpp>
 #include <memory>
 #include <vector>
 
@@ -34,6 +33,19 @@ public:
 		DrawFloor(shader, viewProjection);
 		DrawCeiling(shader, viewProjection);
 		DrawWalls(shader, viewProjection);
+	}
+
+	static bool IsWall(float x, float z)
+	{
+		int col = static_cast<int>(std::floor(x));
+		int row = static_cast<int>(std::floor(z));
+
+		if (row < 0 || row >= MAZE_GRID_SIZE || col < 0 || col >= MAZE_GRID_SIZE)
+		{
+			return true;
+		}
+
+		return MAZE_GRID[row][col] == 1;
 	}
 
 private:
