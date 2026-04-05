@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <glm/ext/matrix_transform.hpp>
-#include <glm/glm.hpp>
 
 class FirstPersonCamera
 {

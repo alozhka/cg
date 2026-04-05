@@ -1,13 +1,13 @@
 #pragma once
 
 #include "CollisionDetector.hpp"
-#include "../../../vendors/graphics/camera/FirstPersonCamera.hpp"
 #include "Maze.hpp"
 
+#include <graphics/camera/FirstPersonCamera.hpp>
 #include <graphics/light/DirectLight.hpp>
 #include <graphics/shaders/ShaderProgram.hpp>
+#include <graphics/windows/FirstPersonCameraController.hpp>
 #include <graphics/windows/GraphicsApplication.hpp>
-#include "FirstPersonCameraController.hpp"
 
 class MazeApp final : public GraphicsApplication
 {
@@ -22,6 +22,7 @@ public:
 
 		m_shader.LoadFromFile("assets/vertex.glsl", "assets/fragment.glsl");
 		glEnable(GL_DEPTH_TEST);
+		CaptureMouseInput();
 
 		m_camera.SetPosition({ 1.5, 0.5, 1.5 });
 
@@ -44,20 +45,16 @@ protected:
 		glm::mat4 viewProjection = perspective * view;
 
 		m_shader.Use();
+		m_light.SetDirection(-m_camera.GetForwardXZ());
 		m_light.Apply(m_shader);
 		m_shader.SetUniformVec3("uCameraPos", m_camera.GetPosition());
 
 		m_maze.Draw(m_shader, viewProjection);
 	}
 
-	void OnMouseButton(int button, int action, glm::vec2 p) override
+	void OnRawMouseMove(double x, double y) override
 	{
-		m_cameraController.OnMouseButton(button, action, p);
-	}
-
-	void OnMouseMove(glm::vec2 p) override
-	{
-		m_cameraController.OnMouseMove(p);
+		m_cameraController.OnRawMouseMove(x, y);
 	}
 
 private:
@@ -84,7 +81,7 @@ private:
 		move = glm::normalize(move) * MOVE_SPEED * dt;
 
 		glm::vec3 pos = m_camera.GetPosition();
-		m_camera.SetPosition(m_collision.ResolveMovement(pos, move));
+		m_camera.SetPosition(CollisionDetector::ResolveMovement(pos, move));
 	}
 
 	static constexpr float MOVE_SPEED = 3.0f;
@@ -95,6 +92,5 @@ private:
 	ShaderProgram m_shader;
 	DirectLight m_light;
 	Maze m_maze;
-	CollisionDetector m_collision;
 	float m_lastTime = 0.f;
 };

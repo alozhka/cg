@@ -74,12 +74,21 @@ protected:
 	{
 	}
 
+	virtual void OnRawMouseMove(double x, double y)
+	{
+	}
+
 	void SetWindowTitle(const std::string& title)
 	{
 		if (m_window)
 		{
 			glfwSetWindowTitle(m_window, title.c_str());
 		}
+	}
+
+	void CaptureMouseInput()
+	{
+		glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
 	KeyboardReader CreateKeyboardReader() const
@@ -140,6 +149,7 @@ private:
 		if (GraphicsApplication* app = GetInstance(window))
 		{
 			app->OnMouseMove(app->NormalizeCoords(x, y));
+			app->OnRawMouseMove(x, y);
 		}
 	}
 
