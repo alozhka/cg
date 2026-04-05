@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 add_executable(maze main.cpp
         src/MazeApp.hpp
         src/MazeGrid.hpp
-        src/MazeMesh.hpp)
+)
 
 add_subdirectory(
         ${CMAKE_CURRENT_SOURCE_DIR}/../../vendors/graphics

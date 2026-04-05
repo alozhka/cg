@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MazeMesh.hpp"
+#include "Maze.hpp"
 
 #include <graphics/camera/OrbitalCamera.hpp>
 #include <graphics/light/DirectLight.hpp>
@@ -21,8 +21,8 @@ public:
 		m_shader.LoadFromFile("assets/vertex.glsl", "assets/fragment.glsl");
 		glEnable(GL_DEPTH_TEST);
 
-		float cx = m_mazeMesh.GetWidth() / 2.f;
-		float cz = m_mazeMesh.GetDepth() / 2.f;
+		float cx = Maze::GetWidth() / 2.f;
+		float cz = Maze::GetDepth() / 2.f;
 		m_camera.SetTarget({ cx, 0.f, cz });
 
 		m_light.SetAmbientIntensity(0.3f, 0.3f, 0.3f);
@@ -43,9 +43,9 @@ protected:
 		m_light.Apply(m_shader);
 		m_shader.SetUniformVec3("uCameraPos", m_camera.GetPosition());
 
-		m_mazeMesh.DrawFloor(m_shader, viewProjection);
-		m_mazeMesh.DrawCeiling(m_shader, viewProjection);
-		m_mazeMesh.DrawWalls(m_shader, viewProjection);
+		m_maze.DrawFloor(m_shader, viewProjection);
+		m_maze.DrawCeiling(m_shader, viewProjection);
+		m_maze.DrawWalls(m_shader, viewProjection);
 	}
 
 	void OnMouseButton(int button, int action, glm::vec2 p) override
@@ -63,5 +63,5 @@ private:
 	CameraController m_cameraController;
 	ShaderProgram m_shader;
 	DirectLight m_light;
-	MazeMesh m_mazeMesh;
+	Maze m_maze;
 };
