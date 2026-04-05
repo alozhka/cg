@@ -93,7 +93,7 @@ private:
 		Size size = GetWindowSize();
 		float currentAspectRatio = size.width / size.height;
 
-		return glm::perspective(FIELD_OF_VIEW, currentAspectRatio, ZNEAR, ZFAR);
+		return glm::perspective(m_fieldOfView, currentAspectRatio, m_znear, m_zfar);
 	}
 
 	glm::vec2 NormalizeCoords(double x, double y) const
@@ -160,9 +160,12 @@ private:
 		return static_cast<GraphicsApplication*>(glfwGetWindowUserPointer(window));
 	}
 
-	static constexpr float ZNEAR = 0.1;
-	static constexpr float ZFAR = 10;
-	static constexpr float FIELD_OF_VIEW = 55;
+protected:
+	float m_znear = 0.1f;
+	float m_zfar = 10.f;
+	float m_fieldOfView = 55.f;
+
+private:
 
 	GLFWwindow* m_window;
 };
