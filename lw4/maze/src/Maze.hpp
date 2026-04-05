@@ -17,14 +17,14 @@ public:
 		std::vector<Vertex> vertices;
 
 		BuildFloor(vertices);
-		m_floorCount = static_cast<int>(vertices.size());
+		m_floorCount = vertices.size();
 
 		BuildCeiling(vertices);
-		m_ceilingCount = static_cast<int>(vertices.size()) - m_floorCount;
+		m_ceilingCount = vertices.size() - m_floorCount;
 
-		m_wallStart = static_cast<int>(vertices.size());
+		m_wallStart = vertices.size();
 		BuildWalls(vertices);
-		m_wallCount = static_cast<int>(vertices.size()) - m_wallStart;
+		m_wallCount = vertices.size() - m_wallStart;
 
 		m_mesh = std::make_unique<Mesh>(vertices);
 	}
@@ -97,6 +97,46 @@ private:
 			{ 0, -1, 0 });
 	}
 
+	static void TryAddSouthWall(std::vector<Vertex>& vertices, int row, int col, float x, float z)
+	{
+		if (row + 1 < MAZE_GRID_SIZE && MAZE_GRID[row + 1][col] == 0)
+		{
+			AddQuad(vertices,
+				{ x, 0, z + 1 }, { x + 1, 0, z + 1 }, { x + 1, WALL_HEIGHT, z + 1 }, { x, WALL_HEIGHT, z + 1 },
+				{ 0, 0, 1 });
+		}
+	}
+
+	static void TryAddNorthWall(std::vector<Vertex>& vertices, int row, int col, float x, float z)
+	{
+		if (row - 1 >= 0 && MAZE_GRID[row - 1][col] == 0)
+		{
+			AddQuad(vertices,
+				{ x + 1, 0, z }, { x, 0, z }, { x, WALL_HEIGHT, z }, { x + 1, WALL_HEIGHT, z },
+				{ 0, 0, -1 });
+		}
+	}
+
+	static void TryAddEastWall(std::vector<Vertex>& vertices, int row, int col, float x, float z)
+	{
+		if (col + 1 < MAZE_GRID_SIZE && MAZE_GRID[row][col + 1] == 0)
+		{
+			AddQuad(vertices,
+				{ x + 1, 0, z + 1 }, { x + 1, 0, z }, { x + 1, WALL_HEIGHT, z }, { x + 1, WALL_HEIGHT, z + 1 },
+				{ 1, 0, 0 });
+		}
+	}
+
+	static void TryAddWestWall(std::vector<Vertex>& vertices, int row, int col, float x, float z)
+	{
+		if (col - 1 >= 0 && MAZE_GRID[row][col - 1] == 0)
+		{
+			AddQuad(vertices,
+				{ x, 0, z }, { x, 0, z + 1 }, { x, WALL_HEIGHT, z + 1 }, { x, WALL_HEIGHT, z },
+				{ -1, 0, 0 });
+		}
+	}
+
 	static void BuildWalls(std::vector<Vertex>& vertices)
 	{
 		for (int row = 0; row < MAZE_GRID_SIZE; ++row)
@@ -111,37 +151,10 @@ private:
 				float x = static_cast<float>(col);
 				float z = static_cast<float>(row);
 
-				// Грань с юга (row+1 = проход)
-				if (row + 1 < MAZE_GRID_SIZE && MAZE_GRID[row + 1][col] == 0)
-				{
-					AddQuad(vertices,
-						{ x, 0, z + 1 }, { x + 1, 0, z + 1 }, { x + 1, WALL_HEIGHT, z + 1 }, { x, WALL_HEIGHT, z + 1 },
-						{ 0, 0, 1 });
-				}
-
-				// Грань с севера (row-1 = проход)
-				if (row - 1 >= 0 && MAZE_GRID[row - 1][col] == 0)
-				{
-					AddQuad(vertices,
-						{ x + 1, 0, z }, { x, 0, z }, { x, WALL_HEIGHT, z }, { x + 1, WALL_HEIGHT, z },
-						{ 0, 0, -1 });
-				}
-
-				// Грань с востока (col+1 = проход)
-				if (col + 1 < MAZE_GRID_SIZE && MAZE_GRID[row][col + 1] == 0)
-				{
-					AddQuad(vertices,
-						{ x + 1, 0, z + 1 }, { x + 1, 0, z }, { x + 1, WALL_HEIGHT, z }, { x + 1, WALL_HEIGHT, z + 1 },
-						{ 1, 0, 0 });
-				}
-
-				// Грань с запада (col-1 = проход)
-				if (col - 1 >= 0 && MAZE_GRID[row][col - 1] == 0)
-				{
-					AddQuad(vertices,
-						{ x, 0, z }, { x, 0, z + 1 }, { x, WALL_HEIGHT, z + 1 }, { x, WALL_HEIGHT, z },
-						{ -1, 0, 0 });
-				}
+				TryAddSouthWall(vertices, row, col, x, z);
+				TryAddNorthWall(vertices, row, col, x, z);
+				TryAddEastWall(vertices, row, col, x, z);
+				TryAddWestWall(vertices, row, col, x, z);
 			}
 		}
 	}
@@ -186,8 +199,8 @@ private:
 	} };
 
 	std::unique_ptr<Mesh> m_mesh;
-	int m_floorCount = 0;
-	int m_ceilingCount = 0;
-	int m_wallStart = 0;
-	int m_wallCount = 0;
+	size_t m_floorCount = 0;
+	size_t m_ceilingCount = 0;
+	size_t m_wallStart = 0;
+	size_t m_wallCount = 0;
 };
