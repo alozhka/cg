@@ -1,11 +1,10 @@
-cmake_minimum_required(VERSION 4.2)
+cmake_minimum_required(VERSION 4.0)
 project(maze)
 
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(maze main.cpp
         src/MazeApp.hpp
-        src/MazeGrid.hpp
 )
 
 add_subdirectory(

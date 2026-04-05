@@ -21,31 +21,27 @@ public:
 		m_shader.LoadFromFile("assets/vertex.glsl", "assets/fragment.glsl");
 		glEnable(GL_DEPTH_TEST);
 
-		float cx = Maze::GetWidth() / 2.f;
-		float cz = Maze::GetDepth() / 2.f;
-		m_camera.SetTarget({ cx, 0.f, cz });
+		m_camera.SetTarget({ 16.5, 0.5, 16.5 });
 
-		m_light.SetAmbientIntensity(0.3f, 0.3f, 0.3f);
-		m_light.SetDiffuseIntensity(0.6f, 0.6f, 0.6f);
-		m_light.SetSpecularIntensity(0.2f, 0.2f, 0.2f);
+		m_light.SetAmbientIntensity(0.3, 0.3, 0.3);
+		m_light.SetDiffuseIntensity(0.6, 0.6, 0.6);
+		m_light.SetSpecularIntensity(0.2, 0.2, 0.2);
 	}
 
 protected:
-	void OnDraw(const glm::mat4& projection) override
+	void OnDraw(const glm::mat4& perspective) override
 	{
 		glClearColor(0.05f, 0.05f, 0.08f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glm::mat4 view = m_camera.GetViewMatrix();
-		glm::mat4 viewProjection = projection * view;
+		glm::mat4 viewProjection = perspective * view;
 
 		m_shader.Use();
 		m_light.Apply(m_shader);
 		m_shader.SetUniformVec3("uCameraPos", m_camera.GetPosition());
 
-		m_maze.DrawFloor(m_shader, viewProjection);
-		m_maze.DrawCeiling(m_shader, viewProjection);
-		m_maze.DrawWalls(m_shader, viewProjection);
+		m_maze.Draw(m_shader, viewProjection);
 	}
 
 	void OnMouseButton(int button, int action, glm::vec2 p) override

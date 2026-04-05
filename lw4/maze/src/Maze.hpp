@@ -1,7 +1,6 @@
 #pragma once
 
-#include "MazeGrid.hpp"
-
+#include <array>
 #include <graphics/Mesh.hpp>
 #include <graphics/Vertex.hpp>
 #include <graphics/shaders/ShaderProgram.hpp>
@@ -30,6 +29,14 @@ public:
 		m_mesh = std::make_unique<Mesh>(vertices);
 	}
 
+	void Draw(ShaderProgram& shader, const glm::mat4& viewProjection)
+	{
+		DrawFloor(shader, viewProjection);
+		DrawCeiling(shader, viewProjection);
+		DrawWalls(shader, viewProjection);
+	}
+
+private:
 	void DrawFloor(ShaderProgram& shader, const glm::mat4& viewProjection)
 	{
 		shader.SetUniformVec4("uColor", glm::vec4(0.3f, 0.3f, 0.3f, 1.0f));
@@ -54,10 +61,6 @@ public:
 		m_mesh->Draw(GL_TRIANGLES, m_wallStart, m_wallCount);
 	}
 
-	static float GetWidth() { return static_cast<float>(MAZE_GRID_SIZE); }
-	static float GetDepth() { return static_cast<float>(MAZE_GRID_SIZE); }
-
-private:
 	static constexpr float WALL_HEIGHT = 1.0f;
 
 	static void AddQuad(std::vector<Vertex>& vertices,
@@ -74,20 +77,24 @@ private:
 
 	static void BuildFloor(std::vector<Vertex>& vertices)
 	{
-		float w = GetWidth();
-		float d = GetDepth();
-		AddQuad(vertices,
-			{ 0, 0, 0 }, { w, 0, 0 }, { w, 0, d }, { 0, 0, d },
-			{ 0.f, 1.f, 0.f });
+		AddQuad(
+			vertices,
+			{ 0, 0, 0 },
+			{ MAZE_GRID_SIZE, 0, 0 },
+			{ MAZE_GRID_SIZE, 0, MAZE_GRID_SIZE },
+			{ 0, 0, MAZE_GRID_SIZE },
+			{ 0, 1, 0 });
 	}
 
 	static void BuildCeiling(std::vector<Vertex>& vertices)
 	{
-		float w = GetWidth();
-		float d = GetDepth();
-		AddQuad(vertices,
-			{ 0, WALL_HEIGHT, d }, { w, WALL_HEIGHT, d }, { w, WALL_HEIGHT, 0 }, { 0, WALL_HEIGHT, 0 },
-			{ 0.f, -1.f, 0.f });
+		AddQuad(
+			vertices,
+			{ 0, WALL_HEIGHT, MAZE_GRID_SIZE },
+			{ MAZE_GRID_SIZE, WALL_HEIGHT, MAZE_GRID_SIZE },
+			{ MAZE_GRID_SIZE, WALL_HEIGHT, 0 },
+			{ 0, WALL_HEIGHT, 0 },
+			{ 0, -1, 0 });
 	}
 
 	static void BuildWalls(std::vector<Vertex>& vertices)
@@ -97,15 +104,12 @@ private:
 			for (int col = 0; col < MAZE_GRID_SIZE; ++col)
 			{
 				if (MAZE_GRID[row][col] == 0)
+				{
 					continue;
+				}
 
 				float x = static_cast<float>(col);
 				float z = static_cast<float>(row);
-
-				// Верхняя грань блока стены
-				AddQuad(vertices,
-					{ x, WALL_HEIGHT, z }, { x + 1, WALL_HEIGHT, z }, { x + 1, WALL_HEIGHT, z + 1 }, { x, WALL_HEIGHT, z + 1 },
-					{ 0, 1, 0 });
 
 				// Грань с юга (row+1 = проход)
 				if (row + 1 < MAZE_GRID_SIZE && MAZE_GRID[row + 1][col] == 0)
@@ -141,6 +145,45 @@ private:
 			}
 		}
 	}
+
+	static constexpr int MAZE_CELLS = 16;
+	static constexpr int MAZE_GRID_SIZE = MAZE_CELLS * 2 + 1;
+
+	static constexpr std::array<std::array<int, MAZE_GRID_SIZE>, MAZE_GRID_SIZE> MAZE_GRID = { {
+		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+		{ 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1 },
+		{ 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1 },
+		{ 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1 },
+		{ 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1 },
+		{ 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1 },
+		{ 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1 },
+		{ 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1 },
+		{ 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1 },
+		{ 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1 },
+		{ 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1 },
+		{ 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1 },
+		{ 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1 },
+		{ 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1 },
+		{ 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1 },
+		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1 },
+		{ 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1 },
+		{ 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+		{ 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+		{ 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+		{ 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1 },
+		{ 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1 },
+		{ 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1 },
+		{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1 },
+		{ 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1 },
+		{ 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1 },
+		{ 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1 },
+		{ 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1 },
+		{ 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1 },
+		{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+		{ 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1 },
+		{ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+	} };
 
 	std::unique_ptr<Mesh> m_mesh;
 	int m_floorCount = 0;
