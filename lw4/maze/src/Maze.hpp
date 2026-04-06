@@ -4,7 +4,7 @@
 class Maze
 {
 public:
-	explicit Maze(glm::vec3 playerPos)
+	explicit Maze(glm::vec3 playerPos = {1.5, 0.5, 1.5})
 		: m_playerPos(playerPos)
 	{
 	}
@@ -62,5 +62,5 @@ private:
 	static constexpr float PLAYER_HALF_SIZE = 0.2;
 
 	MazeMesh m_mazeMesh;
-	glm::vec3 m_playerPos = { 1.5, 0.5, 1.5 };
+	glm::vec3 m_playerPos;
 };

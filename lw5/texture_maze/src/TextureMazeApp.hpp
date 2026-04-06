@@ -1,6 +1,5 @@
 #pragma once
 
-#include "CollisionDetector.hpp"
 #include "TextureMaze.hpp"
 
 #include <graphics/camera/FirstPersonCamera.hpp>
@@ -8,6 +7,7 @@
 #include <graphics/shaders/ShaderProgram.hpp>
 #include <graphics/windows/FirstPersonCameraController.hpp>
 #include <graphics/windows/GraphicsApplication.hpp>
+#include <graphics/windows/TimeProvider.hpp>
 
 #include <stb/stb_image.h>
 
@@ -20,8 +20,6 @@ public:
 		, m_keyboard(CreateKeyboardReader())
 		, m_light({ 0, 1, 0 })
 	{
-		m_zfar = 100.f;
-
 		stbi_set_flip_vertically_on_load(true);
 
 		m_shader.LoadFromFile("assets/vertex.glsl", "assets/fragment.glsl");
@@ -33,8 +31,6 @@ public:
 		m_light.SetAmbientIntensity(0.3, 0.3, 0.3);
 		m_light.SetDiffuseIntensity(0.6, 0.6, 0.6);
 		m_light.SetSpecularIntensity(0.2, 0.2, 0.2);
-
-		m_lastTime = static_cast<float>(glfwGetTime());
 	}
 
 protected:
@@ -64,28 +60,37 @@ protected:
 private:
 	void UpdateMovement()
 	{
-		float now = static_cast<float>(glfwGetTime());
-		float dt = now - m_lastTime;
-		m_lastTime = now;
+		float dt = m_time.GetDeltaTime();
+		glm::vec3 move = GetMovementDirection();
+		m_maze.UpdateMovement(move, dt);
+		m_camera.SetPosition(m_maze.GetPlayerPosition());
+	}
 
+	glm::vec3 GetMovementDirection() const
+	{
 		glm::vec3 forward = m_camera.GetForwardXZ();
 		glm::vec3 right = m_camera.GetRightXZ();
 
 		glm::vec3 move(0);
 
 		if (m_keyboard.IsButtonPressed(GLFW_KEY_W))
+		{
 			move += forward;
+		}
 		if (m_keyboard.IsButtonPressed(GLFW_KEY_S))
+		{
 			move -= forward;
+		}
 		if (m_keyboard.IsButtonPressed(GLFW_KEY_D))
+		{
 			move += right;
+		}
 		if (m_keyboard.IsButtonPressed(GLFW_KEY_A))
+		{
 			move -= right;
+		}
 
-		move = glm::normalize(move) * MOVE_SPEED * dt;
-
-		glm::vec3 pos = m_camera.GetPosition();
-		m_camera.SetPosition(CollisionDetector::ResolveMovement(pos, move));
+		return glm::normalize(move);
 	}
 
 	static constexpr float MOVE_SPEED = 3.0f;
@@ -96,5 +101,6 @@ private:
 	ShaderProgram m_shader;
 	DirectLight m_light;
 	TextureMaze m_maze;
-	float m_lastTime = 0.f;
+
+	TimeProvider m_time;
 };
