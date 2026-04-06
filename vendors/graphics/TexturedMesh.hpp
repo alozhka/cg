@@ -18,32 +18,7 @@ public:
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(TexturedVertex), reinterpret_cast<const float*>(vertices.data()), GL_STATIC_DRAW);
 
-		glVertexAttribPointer(
-			0,
-			3,
-			GL_FLOAT,
-			GL_FALSE,
-			sizeof(TexturedVertex),
-			reinterpret_cast<void*>(offsetof(TexturedVertex, position)));
-		glEnableVertexAttribArray(0);
-
-		glVertexAttribPointer(
-			1,
-			3,
-			GL_FLOAT,
-			GL_FALSE,
-			sizeof(TexturedVertex),
-			reinterpret_cast<void*>(offsetof(TexturedVertex, normal)));
-		glEnableVertexAttribArray(1);
-
-		glVertexAttribPointer(
-			2,
-			2,
-			GL_FLOAT,
-			GL_FALSE,
-			sizeof(TexturedVertex),
-			reinterpret_cast<void*>(offsetof(TexturedVertex, texCoord)));
-		glEnableVertexAttribArray(2);
+		DefineTexturedVertex();
 
 		glBindVertexArray(0);
 	}
@@ -83,6 +58,35 @@ public:
 	GLuint GetVAO() const { return m_vao; }
 
 private:
+	static void DefineTexturedVertex()
+	{
+		glVertexAttribPointer(
+			0,
+			3,
+			GL_FLOAT,
+			GL_FALSE,
+			sizeof(TexturedVertex),
+			reinterpret_cast<void*>(offsetof(TexturedVertex, position)));
+		glEnableVertexAttribArray(0);
+
+		glVertexAttribPointer(
+			1,
+			3,
+			GL_FLOAT,
+			GL_FALSE,
+			sizeof(TexturedVertex),
+			reinterpret_cast<void*>(offsetof(TexturedVertex, normal)));
+		glEnableVertexAttribArray(1);
+
+		glVertexAttribPointer(
+			2,
+			2,
+			GL_FLOAT,
+			GL_FALSE,
+			sizeof(TexturedVertex),
+			reinterpret_cast<void*>(offsetof(TexturedVertex, texCoord)));
+		glEnableVertexAttribArray(2);
+	}
 	GLuint m_vao = 0;
 	GLuint m_vbo = 0;
 	GLsizei m_vertexCount = 0;

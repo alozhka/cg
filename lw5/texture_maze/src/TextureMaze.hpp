@@ -85,6 +85,21 @@ private:
 		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 	} } };
 
+	inline static const std::vector<std::string> WALL_TEXTURE_KEYS = {
+		"wall_0", "wall_1", "wall_2", "wall_3", "wall_4", "wall_5",
+	};
+
+	TextureProvider m_textures{
+		{ "floor", "assets/textures/floor.jpg" },
+		{ "ceiling", "assets/textures/ceiling.jpg" },
+		{ "wall_0", "assets/textures/brick.jpg" },
+		{ "wall_1", "assets/textures/stone.jpg" },
+		{ "wall_2", "assets/textures/wood.jpg" },
+		{ "wall_3", "assets/textures/concrete.jpg" },
+		{ "wall_4", "assets/textures/tile.jpg" },
+		{ "wall_5", "assets/textures/golden_freddie.jpg" },
+	};
+
 	glm::vec3 m_playerPos;
-	TextureMazeMesh<MAZE_CELLS> m_mazeMesh{ MAZE_GRID, WALL_HEIGHT };
+	TextureMazeMesh<MAZE_CELLS> m_mazeMesh{ MAZE_GRID, WALL_HEIGHT, m_textures, WALL_TEXTURE_KEYS };
 };

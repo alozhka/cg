@@ -1,42 +1,31 @@
 #pragma once
 
-#include <array>
-#include <memory>
+#include <initializer_list>
 #include <string>
+#include <unordered_map>
 
 #include <graphics/Texture.hpp>
+
+struct TextureEntry
+{
+	std::string name;
+	std::string path;
+};
 
 class TextureProvider
 {
 public:
-	static constexpr int NUM_WALL_TEXTURES = 6;
-
-	TextureProvider()
+	TextureProvider(std::initializer_list<TextureEntry> entries)
 	{
-		const std::array<std::string, NUM_WALL_TEXTURES> wallFiles = {
-			"assets/textures/brick.jpg",
-			"assets/textures/stone.jpg",
-			"assets/textures/wood.jpg",
-			"assets/textures/concrete.jpg",
-			"assets/textures/tile.jpg",
-			"assets/textures/golden_freddie.jpg",
-		};
-
-		for (int i = 0; i < NUM_WALL_TEXTURES; ++i)
+		for (const auto& entry : entries)
 		{
-			m_wallTextures[i] = std::make_unique<Texture>(wallFiles[i]);
+			m_textures.emplace(entry.name, Texture(entry.path));
 		}
-
-		m_floorTexture = std::make_unique<Texture>("assets/textures/floor.jpg");
-		m_ceilingTexture = std::make_unique<Texture>("assets/textures/ceiling.jpg");
 	}
 
-	Texture& GetWallTexture(int index) const { return *m_wallTextures[index]; }
-	Texture& GetFloorTexture() const { return *m_floorTexture; }
-	Texture& GetCeilingTexture() const { return *m_ceilingTexture; }
+	Texture& Get(const std::string& name) { return m_textures.at(name); }
+	const Texture& Get(const std::string& name) const { return m_textures.at(name); }
 
 private:
-	std::array<std::unique_ptr<Texture>, NUM_WALL_TEXTURES> m_wallTextures;
-	std::unique_ptr<Texture> m_floorTexture;
-	std::unique_ptr<Texture> m_ceilingTexture;
+	std::unordered_map<std::string, Texture> m_textures;
 };
