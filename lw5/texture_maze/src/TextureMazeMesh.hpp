@@ -59,7 +59,7 @@ private:
 			"assets/textures/wood.jpg",
 			"assets/textures/concrete.jpg",
 			"assets/textures/tile.jpg",
-			"assets/textures/mosaic.jpg",
+			"assets/textures/golden_freddie.jpg",
 		};
 
 		for (int i = 0; i < NUM_WALL_TEXTURES; ++i)
