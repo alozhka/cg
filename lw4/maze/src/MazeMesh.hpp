@@ -1,20 +1,21 @@
 #pragma once
 
-#include <array>
+#include "MazeGrid.hpp"
+
 #include <graphics/Mesh.hpp>
 #include <graphics/Vertex.hpp>
 #include <graphics/shaders/ShaderProgram.hpp>
 
-#include <memory>
 #include <vector>
 
+template<int N>
 class MazeMesh
 {
 public:
-	MazeMesh()
-		: m_floorMesh(BuildFloor())
-		, m_ceilingMesh(BuildCeiling())
-		, m_wallsMesh(BuildWalls())
+	MazeMesh(const MazeGrid<N>& grid, float wallHeight)
+		: m_floorMesh(BuildFloor(wallHeight))
+		, m_ceilingMesh(BuildCeiling(wallHeight))
+		, m_wallsMesh(BuildWalls(grid, wallHeight))
 	{
 	}
 
@@ -23,19 +24,6 @@ public:
 		DrawFloor(shader, viewProjection);
 		DrawCeiling(shader, viewProjection);
 		DrawWalls(shader, viewProjection);
-	}
-
-	static bool IsWall(float x, float z)
-	{
-		int col = static_cast<int>(std::floor(x));
-		int row = static_cast<int>(std::floor(z));
-
-		if (IsOutOfMaze(row, col))
-		{
-			return true;
-		}
-
-		return MAZE_GRID[row][col] == 1;
 	}
 
 private:
@@ -63,107 +51,107 @@ private:
 		m_wallsMesh.Draw(GL_TRIANGLES);
 	}
 
-	static std::vector<Vertex> BuildFloor()
+	static std::vector<Vertex> BuildFloor(float /*wallHeight*/)
 	{
 		std::vector<Vertex> vertices;
 
 		AddQuad(
 			vertices,
 			{ 0, 0, 0 },
-			{ MAZE_CELLS, 0, 0 },
-			{ MAZE_CELLS, 0, MAZE_CELLS },
-			{ 0, 0, MAZE_CELLS },
+			{ N, 0, 0 },
+			{ N, 0, N },
+			{ 0, 0, N },
 			{ 0, 1, 0 });
 
 		return vertices;
 	}
 
-	static std::vector<Vertex> BuildCeiling()
+	static std::vector<Vertex> BuildCeiling(float wallHeight)
 	{
 		std::vector<Vertex> vertices;
 
 		AddQuad(
 			vertices,
-			{ 0, WALL_HEIGHT, MAZE_CELLS },
-			{ MAZE_CELLS, WALL_HEIGHT, MAZE_CELLS },
-			{ MAZE_CELLS, WALL_HEIGHT, 0 },
-			{ 0, WALL_HEIGHT, 0 },
+			{ 0, wallHeight, N },
+			{ N, wallHeight, N },
+			{ N, wallHeight, 0 },
+			{ 0, wallHeight, 0 },
 			{ 0, -1, 0 });
 
 		return vertices;
 	}
 
-	static std::vector<Vertex> BuildWalls()
+	static std::vector<Vertex> BuildWalls(const MazeGrid<N>& grid, float wallHeight)
 	{
 		std::vector<Vertex> vertices;
 
-		for (int row = 0; row < MAZE_CELLS; ++row)
+		for (int row = 0; row < N; ++row)
 		{
-			for (int col = 0; col < MAZE_CELLS; ++col)
+			for (int col = 0; col < N; ++col)
 			{
-				if (IsOpenBlock(row, col))
+				if (grid.IsOpen(row, col))
 				{
 					continue;
 				}
 
-				TryAddSouthWall(vertices, row, col);
-				TryAddNorthWall(vertices, row, col);
-				TryAddEastWall(vertices, row, col);
-				TryAddWestWall(vertices, row, col);
+				TryAddSouthWall(vertices, grid, row, col, wallHeight);
+				TryAddNorthWall(vertices, grid, row, col, wallHeight);
+				TryAddEastWall(vertices, grid, row, col, wallHeight);
+				TryAddWestWall(vertices, grid, row, col, wallHeight);
 			}
 		}
 
 		return vertices;
 	}
 
-	static void TryAddSouthWall(std::vector<Vertex>& vertices, int row, int col)
+	static void TryAddSouthWall(std::vector<Vertex>& vertices, const MazeGrid<N>& grid, int row, int col, float wallHeight)
 	{
-		if (IsOpenBlock(row + 1, col))
+		if (grid.IsOpen(row + 1, col))
 		{
 			AddQuad(vertices,
 				{ col, 0, row + 1 },
 				{ col + 1, 0, row + 1 },
-				{ col + 1, WALL_HEIGHT, row + 1 },
-				{ col, WALL_HEIGHT, row + 1 },
+				{ col + 1, wallHeight, row + 1 },
+				{ col, wallHeight, row + 1 },
 				{ 0, 0, 1 });
 		}
 	}
 
-	static void TryAddNorthWall(std::vector<Vertex>& vertices, int row, int col)
+	static void TryAddNorthWall(std::vector<Vertex>& vertices, const MazeGrid<N>& grid, int row, int col, float wallHeight)
 	{
-		if (IsOpenBlock(row - 1, col))
+		if (grid.IsOpen(row - 1, col))
 		{
 			AddQuad(vertices,
 				{ col + 1, 0, row },
 				{ col, 0, row },
-				{ col, WALL_HEIGHT, row },
-				{ col + 1, WALL_HEIGHT, row },
+				{ col, wallHeight, row },
+				{ col + 1, wallHeight, row },
 				{ 0, 0, -1 });
 		}
 	}
 
-	static void TryAddEastWall(std::vector<Vertex>& vertices, int row, int col)
+	static void TryAddEastWall(std::vector<Vertex>& vertices, const MazeGrid<N>& grid, int row, int col, float wallHeight)
 	{
-		if (IsOpenBlock(row, col + 1))
+		if (grid.IsOpen(row, col + 1))
 		{
 			AddQuad(vertices,
 				{ col + 1, 0, row + 1 },
 				{ col + 1, 0, row },
-				{ col + 1, WALL_HEIGHT, row },
-				{ col + 1, WALL_HEIGHT, row + 1 },
+				{ col + 1, wallHeight, row },
+				{ col + 1, wallHeight, row + 1 },
 				{ 1, 0, 0 });
 		}
 	}
 
-	static void TryAddWestWall(std::vector<Vertex>& vertices, int row, int col)
+	static void TryAddWestWall(std::vector<Vertex>& vertices, const MazeGrid<N>& grid, int row, int col, float wallHeight)
 	{
-		if (IsOpenBlock(row, col - 1))
+		if (grid.IsOpen(row, col - 1))
 		{
 			AddQuad(vertices,
 				{ col, 0, row },
 				{ col, 0, row + 1 },
-				{ col, WALL_HEIGHT, row + 1 },
-				{ col, WALL_HEIGHT, row },
+				{ col, wallHeight, row + 1 },
+				{ col, wallHeight, row },
 				{ -1, 0, 0 });
 		}
 	}
@@ -182,44 +170,6 @@ private:
 		vertices.push_back({ c, normal });
 		vertices.push_back({ d, normal });
 	}
-
-	static bool IsOpenBlock(int row, int col)
-	{
-		if (IsOutOfMaze(row, col))
-		{
-			return false;
-		}
-
-		return MAZE_GRID[row][col] == 0;
-	}
-
-	static bool IsOutOfMaze(int row, int col)
-	{
-		return row < 0 || row >= MAZE_CELLS || col < 0 || col >= MAZE_CELLS;
-	}
-
-	static constexpr float WALL_HEIGHT = 1;
-	static constexpr int MAZE_CELLS = 16;
-	static constexpr std::array<std::array<int, MAZE_CELLS>, MAZE_CELLS> MAZE_GRID = {
-		{
-			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-			{ 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-			{ 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1 },
-			{ 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1 },
-			{ 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1 },
-			{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-			{ 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1 },
-			{ 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1 },
-			{ 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1 },
-			{ 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1 },
-			{ 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1 },
-			{ 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1 },
-			{ 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1 },
-			{ 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-			{ 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1 },
-			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-		}
-	};
 
 	Mesh m_floorMesh;
 	Mesh m_ceilingMesh;

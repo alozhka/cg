@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <graphics/Texture.hpp>
 #include <graphics/TexturedMesh.hpp>
 #include <graphics/shaders/ShaderProgram.hpp>

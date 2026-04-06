@@ -1,10 +1,11 @@
 #pragma once
+#include "MazeGrid.hpp"
 #include "MazeMesh.hpp"
 
 class Maze
 {
 public:
-	explicit Maze(glm::vec3 playerPos = {1.5, 0.5, 1.5})
+	explicit Maze(glm::vec3 playerPos = { 1.5, 0.5, 1.5 })
 		: m_playerPos(playerPos)
 	{
 	}
@@ -52,15 +53,37 @@ private:
 
 	static bool IsBlocked(const glm::vec3& p)
 	{
-		return MazeMesh::IsWall(p.x + PLAYER_HALF_SIZE, p.z + PLAYER_HALF_SIZE)
-			|| MazeMesh::IsWall(p.x - PLAYER_HALF_SIZE, p.z + PLAYER_HALF_SIZE)
-			|| MazeMesh::IsWall(p.x + PLAYER_HALF_SIZE, p.z - PLAYER_HALF_SIZE)
-			|| MazeMesh::IsWall(p.x - PLAYER_HALF_SIZE, p.z - PLAYER_HALF_SIZE);
+		return MAZE_GRID.IsWall(p.x + PLAYER_HALF_SIZE, p.z + PLAYER_HALF_SIZE)
+			|| MAZE_GRID.IsWall(p.x - PLAYER_HALF_SIZE, p.z + PLAYER_HALF_SIZE)
+			|| MAZE_GRID.IsWall(p.x + PLAYER_HALF_SIZE, p.z - PLAYER_HALF_SIZE)
+			|| MAZE_GRID.IsWall(p.x - PLAYER_HALF_SIZE, p.z - PLAYER_HALF_SIZE);
 	}
 
 	static constexpr float MOVE_SPEED = 3;
 	static constexpr float PLAYER_HALF_SIZE = 0.2;
+	static constexpr float WALL_HEIGHT = 1;
+	static constexpr int MAZE_CELLS = 16;
+	static constexpr MazeGrid<MAZE_CELLS> MAZE_GRID{
+		{ {
+			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+			{ 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
+			{ 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1 },
+			{ 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1 },
+			{ 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1 },
+			{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+			{ 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1 },
+			{ 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1 },
+			{ 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1 },
+			{ 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1 },
+			{ 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1 },
+			{ 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1 },
+			{ 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1 },
+			{ 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
+			{ 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1 },
+			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+		} }
+	};
 
-	MazeMesh m_mazeMesh;
+	MazeMesh<MAZE_CELLS> m_mazeMesh{ MAZE_GRID, WALL_HEIGHT };
 	glm::vec3 m_playerPos;
 };
