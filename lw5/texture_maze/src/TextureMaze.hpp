@@ -1,5 +1,6 @@
 #pragma once
 
+#include "MazeGrid.hpp"
 #include "TextureMazeMesh.hpp"
 
 #include <graphics/shaders/ShaderProgram.hpp>
@@ -55,15 +56,35 @@ private:
 
 	static bool IsBlocked(const glm::vec3& p)
 	{
-		return TextureMazeMesh::IsWall(p.x + PLAYER_HALF_SIZE, p.z + PLAYER_HALF_SIZE)
-			|| TextureMazeMesh::IsWall(p.x - PLAYER_HALF_SIZE, p.z + PLAYER_HALF_SIZE)
-			|| TextureMazeMesh::IsWall(p.x + PLAYER_HALF_SIZE, p.z - PLAYER_HALF_SIZE)
-			|| TextureMazeMesh::IsWall(p.x - PLAYER_HALF_SIZE, p.z - PLAYER_HALF_SIZE);
+		return MAZE_GRID.IsWall(p.x + PLAYER_HALF_SIZE, p.z + PLAYER_HALF_SIZE)
+			|| MAZE_GRID.IsWall(p.x - PLAYER_HALF_SIZE, p.z + PLAYER_HALF_SIZE)
+			|| MAZE_GRID.IsWall(p.x + PLAYER_HALF_SIZE, p.z - PLAYER_HALF_SIZE)
+			|| MAZE_GRID.IsWall(p.x - PLAYER_HALF_SIZE, p.z - PLAYER_HALF_SIZE);
 	}
 
 	static constexpr float MOVE_SPEED = 3;
 	static constexpr float PLAYER_HALF_SIZE = 0.2;
+	static constexpr float WALL_HEIGHT = 1;
+	static constexpr int MAZE_CELLS = 16;
+	static constexpr MazeGrid<MAZE_CELLS> MAZE_GRID{ { {
+		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+		{ 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
+		{ 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1 },
+		{ 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1 },
+		{ 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1 },
+		{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+		{ 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1 },
+		{ 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1 },
+		{ 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1 },
+		{ 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1 },
+		{ 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1 },
+		{ 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1 },
+		{ 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1 },
+		{ 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
+		{ 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1 },
+		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+	} } };
 
 	glm::vec3 m_playerPos;
-	TextureMazeMesh m_mazeMesh;
+	TextureMazeMesh<MAZE_CELLS> m_mazeMesh{ MAZE_GRID, WALL_HEIGHT };
 };

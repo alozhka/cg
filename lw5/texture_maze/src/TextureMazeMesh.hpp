@@ -1,17 +1,20 @@
 #pragma once
 
+#include "MazeGrid.hpp"
+
 #include <array>
 #include <graphics/Texture.hpp>
 #include <graphics/TexturedMesh.hpp>
 #include <graphics/shaders/ShaderProgram.hpp>
 
+template<int N>
 class TextureMazeMesh
 {
 public:
-	TextureMazeMesh()
+	TextureMazeMesh(const MazeGrid<N>& grid, float wallHeight)
 	{
 		LoadTextures();
-		BuildGeometry();
+		BuildGeometry(grid, wallHeight);
 	}
 
 	void Draw(ShaderProgram& shader, const glm::mat4& viewProjection)
@@ -34,19 +37,6 @@ public:
 				m_wallMeshes[i]->Draw(GL_TRIANGLES);
 			}
 		}
-	}
-
-	static bool IsWall(float x, float z)
-	{
-		int col = static_cast<int>(std::floor(x));
-		int row = static_cast<int>(std::floor(z));
-
-		if (IsOutOfMaze(row, col))
-		{
-			return true;
-		}
-
-		return MAZE_GRID[row][col] == 1;
 	}
 
 private:
@@ -72,15 +62,15 @@ private:
 		m_ceilingTexture = std::make_unique<Texture>("assets/textures/ceiling.jpg");
 	}
 
-	void BuildGeometry()
+	void BuildGeometry(const MazeGrid<N>& grid, float wallHeight)
 	{
 		std::array<std::vector<TexturedVertex>, NUM_WALL_TEXTURES> wallVertices;
 		std::vector<TexturedVertex> floorVertices;
 		std::vector<TexturedVertex> ceilingVertices;
 
-		BuildFloor(floorVertices);
-		BuildCeiling(ceilingVertices);
-		BuildWalls(wallVertices);
+		BuildFloor(floorVertices, wallHeight);
+		BuildCeiling(ceilingVertices, wallHeight);
+		BuildWalls(wallVertices, grid, wallHeight);
 
 		m_floorMesh = std::make_unique<TexturedMesh>(floorVertices);
 		m_ceilingMesh = std::make_unique<TexturedMesh>(ceilingVertices);
@@ -93,6 +83,7 @@ private:
 			}
 		}
 	}
+
 	static void AddQuad(std::vector<TexturedVertex>& vertices,
 		glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d,
 		glm::vec3 normal,
@@ -106,33 +97,33 @@ private:
 		vertices.push_back({ d, normal, uv3 });
 	}
 
-	static void BuildFloor(std::vector<TexturedVertex>& vertices)
+	static void BuildFloor(std::vector<TexturedVertex>& vertices, float /*wallHeight*/)
 	{
 		AddQuad(
 			vertices,
 			{ 0, 0, 0 },
-			{ MAZE_CELLS, 0, 0 },
-			{ MAZE_CELLS, 0, MAZE_CELLS },
-			{ 0, 0, MAZE_CELLS },
+			{ N, 0, 0 },
+			{ N, 0, N },
+			{ 0, 0, N },
 			{ 0, 1, 0 },
 			{ 0, 0 },
-			{ MAZE_CELLS, 0 },
-			{ MAZE_CELLS, MAZE_CELLS },
-			{ 0, MAZE_CELLS });
+			{ N, 0 },
+			{ N, N },
+			{ 0, N });
 	}
 
-	static void BuildCeiling(std::vector<TexturedVertex>& vertices)
+	static void BuildCeiling(std::vector<TexturedVertex>& vertices, float wallHeight)
 	{
 		AddQuad(
 			vertices,
-			{ 0, WALL_HEIGHT, MAZE_CELLS },
-			{ MAZE_CELLS, WALL_HEIGHT, MAZE_CELLS },
-			{ MAZE_CELLS, WALL_HEIGHT, 0 },
-			{ 0, WALL_HEIGHT, 0 },
+			{ 0, wallHeight, N },
+			{ N, wallHeight, N },
+			{ N, wallHeight, 0 },
+			{ 0, wallHeight, 0 },
 			{ 0, -1, 0 },
-			{ 0, MAZE_CELLS },
-			{ MAZE_CELLS, MAZE_CELLS },
-			{ MAZE_CELLS, 0 },
+			{ 0, N },
+			{ N, N },
+			{ N, 0 },
 			{ 0, 0 });
 	}
 
@@ -141,134 +132,85 @@ private:
 		return (row * 7 + col * 13) % NUM_WALL_TEXTURES;
 	}
 
-	static void BuildWalls(std::array<std::vector<TexturedVertex>, NUM_WALL_TEXTURES>& wallVertices)
+	static void BuildWalls(std::array<std::vector<TexturedVertex>, NUM_WALL_TEXTURES>& wallVertices, const MazeGrid<N>& grid, float wallHeight)
 	{
-		for (int row = 0; row < MAZE_CELLS; ++row)
+		for (int row = 0; row < N; ++row)
 		{
-			for (int col = 0; col < MAZE_CELLS; ++col)
+			for (int col = 0; col < N; ++col)
 			{
-				if (MAZE_GRID[row][col] == 0)
+				if (grid.IsOpen(row, col))
 				{
 					continue;
 				}
 
-				TryAddSouthWall(wallVertices, row, col);
-				TryAddNorthWall(wallVertices, row, col);
-				TryAddEastWall(wallVertices, row, col);
-				TryAddWestWall(wallVertices, row, col);
+				TryAddSouthWall(wallVertices, grid, row, col, wallHeight);
+				TryAddNorthWall(wallVertices, grid, row, col, wallHeight);
+				TryAddEastWall(wallVertices, grid, row, col, wallHeight);
+				TryAddWestWall(wallVertices, grid, row, col, wallHeight);
 			}
 		}
 	}
 
-	static void TryAddSouthWall(std::array<std::vector<TexturedVertex>, NUM_WALL_TEXTURES>& wallVertices, int row, int col)
+	static void TryAddSouthWall(std::array<std::vector<TexturedVertex>, NUM_WALL_TEXTURES>& wallVertices, const MazeGrid<N>& grid, int row, int col, float wallHeight)
 	{
-		if (IsOpenBlock(row + 1, col))
+		if (grid.IsOpen(row + 1, col))
 		{
 			int idx = GetWallTextureIndex(row, col);
 			AddQuad(wallVertices[idx],
 				{ col, 0, row + 1 },
 				{ col + 1, 0, row + 1 },
-				{ col + 1, WALL_HEIGHT, row + 1 },
-				{ col, WALL_HEIGHT, row + 1 },
+				{ col + 1, wallHeight, row + 1 },
+				{ col, wallHeight, row + 1 },
 				{ 0, 0, 1 },
-				{ 0, 0 },
-				{ 1, 0 },
-				{ 1, 1 },
-				{ 0, 1 });
+				{ 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 });
 		}
 	}
 
-	static void TryAddNorthWall(std::array<std::vector<TexturedVertex>, NUM_WALL_TEXTURES>& wallVertices, int row, int col)
+	static void TryAddNorthWall(std::array<std::vector<TexturedVertex>, NUM_WALL_TEXTURES>& wallVertices, const MazeGrid<N>& grid, int row, int col, float wallHeight)
 	{
-		if (IsOpenBlock(row - 1, col))
+		if (grid.IsOpen(row - 1, col))
 		{
 			int idx = GetWallTextureIndex(row, col);
 			AddQuad(wallVertices[idx],
 				{ col + 1, 0, row },
 				{ col, 0, row },
-				{ col, WALL_HEIGHT, row },
-				{ col + 1, WALL_HEIGHT, row },
+				{ col, wallHeight, row },
+				{ col + 1, wallHeight, row },
 				{ 0, 0, -1 },
-				{ 0, 0 },
-				{ 1, 0 },
-				{ 1, 1 },
-				{ 0, 1 });
+				{ 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 });
 		}
 	}
 
-	static void TryAddEastWall(std::array<std::vector<TexturedVertex>, NUM_WALL_TEXTURES>& wallVertices, int row, int col)
+	static void TryAddEastWall(std::array<std::vector<TexturedVertex>, NUM_WALL_TEXTURES>& wallVertices, const MazeGrid<N>& grid, int row, int col, float wallHeight)
 	{
-		if (IsOpenBlock(row, col + 1))
+		if (grid.IsOpen(row, col + 1))
 		{
 			int idx = GetWallTextureIndex(row, col);
 			AddQuad(wallVertices[idx],
 				{ col + 1, 0, row + 1 },
 				{ col + 1, 0, row },
-				{ col + 1, WALL_HEIGHT, row },
-				{ col + 1, WALL_HEIGHT, row + 1 },
+				{ col + 1, wallHeight, row },
+				{ col + 1, wallHeight, row + 1 },
 				{ 1, 0, 0 },
-				{ 0, 0 },
-				{ 1, 0 },
-				{ 1, 1 },
-				{ 0, 1 });
+				{ 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 });
 		}
 	}
 
-	static void TryAddWestWall(std::array<std::vector<TexturedVertex>, NUM_WALL_TEXTURES>& wallVertices, int row, int col)
+	static void TryAddWestWall(std::array<std::vector<TexturedVertex>, NUM_WALL_TEXTURES>& wallVertices, const MazeGrid<N>& grid, int row, int col, float wallHeight)
 	{
-		if (IsOpenBlock(row, col - 1))
+		if (grid.IsOpen(row, col - 1))
 		{
 			int idx = GetWallTextureIndex(row, col);
 			AddQuad(wallVertices[idx],
 				{ col, 0, row },
 				{ col, 0, row + 1 },
-				{ col, WALL_HEIGHT, row + 1 },
-				{ col, WALL_HEIGHT, row },
+				{ col, wallHeight, row + 1 },
+				{ col, wallHeight, row },
 				{ -1, 0, 0 },
-				{ 0, 0 },
-				{ 1, 0 },
-				{ 1, 1 },
-				{ 0, 1 });
+				{ 0, 0 }, { 1, 0 }, { 1, 1 }, { 0, 1 });
 		}
 	}
 
-	static bool IsOpenBlock(int row, int col)
-	{
-		if (IsOutOfMaze(row, col))
-		{
-			return false;
-		}
-
-		return MAZE_GRID[row][col] == 0;
-	}
-
-	static bool IsOutOfMaze(int row, int col)
-	{
-		return row < 0 || row >= MAZE_CELLS || col < 0 || col >= MAZE_CELLS;
-	}
-
-	static constexpr float WALL_HEIGHT = 1;
-	static constexpr int MAZE_CELLS = 16;
-	static constexpr std::array<std::array<int, MAZE_CELLS>, MAZE_CELLS> MAZE_GRID = {
-		{
-			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-			{ 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-			{ 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1 },
-			{ 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1 },
-			{ 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1 },
-			{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-			{ 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1 },
-			{ 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1 },
-			{ 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1 },
-			{ 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1 },
-			{ 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1 },
-			{ 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1 },
-			{ 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1 },
-			{ 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-			{ 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1 },
-			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-		}
-	};
 	std::array<std::unique_ptr<TexturedMesh>, NUM_WALL_TEXTURES> m_wallMeshes;
 
 	std::array<std::unique_ptr<Texture>, NUM_WALL_TEXTURES> m_wallTextures;
