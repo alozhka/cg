@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include <glm/vec3.hpp>
 #include <graphics/shaders/ShaderProgram.hpp>
 
@@ -42,15 +43,16 @@ public:
 		m_quadratic = quadratic;
 	}
 
-	void Apply(ShaderProgram& shader)
+	void Apply(ShaderProgram& shader, int index)
 	{
-		shader.SetUniformVec3("uPointLight.position", m_position);
-		shader.SetUniformVec3("uPointLight.diffuse", glm::vec3(m_diffuse));
-		shader.SetUniformVec3("uPointLight.ambient", glm::vec3(m_ambient));
-		shader.SetUniformVec3("uPointLight.specular", glm::vec3(m_specular));
-		shader.SetUniformFloat("uPointLight.constant", m_constant);
-		shader.SetUniformFloat("uPointLight.linear", m_linear);
-		shader.SetUniformFloat("uPointLight.quadratic", m_quadratic);
+		std::string prefix = "uPointLights[" + std::to_string(index) + "]";
+		shader.SetUniformVec3(prefix + ".position", m_position);
+		shader.SetUniformVec3(prefix + ".diffuse", glm::vec3(m_diffuse));
+		shader.SetUniformVec3(prefix + ".ambient", glm::vec3(m_ambient));
+		shader.SetUniformVec3(prefix + ".specular", glm::vec3(m_specular));
+		shader.SetUniformFloat(prefix + ".constant", m_constant);
+		shader.SetUniformFloat(prefix + ".linear", m_linear);
+		shader.SetUniformFloat(prefix + ".quadratic", m_quadratic);
 	}
 
 private:

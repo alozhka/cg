@@ -3,7 +3,7 @@
 #include "Maze.hpp"
 
 #include <graphics/camera/FirstPersonCamera.hpp>
-#include <graphics/light/DirectLight.hpp>
+#include <graphics/light/PointLight.hpp>
 #include <graphics/shaders/ShaderProgram.hpp>
 #include <graphics/windows/FirstPersonCameraController.hpp>
 #include <graphics/windows/GraphicsApplication.hpp>
@@ -25,12 +25,13 @@ public:
 		m_camera.SetPosition(m_maze.GetPlayerPosition());
 
 		m_light.SetAmbientIntensity(0.3, 0.3, 0.3);
-		m_light.SetDiffuseIntensity(0.6, 0.6, 0.6);
-		m_light.SetSpecularIntensity(0.2, 0.2, 0.2);
+		m_light.SetDiffuseIntensity(0.8, 0.8, 0.8);
+		m_light.SetSpecularIntensity(0.5, 0.5, 0.5);
+		m_light.SetAttenuation(1, 0.3, 0.44);
 	}
 
 protected:
-	void OnDraw(const glm::mat4& perspective) override
+	void OnDraw(const glm::mat4& perspective)
 	{
 		UpdateMovement();
 
@@ -41,8 +42,9 @@ protected:
 		glm::mat4 viewProjection = perspective * view;
 
 		m_shader.Use();
-		m_light.SetDirection(-m_camera.GetForwardXZ());
-		m_light.Apply(m_shader);
+		m_light.SetPosition(m_camera.GetPosition());
+		m_shader.SetUniformInt("uNumPointLights", 1);
+		m_light.Apply(m_shader, 0);
 		m_shader.SetUniformVec3("uCameraPos", m_camera.GetPosition());
 
 		m_maze.Draw(m_shader, viewProjection);
@@ -95,6 +97,6 @@ private:
 	TimeProvider m_time;
 
 	ShaderProgram m_shader;
-	DirectLight m_light;
+	PointLight m_light;
 	Maze m_maze;
 };

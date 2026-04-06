@@ -14,4 +14,10 @@ add_subdirectory(
 )
 
 target_link_libraries(maze PRIVATE graphics)
-graphics_copy_shader_assets(maze)
+
+add_custom_command(
+        TARGET maze PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/assets
+        $<TARGET_FILE_DIR:maze>/assets
+)

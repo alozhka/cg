@@ -73,6 +73,12 @@ public:
 		glUniform3fv(location, 1, glm::value_ptr(v));
 	}
 
+	void SetUniformFloat(const std::string& name, float value)
+	{
+		GLint location = glGetUniformLocation(m_program, name.c_str());
+		glUniform1f(location, value);
+	}
+
 	void SetUniformInt(const std::string& name, int value)
 	{
 		GLint location = glGetUniformLocation(m_program, name.c_str());

@@ -1,5 +1,7 @@
 #version 330 core
 
+#define MAX_POINT_LIGHTS 4
+
 in vec3 vNormal;
 in vec3 vFragPos;
 
