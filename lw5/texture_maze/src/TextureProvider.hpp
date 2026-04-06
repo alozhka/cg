@@ -24,7 +24,6 @@ public:
 	}
 
 	Texture& Get(const std::string& name) { return m_textures.at(name); }
-	const Texture& Get(const std::string& name) const { return m_textures.at(name); }
 
 private:
 	std::unordered_map<std::string, Texture> m_textures;

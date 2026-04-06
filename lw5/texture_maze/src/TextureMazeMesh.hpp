@@ -13,9 +13,8 @@ template <int N>
 class TextureMazeMesh
 {
 public:
-	TextureMazeMesh(const MazeGrid<N>& grid, float wallHeight, TextureProvider& textures, const std::vector<std::string>& wallTextureKeys)
+	TextureMazeMesh(const MazeGrid<N>& grid, float wallHeight, TextureProvider& textures)
 		: m_textures(textures)
-		, m_wallTextureKeys(wallTextureKeys)
 		, m_wallMesh(BuildWalls(grid, wallHeight))
 		, m_floorMesh(BuildFloor())
 		, m_ceilingMesh(BuildCeiling(wallHeight))
@@ -37,7 +36,7 @@ public:
 		for (const auto& segment : m_walls)
 		{
 			m_textures.Get(segment.textureKey).Bind(0);
-			m_wallMesh->Draw(GL_TRIANGLES, segment.first, segment.count);
+			m_wallMesh.Draw(GL_TRIANGLES, segment.first, segment.count);
 		}
 	}
 
@@ -99,7 +98,8 @@ private:
 	{
 		if (grid.IsOpen(row + 1, col))
 		{
-			m_walls.push_back({ GetWallTextureKey(row, col), vertices.size(), 6 });
+			m_walls.push_back({ GetWallTextureKey(row, col), static_cast<GLint>(vertices.size()), 6 });
+
 			AddQuad(vertices,
 				{ col, 0, row + 1 },
 				{ col + 1, 0, row + 1 },
@@ -113,7 +113,8 @@ private:
 	{
 		if (grid.IsOpen(row - 1, col))
 		{
-			m_walls.push_back({ GetWallTextureKey(row, col), vertices.size(), 6 });
+			m_walls.push_back({ GetWallTextureKey(row, col), static_cast<GLint>(vertices.size()), 6 });
+
 			AddQuad(vertices,
 				{ col + 1, 0, row },
 				{ col, 0, row },
@@ -127,7 +128,8 @@ private:
 	{
 		if (grid.IsOpen(row, col + 1))
 		{
-			m_walls.push_back({ GetWallTextureKey(row, col), vertices.size(), 6 });
+			m_walls.push_back({ GetWallTextureKey(row, col), static_cast<GLint>(vertices.size()), 6 });
+
 			AddQuad(vertices,
 				{ col + 1, 0, row + 1 },
 				{ col + 1, 0, row },
@@ -141,7 +143,8 @@ private:
 	{
 		if (grid.IsOpen(row, col - 1))
 		{
-			m_walls.push_back({ GetWallTextureKey(row, col), vertices.size(), 6 });
+			m_walls.push_back({ GetWallTextureKey(row, col), static_cast<GLint>(vertices.size()), 6 });
+
 			AddQuad(vertices,
 				{ col, 0, row },
 				{ col, 0, row + 1 },
@@ -151,9 +154,9 @@ private:
 		}
 	}
 
-	const std::string& GetWallTextureKey(int row, int col) const
+	std::string GetWallTextureKey(int row, int col) const
 	{
-		int idx = (row * 7 + col * 13) % static_cast<int>(m_wallTextureKeys.size());
+		int idx = (row * 7 + col * 13) % m_wallTextureKeys.size();
 		return m_wallTextureKeys[idx];
 	}
 
@@ -184,14 +187,14 @@ private:
 	struct WallSegment
 	{
 		std::string textureKey;
-		GLint first;
-		GLsizei count;
+		GLint first = 0;
+		GLsizei count = 0;
 	};
 
 	TextureProvider& m_textures;
-	std::vector<std::string> m_wallTextureKeys;
-	std::unique_ptr<TexturedMesh> m_wallMesh;
+	std::vector<std::string> m_wallTextureKeys = { "wall_0", "wall_1", "wall_2", "wall_3", "wall_4", "wall_5" };
 	std::vector<WallSegment> m_walls;
+	TexturedMesh m_wallMesh;
 	TexturedMesh m_floorMesh;
 	TexturedMesh m_ceilingMesh;
 };

@@ -49,7 +49,7 @@ public:
 		other.m_texture = 0;
 	}
 
-	void Bind(GLuint unit = 0) const
+	void Bind(GLuint unit) const
 	{
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glBindTexture(GL_TEXTURE_2D, m_texture);

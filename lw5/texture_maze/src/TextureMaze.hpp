@@ -85,10 +85,6 @@ private:
 		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 	} } };
 
-	inline static const std::vector<std::string> WALL_TEXTURE_KEYS = {
-		"wall_0", "wall_1", "wall_2", "wall_3", "wall_4", "wall_5",
-	};
-
 	TextureProvider m_textures{
 		{ "floor", "assets/textures/floor.jpg" },
 		{ "ceiling", "assets/textures/ceiling.jpg" },
@@ -101,5 +97,5 @@ private:
 	};
 
 	glm::vec3 m_playerPos;
-	TextureMazeMesh<MAZE_CELLS> m_mazeMesh{ MAZE_GRID, WALL_HEIGHT, m_textures, WALL_TEXTURE_KEYS };
+	TextureMazeMesh<MAZE_CELLS> m_mazeMesh{ MAZE_GRID, WALL_HEIGHT, m_textures };
 };
