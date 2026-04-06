@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(maze main.cpp
         src/MazeApp.hpp
+        src/Maze.hpp
 )
 
 add_subdirectory(

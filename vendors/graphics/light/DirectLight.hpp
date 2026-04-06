@@ -6,7 +6,7 @@
 class DirectLight
 {
 public:
-	explicit DirectLight(const glm::vec3& lightDirection)
+	explicit DirectLight(const glm::vec3& lightDirection = { 0, 0, 0 })
 		: m_direction(lightDirection)
 	{
 	}

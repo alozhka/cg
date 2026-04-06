@@ -1,201 +1,66 @@
 #pragma once
-
-#include <array>
-#include <graphics/Mesh.hpp>
-#include <graphics/Vertex.hpp>
-#include <graphics/shaders/ShaderProgram.hpp>
-
-#include <memory>
-#include <vector>
+#include "MazeMesh.hpp"
 
 class Maze
 {
 public:
-	Maze()
+	explicit Maze(glm::vec3 playerPos)
+		: m_playerPos(playerPos)
 	{
-		std::vector<Vertex> vertices;
-
-		BuildFloor(vertices);
-		m_floorCount = vertices.size();
-
-		BuildCeiling(vertices);
-		m_ceilingCount = vertices.size() - m_floorCount;
-
-		m_wallStart = vertices.size();
-		BuildWalls(vertices);
-		m_wallCount = vertices.size() - m_wallStart;
-
-		m_mesh = std::make_unique<Mesh>(vertices);
 	}
 
-	void Draw(ShaderProgram& shader, const glm::mat4& viewProjection)
+	void UpdateMovement(glm::vec3 direction, float dt)
 	{
-		DrawFloor(shader, viewProjection);
-		DrawCeiling(shader, viewProjection);
-		DrawWalls(shader, viewProjection);
+		glm::vec3 moved = glm::normalize(direction) * MOVE_SPEED * dt;
+		m_playerPos = ResolveMovement(m_playerPos, moved);
 	}
 
-	static bool IsWall(float x, float z)
+	void Draw(ShaderProgram& shader, const glm::mat4 viewProjection)
 	{
-		int col = static_cast<int>(std::floor(x));
-		int row = static_cast<int>(std::floor(z));
+		m_mazeMesh.Draw(shader, viewProjection);
+	}
 
-		if (row < 0 || row >= MAZE_CELLS || col < 0 || col >= MAZE_CELLS)
-		{
-			return true;
-		}
-
-		return MAZE_GRID[row][col] == 1;
+	glm::vec3 GetPlayerPosition() const
+	{
+		return m_playerPos;
 	}
 
 private:
-	void DrawFloor(ShaderProgram& shader, const glm::mat4& viewProjection)
+	static glm::vec3 ResolveMovement(const glm::vec3& pos, const glm::vec3& move)
 	{
-		shader.SetUniformVec4("uColor", glm::vec4(0.3f, 0.3f, 0.3f, 1.0f));
-		shader.SetUniformMat4("uModel", glm::mat4(1.0f));
-		shader.SetUniformMat4("uViewProjection", viewProjection);
-		m_mesh->Draw(GL_TRIANGLES, 0, m_floorCount);
-	}
+		glm::vec3 newPos = pos + move;
 
-	void DrawCeiling(ShaderProgram& shader, const glm::mat4& viewProjection)
-	{
-		shader.SetUniformVec4("uColor", glm::vec4(0.6f, 0.6f, 0.65f, 1.0f));
-		shader.SetUniformMat4("uModel", glm::mat4(1.0f));
-		shader.SetUniformMat4("uViewProjection", viewProjection);
-		m_mesh->Draw(GL_TRIANGLES, m_floorCount, m_ceilingCount);
-	}
-
-	void DrawWalls(ShaderProgram& shader, const glm::mat4& viewProjection)
-	{
-		shader.SetUniformVec4("uColor", glm::vec4(0.7f, 0.4f, 0.2f, 1.0f));
-		shader.SetUniformMat4("uModel", glm::mat4(1.0f));
-		shader.SetUniformMat4("uViewProjection", viewProjection);
-		m_mesh->Draw(GL_TRIANGLES, m_wallStart, m_wallCount);
-	}
-
-	static constexpr float WALL_HEIGHT = 1.0f;
-
-	static void BuildFloor(std::vector<Vertex>& vertices)
-	{
-		AddQuad(
-			vertices,
-			{ 0, 0, 0 },
-			{ MAZE_CELLS, 0, 0 },
-			{ MAZE_CELLS, 0, MAZE_CELLS },
-			{ 0, 0, MAZE_CELLS },
-			{ 0, 1, 0 });
-	}
-
-	static void BuildCeiling(std::vector<Vertex>& vertices)
-	{
-		AddQuad(
-			vertices,
-			{ 0, WALL_HEIGHT, MAZE_CELLS },
-			{ MAZE_CELLS, WALL_HEIGHT, MAZE_CELLS },
-			{ MAZE_CELLS, WALL_HEIGHT, 0 },
-			{ 0, WALL_HEIGHT, 0 },
-			{ 0, -1, 0 });
-	}
-
-	static void BuildWalls(std::vector<Vertex>& vertices)
-	{
-		for (int row = 0; row < MAZE_CELLS; ++row)
+		if (!IsBlocked(newPos))
 		{
-			for (int col = 0; col < MAZE_CELLS; ++col)
-			{
-				if (MAZE_GRID[row][col] == 0)
-				{
-					continue;
-				}
-
-				float x = static_cast<float>(col);
-				float z = static_cast<float>(row);
-
-				TryAddSouthWall(vertices, row, col, x, z);
-				TryAddNorthWall(vertices, row, col, x, z);
-				TryAddEastWall(vertices, row, col, x, z);
-				TryAddWestWall(vertices, row, col, x, z);
-			}
+			return newPos;
 		}
-	}
 
-	static void TryAddSouthWall(std::vector<Vertex>& vertices, int row, int col, float x, float z)
-	{
-		if (row + 1 < MAZE_CELLS && MAZE_GRID[row + 1][col] == 0)
+		glm::vec3 tryX = pos + glm::vec3(move.x, 0, 0);
+		if (!IsBlocked(tryX))
 		{
-			AddQuad(vertices,
-				{ x, 0, z + 1 }, { x + 1, 0, z + 1 }, { x + 1, WALL_HEIGHT, z + 1 }, { x, WALL_HEIGHT, z + 1 },
-				{ 0, 0, 1 });
+			return tryX;
 		}
-	}
 
-	static void TryAddNorthWall(std::vector<Vertex>& vertices, int row, int col, float x, float z)
-	{
-		if (row - 1 >= 0 && MAZE_GRID[row - 1][col] == 0)
+		glm::vec3 tryZ = pos + glm::vec3(0, 0, move.z);
+		if (!IsBlocked(tryZ))
 		{
-			AddQuad(vertices,
-				{ x + 1, 0, z }, { x, 0, z }, { x, WALL_HEIGHT, z }, { x + 1, WALL_HEIGHT, z },
-				{ 0, 0, -1 });
+			return tryZ;
 		}
+
+		return pos;
 	}
 
-	static void TryAddEastWall(std::vector<Vertex>& vertices, int row, int col, float x, float z)
+	static bool IsBlocked(const glm::vec3& p)
 	{
-		if (col + 1 < MAZE_CELLS && MAZE_GRID[row][col + 1] == 0)
-		{
-			AddQuad(vertices,
-				{ x + 1, 0, z + 1 }, { x + 1, 0, z }, { x + 1, WALL_HEIGHT, z }, { x + 1, WALL_HEIGHT, z + 1 },
-				{ 1, 0, 0 });
-		}
+		return MazeMesh::IsWall(p.x + PLAYER_HALF_SIZE, p.z + PLAYER_HALF_SIZE)
+			|| MazeMesh::IsWall(p.x - PLAYER_HALF_SIZE, p.z + PLAYER_HALF_SIZE)
+			|| MazeMesh::IsWall(p.x + PLAYER_HALF_SIZE, p.z - PLAYER_HALF_SIZE)
+			|| MazeMesh::IsWall(p.x - PLAYER_HALF_SIZE, p.z - PLAYER_HALF_SIZE);
 	}
 
-	static void TryAddWestWall(std::vector<Vertex>& vertices, int row, int col, float x, float z)
-	{
-		if (col - 1 >= 0 && MAZE_GRID[row][col - 1] == 0)
-		{
-			AddQuad(vertices,
-				{ x, 0, z }, { x, 0, z + 1 }, { x, WALL_HEIGHT, z + 1 }, { x, WALL_HEIGHT, z },
-				{ -1, 0, 0 });
-		}
-	}
+	static constexpr float MOVE_SPEED = 3;
+	static constexpr float PLAYER_HALF_SIZE = 0.2;
 
-	static void AddQuad(std::vector<Vertex>& vertices,
-		glm::vec3 a, glm::vec3 b, glm::vec3 c, glm::vec3 d,
-		glm::vec3 normal)
-	{
-		vertices.push_back({ a, normal });
-		vertices.push_back({ b, normal });
-		vertices.push_back({ c, normal });
-		vertices.push_back({ a, normal });
-		vertices.push_back({ c, normal });
-		vertices.push_back({ d, normal });
-	}
-
-	static constexpr int MAZE_CELLS = 16;
-	static constexpr std::array<std::array<int, MAZE_CELLS>, MAZE_CELLS> MAZE_GRID = {
-		{
-			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-			{ 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-			{ 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 1 },
-			{ 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1 },
-			{ 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1 },
-			{ 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
-			{ 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1 },
-			{ 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1 },
-			{ 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1 },
-			{ 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1 },
-			{ 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1 },
-			{ 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1 },
-			{ 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1 },
-			{ 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 },
-			{ 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1 },
-			{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
-		}
-	};
-
-	std::unique_ptr<Mesh> m_mesh;
-	GLsizei m_floorCount = 0;
-	GLsizei m_ceilingCount = 0;
-	GLsizei m_wallStart = 0;
-	GLsizei m_wallCount = 0;
+	MazeMesh m_mazeMesh;
+	glm::vec3 m_playerPos = { 1.5, 0.5, 1.5 };
 };

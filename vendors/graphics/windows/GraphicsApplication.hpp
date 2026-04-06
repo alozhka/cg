@@ -102,7 +102,7 @@ private:
 		Size size = GetWindowSize();
 		float currentAspectRatio = size.width / size.height;
 
-		return glm::perspective(m_fieldOfView, currentAspectRatio, m_znear, m_zfar);
+		return glm::perspective(m_fieldOfView, currentAspectRatio, m_zNear, m_zFar);
 	}
 
 	glm::vec2 NormalizeCoords(double x, double y) const
@@ -171,9 +171,9 @@ private:
 	}
 
 protected:
-	float m_znear = 0.1f;
-	float m_zfar = 10.f;
-	float m_fieldOfView = 55.f;
+	float m_zNear = 0.1;
+	float m_zFar = 100;
+	float m_fieldOfView = 55;
 
 private:
 
