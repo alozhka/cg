@@ -51,6 +51,7 @@ public:
 
 	void Bind(GLuint unit) const
 	{
+		unit = unit % MAX_TEXTURE_ID;
 		glActiveTexture(GL_TEXTURE0 + unit);
 		glBindTexture(GL_TEXTURE_2D, m_texture);
 	}
@@ -72,5 +73,6 @@ private:
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
+	static constexpr GLuint MAX_TEXTURE_ID = 31;
 	GLuint m_texture = 0;
 };

@@ -31,7 +31,7 @@ public:
 	}
 
 protected:
-	void OnDraw(const glm::mat4& perspective)
+	void OnDraw(const glm::mat4& perspective) override
 	{
 		UpdateMovement();
 
