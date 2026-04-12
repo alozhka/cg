@@ -5,6 +5,8 @@
 #include <GLFW/glfw3.h>
 #include <algorithm>
 #include <glad/glad.h>
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/matrix.hpp>
 #include <stdexcept>
 #include <string>
 
@@ -176,6 +178,5 @@ protected:
 	float m_fieldOfView = 55;
 
 private:
-
 	GLFWwindow* m_window;
 };
