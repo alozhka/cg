@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(texture_maze main.cpp src/stb_image_impl.cpp
         src/TextureMazeMesh.hpp
-        src/TextureProvider.hpp)
+)
 
 add_subdirectory(
         ${CMAKE_CURRENT_SOURCE_DIR}/../../vendors/graphics

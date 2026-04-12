@@ -4,6 +4,7 @@
 #include "TextureMazeMesh.hpp"
 
 #include <graphics/shaders/ShaderProgram.hpp>
+#include <graphics/textures/TextureLoader.hpp>
 
 class TextureMaze
 {
@@ -85,7 +86,7 @@ private:
 		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
 	} } };
 
-	TextureProvider m_textures{
+	TextureLoader m_textures{
 		{ "floor", "assets/textures/floor.jpg" },
 		{ "ceiling", "assets/textures/ceiling.jpg" },
 		{ "wall_0", "assets/textures/brick.jpg" },

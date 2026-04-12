@@ -12,10 +12,10 @@ struct TextureEntry
 	std::string path;
 };
 
-class TextureProvider
+class TextureLoader
 {
 public:
-	TextureProvider(std::initializer_list<TextureEntry> entries)
+	TextureLoader(std::initializer_list<TextureEntry> entries)
 	{
 		for (const auto& entry : entries)
 		{

@@ -1,11 +1,10 @@
 #pragma once
 
 #include "MazeGrid.hpp"
-#include "TextureProvider.hpp"
 
 #include <graphics/TexturedMesh.hpp>
+#include <graphics/textures/TextureLoader.hpp>
 #include <graphics/shaders/ShaderProgram.hpp>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -13,7 +12,7 @@ template <int N>
 class TextureMazeMesh
 {
 public:
-	TextureMazeMesh(const MazeGrid<N>& grid, float wallHeight, TextureProvider& textures)
+	TextureMazeMesh(const MazeGrid<N>& grid, float wallHeight, TextureLoader& textures)
 		: m_textures(textures)
 		, m_wallMesh(BuildWalls(grid, wallHeight))
 		, m_floorMesh(BuildFloor())
@@ -191,7 +190,7 @@ private:
 		GLsizei count = 0;
 	};
 
-	TextureProvider& m_textures;
+	TextureLoader& m_textures;
 	std::vector<std::string> m_wallTextureKeys = { "wall_0", "wall_1", "wall_2", "wall_3", "wall_4", "wall_5" };
 	std::vector<WallSegment> m_walls;
 	TexturedMesh m_wallMesh;
