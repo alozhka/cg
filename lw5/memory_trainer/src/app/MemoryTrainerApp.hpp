@@ -1,4 +1,5 @@
 #pragma once
+#include "../memory_trainer/model/MemoryTrainer.hpp"
 #include <glm/fwd.hpp>
 #include <graphics/windows/GraphicsApplication.hpp>
 
@@ -13,4 +14,7 @@ public:
 	void OnDraw(const glm::mat4& perspective) override
 	{
 	}
+
+private:
+	MemoryTrainerPtr m_game;
 };

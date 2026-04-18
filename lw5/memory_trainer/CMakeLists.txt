@@ -9,7 +9,12 @@ add_subdirectory(
 )
 
 add_executable(${PROJECT_NAME} main.cpp
-        src/app/MemoryTrainerApp.hpp)
+        src/app/MemoryTrainerApp.hpp
+        src/memory_trainer/model/MemoryTrainer.hpp
+        src/memory_trainer/model/Card.hpp
+        src/memory_trainer/view_model/MemoryTrainerViewModel.hpp
+        src/memory_trainer/view_model/CardsViewModel.hpp
+)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE graphics)
 
