@@ -14,13 +14,17 @@ add_executable(${PROJECT_NAME} main.cpp
         src/memory_trainer/model/Card.hpp
         src/memory_trainer/view_model/MemoryTrainerViewModel.hpp
         src/memory_trainer/view_model/CardsViewModel.hpp
+        src/memory_trainer/view/CardsView.hpp
+        src/memory_trainer/view/MemoryTrainerView.hpp
+        src/app/stb_image_impl.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE graphics)
 
+graphics_copy_shader_assets(${PROJECT_NAME})
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/assets
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/assets/textures
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets/textures
 )

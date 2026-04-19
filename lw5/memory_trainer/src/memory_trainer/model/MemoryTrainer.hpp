@@ -1,6 +1,8 @@
 #pragma once
-#include "Card.hpp"
 
+#include "Card.hpp"
+#include <algorithm>
+#include <memory>
 #include <random>
 #include <vector>
 
@@ -17,16 +19,32 @@ public:
 
 	void Reset()
 	{
-		CreateCards();
+		RecreateCards();
 	}
 
-	std::vector<Card> ListCards() const
+	[[nodiscard]] const std::vector<Card>& ListCards() const
 	{
 		return m_availableCards;
 	}
 
+	[[nodiscard]] std::vector<Card>& ListCards()
+	{
+		return m_availableCards;
+	}
+
+	void Update(float dt)
+	{
+		for (Card& card : m_availableCards)
+		{
+			card.Update(dt);
+		}
+	}
+
+	[[nodiscard]] size_t GetRows() const { return MAX_ROW; }
+	[[nodiscard]] size_t GetCols() const { return MAX_COL; }
+
 private:
-	void CreateCards()
+	void RecreateCards()
 	{
 		std::vector<std::string> names = CARD_NAMES;
 		for (std::string& name : CARD_NAMES)
@@ -38,7 +56,7 @@ private:
 		m_availableCards.clear();
 		for (size_t i = 0; i < names.size(); ++i)
 		{
-			size_t row = i / MAX_ROW;
+			size_t row = i / MAX_COL;
 			size_t col = i % MAX_COL;
 			m_availableCards.emplace_back(names[i], row, col);
 		}
