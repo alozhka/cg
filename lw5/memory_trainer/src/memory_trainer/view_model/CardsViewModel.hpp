@@ -35,36 +35,16 @@ public:
 	static constexpr size_t FRONT_VERTEX_OFFSET = 0;
 	static constexpr size_t FRONT_VERTEX_COUNT = 6;
 	static constexpr size_t BACK_VERTEX_OFFSET = 6;
-	static constexpr size_t BACK_VERTEX_COUNT = 6;
+	static constexpr size_t BACK_VERTEX_COUNT = 30;
 
 	explicit CardsViewModel(MemoryTrainerPtr game)
 		: m_game(std::move(game))
 	{
 	}
 
-	[[nodiscard]] static constexpr std::vector<TexturedVertex> GetCardVertices()
+	[[nodiscard]] static const std::vector<TexturedVertex>& GetCardVertices()
 	{
-		constexpr float hw = WIDTH * 0.5f;
-		constexpr float hh = HEIGHT * 0.5f;
-		constexpr float hx = THICKNESS * 0.5f;
-
-		return {
-			// Перед
-			{ { hx, -hw, -hh }, { 1, 0, 0 }, { 1, 0 } },
-			{ { hx, hw, -hh }, { 1, 0, 0 }, { 1, 1 } },
-			{ { hx, hw, hh }, { 1, 0, 0 }, { 0, 1 } },
-			{ { hx, -hw, -hh }, { 1, 0, 0 }, { 1, 0 } },
-			{ { hx, hw, hh }, { 1, 0, 0 }, { 0, 1 } },
-			{ { hx, -hw, hh }, { 1, 0, 0 }, { 0, 0 } },
-
-			// Зад
-			{ { -hx, hw, -hh }, { -1, 0, 0 }, { 1, 1 } },
-			{ { -hx, -hw, -hh }, { -1, 0, 0 }, { 1, 0 } },
-			{ { -hx, -hw, hh }, { -1, 0, 0 }, { 0, 0 } },
-			{ { -hx, hw, -hh }, { -1, 0, 0 }, { 1, 1 } },
-			{ { -hx, -hw, hh }, { -1, 0, 0 }, { 0, 0 } },
-			{ { -hx, hw, hh }, { -1, 0, 0 }, { 0, 1 } },
-		};
+		return m_cardVertices;
 	}
 
 	[[nodiscard]] CardTextures LoadTextures(const std::string& texturesDir) const
@@ -107,5 +87,48 @@ public:
 	}
 
 private:
+	static std::vector<TexturedVertex> BuildCardVertices()
+	{
+		constexpr float hw = WIDTH * 0.5f;
+		constexpr float hh = HEIGHT * 0.5f;
+		constexpr float hx = THICKNESS * 0.5f;
+
+		constexpr glm::vec3 frontLeftBottom{ hx, -hw, -hh };
+		constexpr glm::vec3 frontRightBottom{ hx, hw, -hh };
+		constexpr glm::vec3 frontRightTop{ hx, hw, hh };
+		constexpr glm::vec3 frontLeftTop{ hx, -hw, hh };
+		constexpr glm::vec3 backLeftBottom{ -hx, -hw, -hh };
+		constexpr glm::vec3 backRightBottom{ -hx, hw, -hh };
+		constexpr glm::vec3 backRightTop{ -hx, hw, hh };
+		constexpr glm::vec3 backLeftTop{ -hx, -hw, hh };
+
+		std::vector<TexturedVertex> v;
+		v.reserve(36);
+
+		AddQuad(v, frontLeftTop, frontLeftBottom, frontRightBottom, frontRightTop, { 1, 0, 0 });
+		AddQuad(v, backLeftTop, backLeftBottom, backRightBottom, backRightTop, { -1, 0, 0 });
+		AddQuad(v, backRightBottom, frontRightBottom, frontRightTop, backRightTop, { 0, 1, 0 });
+		AddQuad(v, backLeftBottom, frontLeftBottom, frontLeftTop, backLeftTop, { 0, -1, 0 });
+		AddQuad(v, backLeftTop, frontLeftTop, frontRightTop, backRightTop, { 0, 0, 1 });
+		AddQuad(v, backLeftBottom, backRightBottom, frontRightBottom, frontLeftBottom, { 0, 0, -1 });
+
+		return v;
+	}
+
+	static void AddQuad(std::vector<TexturedVertex>& out,
+		const glm::vec3& p0, const glm::vec3& p1,
+		const glm::vec3& p2, const glm::vec3& p3,
+		const glm::vec3& normal)
+	{
+		out.push_back({ p0, normal, { 0, 0 } });
+		out.push_back({ p1, normal, { 1, 0 } });
+		out.push_back({ p2, normal, { 1, 1 } });
+		out.push_back({ p0, normal, { 0, 0 } });
+		out.push_back({ p2, normal, { 1, 1 } });
+		out.push_back({ p3, normal, { 0, 1 } });
+	}
+
+	static inline const std::vector<TexturedVertex> m_cardVertices = BuildCardVertices();
+
 	MemoryTrainerPtr m_game;
 };

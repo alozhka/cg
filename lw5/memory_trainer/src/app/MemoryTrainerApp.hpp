@@ -20,7 +20,7 @@ public:
 		glEnable(GL_DEPTH_TEST);
 
 		m_light.SetDiffuseIntensity(0.7, 0.7, 0.7);
-		m_light.SetAmbientIntensity(0.55, 0.55, 0.55);
+		m_light.SetAmbientIntensity(0.3, 0.3, 0.3);
 		m_light.SetSpecularIntensity(0.2, 0.2, 0.2);
 	}
 
