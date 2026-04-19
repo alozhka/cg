@@ -8,13 +8,12 @@
 #include <glm/mat4x4.hpp>
 
 #include <string>
-#include <utility>
 
 class CardsView
 {
 public:
-	CardsView(CardsViewModel viewModel, const std::string& texturesDir)
-		: m_viewModel(std::move(viewModel))
+	CardsView(CardsViewModel& viewModel, const std::string& texturesDir)
+		: m_viewModel(viewModel)
 		, m_mesh(CardsViewModel::GetCardVertices())
 		, m_textures(m_viewModel.LoadTextures(texturesDir))
 	{
@@ -57,7 +56,7 @@ private:
 		return glm::rotate(model, glm::radians(placement.angle), glm::vec3(0, 0, 1));
 	}
 
-	CardsViewModel m_viewModel;
+	CardsViewModel& m_viewModel;
 	TexturedMesh m_mesh;
 	CardTextures m_textures;
 };

@@ -6,15 +6,20 @@ class MemoryTrainerViewModel
 {
 public:
 	explicit MemoryTrainerViewModel(const MemoryTrainerPtr& game)
-		: m_game(game)
+		: m_cards(game)
 	{
 	}
 
-	CardsViewModel CreateCardsViewModel()
+	CardsViewModel& GetCardsViewModel()
 	{
-		return CardsViewModel(m_game);
+		return m_cards;
+	}
+
+	void TryPick(const glm::vec3& rayOrigin, const glm::vec3& rayDir)
+	{
+		m_cards.TryFlipAt(rayOrigin, rayDir);
 	}
 
 private:
-	MemoryTrainerPtr m_game;
+	CardsViewModel m_cards;
 };

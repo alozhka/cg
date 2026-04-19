@@ -7,7 +7,7 @@ class MemoryTrainerView
 {
 public:
 	MemoryTrainerView(MemoryTrainerViewModel& viewModel)
-		: m_cards(viewModel.CreateCardsViewModel(), "assets/textures")
+		: m_cards(viewModel.GetCardsViewModel(), "assets/textures")
 	{
 	}
 

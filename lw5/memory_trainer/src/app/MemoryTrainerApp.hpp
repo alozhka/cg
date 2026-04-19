@@ -6,6 +6,7 @@
 #include <graphics/light/DirectLight.hpp>
 #include <graphics/windows/CameraController.hpp>
 #include <graphics/windows/GraphicsApplication.hpp>
+#include <graphics/windows/TimeProvider.hpp>
 
 class MemoryTrainerApp final : public GraphicsApplication
 {
@@ -30,19 +31,40 @@ protected:
 		glClearColor(0.05, 0.05, 0.08, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		Update();
+
 		m_shader.Use();
 		m_light.Apply(m_shader);
 		m_shader.SetUniformVec3("uCameraPos", m_camera.GetPosition());
 
 		glm::mat4 view = m_camera.GetViewMatrix();
-		glm::mat4 viewProjection = perspective * view;
+		m_viewProjection = perspective * view;
 
-		m_view.Draw(m_shader, viewProjection);
+		m_view.Draw(m_shader, m_viewProjection);
+	}
+
+	void Update()
+	{
+		float dt = m_time.GetDeltaTime();
+		m_game->Update(dt);
 	}
 
 	void OnMouseButton(int button, int action, glm::vec2 p) override
 	{
 		m_cameraController.OnMouseButton(button, action, p);
+
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+		{
+			glm::mat4 inv = glm::inverse(m_viewProjection);
+			glm::vec4 nearP = inv * glm::vec4(p.x, p.y, -1, 1);
+			glm::vec4 farP = inv * glm::vec4(p.x, p.y, 1, 1);
+			nearP /= nearP.w;
+			farP /= farP.w;
+
+			glm::vec3 origin(nearP);
+			glm::vec3 dir = glm::normalize(glm::vec3(farP - nearP));
+			m_viewModel.TryPick(origin, dir);
+		}
 	}
 
 	void OnMouseMove(glm::vec2 p) override
@@ -51,12 +73,13 @@ protected:
 	}
 
 private:
+	glm::mat4 m_viewProjection{};
 	ShaderProgram m_shader;
-
 	OrbitalCamera m_camera;
 	CameraController m_cameraController{ m_camera };
 	DirectLight m_light{ { 1, 0, 0 } };
 
+	TimeProvider m_time;
 	MemoryTrainerPtr m_game = std::make_shared<MemoryTrainer>();
 	MemoryTrainerViewModel m_viewModel;
 	MemoryTrainerView m_view;

@@ -61,6 +61,47 @@ public:
 		return textures;
 	}
 
+	void TryFlipAt(const glm::vec3& rayOrigin, const glm::vec3& rayDir) const
+	{
+		if (std::abs(rayDir.x) < 1e-6f)
+			return;
+		float t = -rayOrigin.x / rayDir.x;
+		if (t < 0)
+			return;
+		glm::vec3 hit = rayOrigin + t * rayDir;
+
+		size_t rows = m_game->GetRows();
+		size_t cols = m_game->GetCols();
+		constexpr float stepRow = HEIGHT + CELL_SPACING;
+		constexpr float stepCol = WIDTH + CELL_SPACING;
+		const float originY = stepRow * static_cast<float>(rows - 1) * 0.5f;
+		const float originZ = stepCol * static_cast<float>(cols - 1) * 0.5f;
+
+		int row = static_cast<int>(std::round((originY - hit.y) / stepRow));
+		int col = static_cast<int>(std::round((originZ - hit.z) / stepCol));
+		if (row < 0 || col < 0
+			|| row >= static_cast<int>(rows)
+			|| col >= static_cast<int>(cols))
+			return;
+
+		float centerY = originY - stepRow * static_cast<float>(row);
+		float centerZ = originZ - stepCol * static_cast<float>(col);
+		if (std::abs(hit.y - centerY) > WIDTH * 0.5f)
+			return;
+		if (std::abs(hit.z - centerZ) > HEIGHT * 0.5f)
+			return;
+
+		for (Card& card : m_game->ListCards())
+		{
+			if (card.GetRow() == static_cast<size_t>(row)
+				&& card.GetCol() == static_cast<size_t>(col))
+			{
+				card.Flip();
+				return;
+			}
+		}
+	}
+
 	[[nodiscard]] std::vector<CardPlacement> GetPlacements() const
 	{
 		const std::vector<Card>& cards = m_game->ListCards();
