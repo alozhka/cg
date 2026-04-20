@@ -140,9 +140,9 @@ private:
 
 	static std::vector<TexturedVertex> BuildCardVertices()
 	{
-		constexpr float hw = WIDTH * 0.5f;
-		constexpr float hh = HEIGHT * 0.5f;
-		constexpr float hx = THICKNESS * 0.5f;
+		constexpr float hw = WIDTH * 0.5;
+		constexpr float hh = HEIGHT * 0.5;
+		constexpr float hx = THICKNESS * 0.5;
 
 		constexpr glm::vec3 frontLeftBottom{ hx, -hw, -hh };
 		constexpr glm::vec3 frontRightBottom{ hx, hw, -hh };

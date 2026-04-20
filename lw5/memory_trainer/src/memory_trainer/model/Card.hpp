@@ -6,14 +6,15 @@ enum class CardState
 	Hidden = 0,
 	FlippingUp = 1,
 	Visible = 2,
-	FlippingDown = 3
+	FlippingDown = 3,
 };
 
 class Card
 {
 public:
-	Card(const std::string& name, size_t row, size_t col)
-		: m_name(name)
+	Card(size_t id, const std::string& name, size_t row, size_t col)
+		: m_id(id)
+		, m_name(name)
 		, m_row(row)
 		, m_col(col)
 	{
@@ -24,6 +25,14 @@ public:
 		if (m_state == CardState::Hidden)
 		{
 			m_state = CardState::FlippingUp;
+		}
+	}
+
+	void FlipDown()
+	{
+		if (m_state == CardState::Visible)
+		{
+			m_state = CardState::FlippingDown;
 		}
 	}
 
@@ -57,15 +66,45 @@ public:
 		}
 	}
 
-	[[nodiscard]] const std::string& GetName() const { return m_name; }
-	[[nodiscard]] size_t GetRow() const { return m_row; }
-	[[nodiscard]] size_t GetCol() const { return m_col; }
-	[[nodiscard]] CardState GetState() const { return m_state; }
-	[[nodiscard]] float GetAngle() const { return m_angle; }
+	void SetMatched()
+	{
+		m_state = CardState::Hidden;
+	}
+
+	size_t GetId() const
+	{
+		return m_id;
+	}
+
+	const std::string& GetName() const
+	{
+		return m_name;
+	}
+
+	size_t GetRow() const
+	{
+		return m_row;
+	}
+
+	size_t GetCol() const
+	{
+		return m_col;
+	}
+
+	CardState GetState() const
+	{
+		return m_state;
+	}
+
+	float GetAngle() const
+	{
+		return m_angle;
+	}
 
 private:
 	static constexpr float FLIP_SPEED = 180;
 
+	size_t m_id;
 	std::string m_name;
 	size_t m_row, m_col;
 	CardState m_state = CardState::Hidden;

@@ -3,7 +3,10 @@
 #include "Card.hpp"
 #include <algorithm>
 #include <memory>
+#include <optional>
 #include <random>
+#include <ranges>
+#include <unordered_map>
 #include <vector>
 
 class MemoryTrainer;
@@ -22,42 +25,81 @@ public:
 		RecreateCards();
 	}
 
-	void Update(float dt)
-	{
-		for (Card& card : m_availableCards)
-		{
-			card.Update(dt);
-		}
-	}
-
 	void TryFlip(size_t row, size_t col)
 	{
-		auto card = std::ranges::find_if(m_availableCards, [row, col](const Card& card) {
-			return card.GetRow() == row && card.GetCol() == col;
+		auto it = std::ranges::find_if(m_availableCards, [row, col](const auto& pair) {
+			return pair.second.GetRow() == row && pair.second.GetCol() == col;
 		});
 
-		if (card == m_availableCards.end())
+		if (it == m_availableCards.end())
 		{
 			return;
 		}
+		Card& card = it->second;
 
-		card->Flip();
+		if (!m_firstFlippedCardId.has_value())
+		{
+			card.Flip();
+			m_firstFlippedCardId = card.GetId();
+		}
+		else if (!m_secondFlippedCardId.has_value() && card.GetId() != *m_firstFlippedCardId)
+		{
+			card.Flip();
+			m_secondFlippedCardId = card.GetId();
+			m_countdownToCheckCards = 1;
+		}
 	}
 
-	[[nodiscard]] const std::vector<Card>& ListCards() const
+	void Update(float dt)
 	{
-		return m_availableCards;
+		for (auto& card : m_availableCards | std::views::values)
+		{
+			card.Update(dt);
+		}
+
+		if (m_secondFlippedCardId.has_value())
+		{
+			m_countdownToCheckCards -= dt;
+			if (m_countdownToCheckCards <= 0)
+			{
+				CheckCards(*m_firstFlippedCardId, *m_secondFlippedCardId);
+				m_firstFlippedCardId.reset();
+				m_secondFlippedCardId.reset();
+			}
+		}
 	}
 
-	[[nodiscard]] std::vector<Card>& ListCards()
+	[[nodiscard]] std::vector<Card> ListCards() const
 	{
-		return m_availableCards;
+		std::vector<Card> cards;
+		cards.reserve(m_availableCards.size());
+
+		for (const auto& card : m_availableCards | std::views::values)
+		{
+			cards.push_back(card);
+		}
+
+		return cards;
 	}
 
 	[[nodiscard]] size_t GetRows() const { return MAX_ROW; }
 	[[nodiscard]] size_t GetCols() const { return MAX_COL; }
 
 private:
+	void CheckCards(size_t firstId, size_t secondId)
+	{
+		if (m_availableCards.at(firstId).GetName() == m_availableCards.at(secondId).GetName())
+		{
+			m_availableCards.erase(firstId);
+			m_availableCards.erase(secondId);
+		}
+		else
+		{
+			m_availableCards.at(firstId).FlipDown();
+			m_availableCards.at(secondId).FlipDown();
+		}
+	}
+
 	void RecreateCards()
 	{
 		std::vector<std::string> names = CARD_NAMES;
@@ -72,7 +114,7 @@ private:
 		{
 			size_t row = i / MAX_COL;
 			size_t col = i % MAX_COL;
-			m_availableCards.emplace_back(names[i], row, col);
+			m_availableCards.try_emplace(i, i, names[i], row, col);
 		}
 	}
 
@@ -94,5 +136,8 @@ private:
 	};
 	static constexpr size_t MAX_ROW = 2, MAX_COL = 7;
 
-	std::vector<Card> m_availableCards;
+	std::unordered_map<size_t, Card> m_availableCards;
+	std::optional<size_t> m_firstFlippedCardId;
+	std::optional<size_t> m_secondFlippedCardId;
+	float m_countdownToCheckCards = 1;
 };
