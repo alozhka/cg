@@ -36,15 +36,15 @@ public:
 			shader.SetUniformMat4("uModel", model);
 			shader.SetUniformMat4("uViewProjection", viewProjection);
 
-			m_textures.fronts.at(placement.frontTexture).Bind(0);
-			m_mesh.Draw(GL_TRIANGLES,
-				CardsViewModel::FRONT_VERTEX_OFFSET,
-				CardsViewModel::FRONT_VERTEX_COUNT);
-
 			m_textures.back.Bind(0);
 			m_mesh.Draw(GL_TRIANGLES,
-				CardsViewModel::BACK_VERTEX_OFFSET,
-				CardsViewModel::BACK_VERTEX_COUNT);
+				CardsViewModel::BACK_TEXTURE_VERTEX_OFFSET,
+				CardsViewModel::BACK_TEXTURE_VERTEX_COUNT);
+
+			m_textures.fronts.at(placement.frontTexture).Bind(0);
+			m_mesh.Draw(GL_TRIANGLES,
+				CardsViewModel::FRONT_TEXTURE_VERTEX_OFFSET,
+				CardsViewModel::FRONT_TEXTURE_VERTEX_COUNT);
 		}
 	}
 

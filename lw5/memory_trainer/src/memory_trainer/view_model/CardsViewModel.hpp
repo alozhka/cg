@@ -29,10 +29,10 @@ struct CardTextures
 class CardsViewModel
 {
 public:
-	static constexpr size_t FRONT_VERTEX_OFFSET = 0;
-	static constexpr size_t FRONT_VERTEX_COUNT = 6;
-	static constexpr size_t BACK_VERTEX_OFFSET = 6;
-	static constexpr size_t BACK_VERTEX_COUNT = 30;
+	static constexpr size_t BACK_TEXTURE_VERTEX_OFFSET = 0;
+	static constexpr size_t BACK_TEXTURE_VERTEX_COUNT = 30;
+	static constexpr size_t FRONT_TEXTURE_VERTEX_OFFSET = 30;
+	static constexpr size_t FRONT_TEXTURE_VERTEX_COUNT = 6;
 
 	explicit CardsViewModel(MemoryTrainerPtr game)
 		: m_game(std::move(game))
@@ -157,11 +157,11 @@ private:
 		v.reserve(36);
 
 		AddQuad(v, frontLeftTop, frontLeftBottom, frontRightBottom, frontRightTop, { 1, 0, 0 });
-		AddQuad(v, backLeftTop, backLeftBottom, backRightBottom, backRightTop, { -1, 0, 0 });
 		AddQuad(v, backRightBottom, frontRightBottom, frontRightTop, backRightTop, { 0, 1, 0 });
 		AddQuad(v, backLeftBottom, frontLeftBottom, frontLeftTop, backLeftTop, { 0, -1, 0 });
 		AddQuad(v, backLeftTop, frontLeftTop, frontRightTop, backRightTop, { 0, 0, 1 });
 		AddQuad(v, backLeftBottom, backRightBottom, frontRightBottom, frontLeftBottom, { 0, 0, -1 });
+		AddQuad(v, backRightTop, backRightBottom, backLeftBottom, backLeftTop, { -1, 0, 0 });
 
 		return v;
 	}
