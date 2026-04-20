@@ -27,6 +27,11 @@ public:
 
 	void TryFlip(size_t row, size_t col)
 	{
+		if (HasAnimatingCards())
+		{
+			return;
+		}
+
 		auto it = std::ranges::find_if(m_availableCards, [row, col](const auto& pair) {
 			return pair.second.GetRow() == row && pair.second.GetCol() == col;
 		});
@@ -51,7 +56,7 @@ public:
 		{
 			card.Flip();
 			m_secondFlippedCardId = card.GetId();
-			m_countdownToCheckCards = 1.2;
+			m_countdownToCheckCards = CHECK_COUNTDOWN;
 		}
 	}
 
@@ -74,7 +79,7 @@ public:
 		}
 	}
 
-	[[nodiscard]] std::vector<Card> ListCards() const
+	std::vector<Card> ListCards() const
 	{
 		std::vector<Card> cards;
 		cards.reserve(m_availableCards.size());
@@ -87,10 +92,18 @@ public:
 		return cards;
 	}
 
-	[[nodiscard]] size_t GetRows() const { return MAX_ROW; }
-	[[nodiscard]] size_t GetCols() const { return MAX_COL; }
+	size_t GetRows() const { return MAX_ROW; }
+	size_t GetCols() const { return MAX_COL; }
 
 private:
+	bool HasAnimatingCards() const
+	{
+		return std::ranges::any_of(m_availableCards | std::views::values, [](const Card& card) {
+			CardState s = card.GetState();
+			return s == CardState::FlippingUp || s == CardState::FlippingDown;
+		});
+	}
+
 	void CheckCards(size_t firstId, size_t secondId)
 	{
 		if (m_availableCards.at(firstId).GetName() == m_availableCards.at(secondId).GetName())
@@ -140,6 +153,7 @@ private:
 		"springtrap"
 	};
 	static constexpr size_t MAX_ROW = 2, MAX_COL = 7;
+	static constexpr float CHECK_COUNTDOWN = 1.2;
 
 	std::unordered_map<size_t, Card> m_availableCards;
 	std::optional<size_t> m_firstFlippedCardId;
