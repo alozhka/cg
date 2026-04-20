@@ -55,14 +55,7 @@ protected:
 
 		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 		{
-			glm::mat4 inv = glm::inverse(m_viewProjection);
-			glm::vec4 nearP = inv * glm::vec4(p.x, p.y, -1, 1);
-			glm::vec4 farP = inv * glm::vec4(p.x, p.y, 1, 1);
-			nearP /= nearP.w;
-			farP /= farP.w;
-
-			glm::vec3 origin(nearP);
-			glm::vec3 dir = glm::normalize(glm::vec3(farP - nearP));
+			auto [origin, dir] = BuildRay(p, m_viewProjection);
 			m_viewModel.TryPick(origin, dir);
 		}
 	}

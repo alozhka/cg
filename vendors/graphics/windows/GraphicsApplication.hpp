@@ -6,9 +6,11 @@
 #include <algorithm>
 #include <glad/glad.h>
 #include <glm/ext/matrix_clip_space.hpp>
+#include <glm/geometric.hpp>
 #include <glm/matrix.hpp>
 #include <stdexcept>
 #include <string>
+#include <utility>
 
 class GraphicsApplication
 {
@@ -96,6 +98,19 @@ protected:
 	KeyboardReader CreateKeyboardReader() const
 	{
 		return KeyboardReader(m_window);
+	}
+
+	std::pair<glm::vec3, glm::vec3> BuildRay(glm::vec2 ndc, const glm::mat4& vp) const
+	{
+		glm::mat4 inv = glm::inverse(vp);
+		glm::vec4 nearP = inv * glm::vec4(ndc.x, ndc.y, -1, 1);
+		glm::vec4 farP = inv * glm::vec4(ndc.x, ndc.y, 1, 1);
+		nearP /= nearP.w;
+		farP /= farP.w;
+
+		glm::vec3 origin(nearP);
+		glm::vec3 dir = glm::normalize(glm::vec3(farP - nearP));
+		return { origin, dir };
 	}
 
 private:
