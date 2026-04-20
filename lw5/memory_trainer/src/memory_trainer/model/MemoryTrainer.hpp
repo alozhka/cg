@@ -42,6 +42,11 @@ public:
 			card.Flip();
 			m_firstFlippedCardId = card.GetId();
 		}
+		else if (!m_secondFlippedCardId.has_value() && card.GetId() == *m_firstFlippedCardId)
+		{
+			card.FlipDown();
+			m_firstFlippedCardId.reset();
+		}
 		else if (!m_secondFlippedCardId.has_value() && card.GetId() != *m_firstFlippedCardId)
 		{
 			card.Flip();
