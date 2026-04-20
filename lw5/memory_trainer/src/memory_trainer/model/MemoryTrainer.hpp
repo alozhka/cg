@@ -22,6 +22,28 @@ public:
 		RecreateCards();
 	}
 
+	void Update(float dt)
+	{
+		for (Card& card : m_availableCards)
+		{
+			card.Update(dt);
+		}
+	}
+
+	void TryFlip(size_t row, size_t col)
+	{
+		auto card = std::ranges::find_if(m_availableCards, [row, col](const Card& card) {
+			return card.GetRow() == row && card.GetCol() == col;
+		});
+
+		if (card == m_availableCards.end())
+		{
+			return;
+		}
+
+		card->Flip();
+	}
+
 	[[nodiscard]] const std::vector<Card>& ListCards() const
 	{
 		return m_availableCards;
@@ -30,14 +52,6 @@ public:
 	[[nodiscard]] std::vector<Card>& ListCards()
 	{
 		return m_availableCards;
-	}
-
-	void Update(float dt)
-	{
-		for (Card& card : m_availableCards)
-		{
-			card.Update(dt);
-		}
 	}
 
 	[[nodiscard]] size_t GetRows() const { return MAX_ROW; }
