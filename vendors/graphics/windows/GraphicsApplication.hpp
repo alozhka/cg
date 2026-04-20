@@ -100,7 +100,7 @@ protected:
 		return KeyboardReader(m_window);
 	}
 
-	std::pair<glm::vec3, glm::vec3> BuildRay(glm::vec2 ndc, const glm::mat4& vp) const
+	static std::pair<glm::vec3, glm::vec3> BuildRay(glm::vec2 ndc, const glm::mat4& vp)
 	{
 		glm::mat4 inv = glm::inverse(vp);
 		glm::vec4 nearP = inv * glm::vec4(ndc.x, ndc.y, -1, 1);

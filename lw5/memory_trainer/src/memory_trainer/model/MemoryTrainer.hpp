@@ -23,6 +23,8 @@ public:
 	void Reset()
 	{
 		RecreateCards();
+		m_firstFlippedCardId.reset();
+		m_secondFlippedCardId.reset();
 	}
 
 	void TryFlip(size_t row, size_t col)
@@ -79,6 +81,11 @@ public:
 		}
 	}
 
+	bool IsWon() const
+	{
+		return m_availableCards.empty();
+	}
+
 	std::vector<Card> ListCards() const
 	{
 		std::vector<Card> cards;
@@ -92,8 +99,15 @@ public:
 		return cards;
 	}
 
-	size_t GetRows() const { return MAX_ROW; }
-	size_t GetCols() const { return MAX_COL; }
+	size_t GetRows() const
+	{
+		return MAX_ROW;
+	}
+
+	size_t GetCols() const
+	{
+		return MAX_COL;
+	}
 
 private:
 	bool HasAnimatingCards() const
@@ -147,12 +161,13 @@ private:
 		"chika",
 		"cupcake",
 		"freddie",
+		"funny_bonnie",
 		"glamrock_helpy",
 		"nightmare_freddie",
 		"nightmare_puppet",
 		"springtrap"
 	};
-	static constexpr size_t MAX_ROW = 2, MAX_COL = 7;
+	static constexpr size_t MAX_ROW = 2, MAX_COL = 8;
 	static constexpr float CHECK_COUNTDOWN = 1.2;
 
 	std::unordered_map<size_t, Card> m_availableCards;

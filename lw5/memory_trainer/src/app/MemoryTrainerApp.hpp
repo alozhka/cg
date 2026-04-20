@@ -13,6 +13,8 @@ class MemoryTrainerApp final : public GraphicsApplication
 public:
 	MemoryTrainerApp(int width, int height, const std::string& title)
 		: GraphicsApplication(width, height, title)
+		, m_baseTitle(title)
+		, m_keyboard(CreateKeyboardReader())
 		, m_viewModel(m_game)
 		, m_view(m_viewModel)
 	{
@@ -46,7 +48,29 @@ protected:
 	void Update()
 	{
 		float dt = m_time.GetDeltaTime();
+		HandleKeyboardClicks();
 		m_game->Update(dt);
+		UpdateWindowTitle();
+	}
+
+	void HandleKeyboardClicks()
+	{
+		if (m_keyboard.IsButtonPressed(GLFW_KEY_R))
+		{
+			m_game->Reset();
+			m_camera.SetTarget({0, 0, 0});
+		}
+	}
+
+	void UpdateWindowTitle()
+	{
+		std::string title = m_baseTitle;
+		if (m_game->IsWon())
+		{
+			title += " | You won! Press R to restart";
+		}
+
+		SetWindowTitle(title);
 	}
 
 	void OnMouseButton(int button, int action, glm::vec2 p) override
@@ -66,6 +90,9 @@ protected:
 	}
 
 private:
+	std::string m_baseTitle;
+	KeyboardReader m_keyboard;
+
 	glm::mat4 m_viewProjection{};
 	ShaderProgram m_shader;
 	OrbitalCamera m_camera;
