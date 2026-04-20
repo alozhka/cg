@@ -46,7 +46,7 @@ public:
 		{
 			card.Flip();
 			m_secondFlippedCardId = card.GetId();
-			m_countdownToCheckCards = 1;
+			m_countdownToCheckCards = 1.2;
 		}
 	}
 

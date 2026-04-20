@@ -26,11 +26,6 @@ public:
 
 		for (const CardPlacement& placement : m_viewModel.GetPlacements())
 		{
-			if (placement.removed)
-			{
-				continue;
-			}
-
 			glm::mat4 model = GetTransformMatrix(placement);
 
 			shader.SetUniformMat4("uModel", model);
@@ -51,8 +46,8 @@ public:
 private:
 	static glm::mat4 GetTransformMatrix(const CardPlacement& placement)
 	{
-		glm::mat4 model(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, placement.gridPos.x, placement.gridPos.y));
+		glm::mat4 model(1);
+		model = glm::translate(model, glm::vec3(0, placement.gridPos.x, placement.gridPos.y));
 		return glm::rotate(model, glm::radians(placement.angle), glm::vec3(0, 0, 1));
 	}
 

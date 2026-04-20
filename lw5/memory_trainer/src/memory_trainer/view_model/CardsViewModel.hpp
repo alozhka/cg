@@ -17,7 +17,6 @@ struct CardPlacement
 	glm::vec2 gridPos;
 	float angle;
 	std::string frontTexture;
-	bool removed;
 };
 
 struct CardTextures
@@ -91,8 +90,7 @@ public:
 				{ originY - ROW_STEP * card.GetRow(),
 					originZ - COL_STEP * card.GetCol() },
 				card.GetAngle(),
-				card.GetName(),
-				false,
+				card.GetName()
 			});
 		}
 		return placements;
@@ -104,20 +102,20 @@ private:
 		size_t rows = m_game->GetRows();
 		size_t cols = m_game->GetCols();
 
-		float originY = ROW_STEP * (rows - 1) * 0.5f;
-		float originZ = COL_STEP * (cols - 1) * 0.5f;
+		float originY = ROW_STEP * (rows - 1) * 0.5;
+		float originZ = COL_STEP * (cols - 1) * 0.5;
 
 		size_t row = std::round((originY - hit.y) / ROW_STEP);
 		size_t col = std::round((originZ - hit.z) / COL_STEP);
 
-		if (row < 0 || col < 0 || row >= rows || col >= cols)
+		if (row >= rows || col >= cols)
 		{
 			return std::nullopt;
 		}
 
 		float centerY = originY - ROW_STEP * row;
 		float centerZ = originZ - COL_STEP * col;
-		if (std::abs(hit.y - centerY) > WIDTH * 0.5f || std::abs(hit.z - centerZ) > HEIGHT * 0.5f)
+		if (std::abs(hit.y - centerY) > WIDTH * 0.5 || std::abs(hit.z - centerZ) > HEIGHT * 0.5)
 		{
 			return std::nullopt;
 		}
