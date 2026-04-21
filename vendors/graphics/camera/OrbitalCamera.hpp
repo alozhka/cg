@@ -8,6 +8,11 @@
 class OrbitalCamera
 {
 public:
+	explicit OrbitalCamera(std::optional<float> yawLimit = std::nullopt)
+		: m_yawLimit(yawLimit)
+	{
+	}
+
 	void Move(const glm::vec3& delta)
 	{
 		m_target += delta;
@@ -21,6 +26,11 @@ public:
 	void AddYaw(float d)
 	{
 		m_yaw += d;
+
+		if (m_yawLimit.has_value())
+		{
+			m_yaw = std::clamp(m_yaw, -*m_yawLimit, *m_yawLimit);
+		}
 	}
 
 	void AddPitch(float d)
@@ -31,11 +41,7 @@ public:
 	glm::vec3 GetPosition() const
 	{
 		float cp = std::cos(m_pitch);
-		return m_target + glm::vec3{
-			m_radius * cp * std::cos(m_yaw),
-			m_radius * std::sin(m_pitch),
-			m_radius * cp * std::sin(m_yaw)
-		};
+		return m_target + glm::vec3{ m_radius * cp * std::cos(m_yaw), m_radius * std::sin(m_pitch), m_radius * cp * std::sin(m_yaw) };
 	}
 
 	glm::mat4 GetViewMatrix() const
@@ -50,4 +56,5 @@ private:
 	float m_yaw = 0.;
 	float m_pitch = 0;
 	float m_pitchLimit = glm::radians(80.f);
+	std::optional<float> m_yawLimit = std::nullopt;
 };

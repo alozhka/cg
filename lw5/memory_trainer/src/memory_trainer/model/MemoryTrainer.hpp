@@ -167,7 +167,7 @@ private:
 		"nightmare_puppet",
 		"springtrap"
 	};
-	static constexpr size_t MAX_ROW = 2, MAX_COL = 8;
+	static constexpr size_t MAX_ROW = 4, MAX_COL = 4;
 	static constexpr float CHECK_COUNTDOWN = 1.2;
 
 	std::unordered_map<size_t, Card> m_availableCards;
