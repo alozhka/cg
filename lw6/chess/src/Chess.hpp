@@ -1,6 +1,7 @@
 #pragma once
 
 #include <graphics/Model.hpp>
+#include <graphics/ObjLoader.hpp>
 #include <graphics/shaders/ShaderProgram.hpp>
 #include <graphics/textures/TextureCache.hpp>
 
@@ -37,22 +38,22 @@ public:
 	};
 
 	explicit Chess(TextureCache& textureCache)
-		: m_board("assets/chess/board.obj", textureCache)
+		: m_board(ObjLoader::Load("assets/chess/board.obj", textureCache))
 		, m_white{
-			Model("assets/chess/pawn.obj", textureCache),
-			Model("assets/chess/rook.obj", textureCache),
-			Model("assets/chess/knight.obj", textureCache),
-			Model("assets/chess/bishop.obj", textureCache),
-			Model("assets/chess/queen.obj", textureCache),
-			Model("assets/chess/king.obj", textureCache),
+			ObjLoader::Load("assets/chess/pawn.obj", textureCache),
+			ObjLoader::Load("assets/chess/rook.obj", textureCache),
+			ObjLoader::Load("assets/chess/knight.obj", textureCache),
+			ObjLoader::Load("assets/chess/bishop.obj", textureCache),
+			ObjLoader::Load("assets/chess/queen.obj", textureCache),
+			ObjLoader::Load("assets/chess/king.obj", textureCache),
 		}
 		, m_black{
-			Model("assets/chess/pawn.obj", textureCache),
-			Model("assets/chess/rook.obj", textureCache),
-			Model("assets/chess/knight.obj", textureCache),
-			Model("assets/chess/bishop.obj", textureCache),
-			Model("assets/chess/queen.obj", textureCache),
-			Model("assets/chess/king.obj", textureCache),
+			ObjLoader::Load("assets/chess/pawn.obj", textureCache),
+			ObjLoader::Load("assets/chess/rook.obj", textureCache),
+			ObjLoader::Load("assets/chess/knight.obj", textureCache),
+			ObjLoader::Load("assets/chess/bishop.obj", textureCache),
+			ObjLoader::Load("assets/chess/queen.obj", textureCache),
+			ObjLoader::Load("assets/chess/king.obj", textureCache),
 		}
 	{
 		const Texture& blackTex = textureCache.Load("assets/chess/black_marble.jpg");
