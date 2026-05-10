@@ -28,6 +28,8 @@ public:
 		m_pitch = std::clamp(m_pitch + d, -m_pitchLimit, m_pitchLimit);
 	}
 
+	void SetRadius(float r) { m_radius = r; }
+
 	glm::vec3 GetPosition() const
 	{
 		float cp = std::cos(m_pitch);
