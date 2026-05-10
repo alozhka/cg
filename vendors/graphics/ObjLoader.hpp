@@ -131,20 +131,27 @@ struct IndexedBucket
 	std::vector<TexturedVertex> vertices;
 	std::vector<GLuint> indices;
 	std::unordered_map<IndexKey, GLuint, IndexKeyHash> dedup;
+
+	void AppendVertex(const tinyobj::attrib_t& attrib, const tinyobj::index_t& idx)
+	{
+		const IndexKey key{ idx.vertex_index, idx.normal_index, idx.texcoord_index };
+		const auto [it, inserted] = dedup.try_emplace(key, static_cast<GLuint>(vertices.size()));
+		if (inserted)
+		{
+			vertices.push_back(MakeVertex(attrib, idx));
+		}
+		indices.push_back(it->second);
+	}
+
+	bool Empty() const { return indices.empty(); }
+
+	Model::SubMesh IntoSubMesh(int materialIndex) const
+	{
+		return { TexturedMesh(vertices, indices), materialIndex };
+	}
 };
 
-inline GLuint AppendVertex(IndexedBucket& bucket, const tinyobj::attrib_t& attrib, const tinyobj::index_t& idx)
-{
-	const IndexKey key{ idx.vertex_index, idx.normal_index, idx.texcoord_index };
-	const auto [it, inserted] = bucket.dedup.try_emplace(key, bucket.vertices.size());
-	if (inserted)
-	{
-		bucket.vertices.push_back(MakeVertex(attrib, idx));
-	}
-	return it->second;
-}
-
-inline std::vector<IndexedBucket> GroupVerticesByMaterial(
+inline std::vector<Model::SubMesh> BuildSubmeshes(
 	const std::vector<tinyobj::shape_t>& shapes,
 	const tinyobj::attrib_t& attrib,
 	int materialCount)
@@ -156,31 +163,22 @@ inline std::vector<IndexedBucket> GroupVerticesByMaterial(
 	{
 		for (size_t f = 0; f < shape.mesh.num_face_vertices.size(); ++f)
 		{
-			int materialId = ResolveMaterialId(shape.mesh.material_ids[f], defaultMaterialIndex);
-			auto& bucket = buckets[materialId];
+			auto& bucket = buckets[ResolveMaterialId(shape.mesh.material_ids[f], defaultMaterialIndex)];
 			for (int v = 0; v < 3; ++v)
 			{
-				bucket.indices.push_back(AppendVertex(bucket, attrib, shape.mesh.indices[3 * f + v]));
+				bucket.AppendVertex(attrib, shape.mesh.indices[3 * f + v]);
 			}
 		}
 	}
-	return buckets;
-}
 
-inline std::vector<Model::SubMesh> BuildSubmeshes(
-	const std::vector<tinyobj::shape_t>& shapes,
-	const tinyobj::attrib_t& attrib,
-	int materialCount)
-{
-	auto buckets = GroupVerticesByMaterial(shapes, attrib, materialCount);
 	std::vector<Model::SubMesh> submeshes;
 	for (size_t matId = 0; matId < buckets.size(); ++matId)
 	{
-		if (buckets[matId].indices.empty())
+		IndexedBucket& bucket = buckets[matId];
+		if (!bucket.Empty())
 		{
-			continue;
+			submeshes.push_back(bucket.IntoSubMesh(matId));
 		}
-		submeshes.push_back({ TexturedMesh(buckets[matId].vertices, buckets[matId].indices), static_cast<int>(matId) });
 	}
 	return submeshes;
 }
@@ -193,7 +191,7 @@ inline Model Load(const std::string& objPath, TextureCache& textureCache)
 	const tinyobj::ObjReader reader = detail::ParseObj(objPath, objFile.parent_path());
 
 	auto materials = detail::BuildMaterials(reader.GetMaterials(), objFile.parent_path(), textureCache);
-	auto submeshes = detail::BuildSubmeshes(reader.GetShapes(), reader.GetAttrib(), static_cast<int>(materials.size()));
+	auto submeshes = detail::BuildSubmeshes(reader.GetShapes(), reader.GetAttrib(), materials.size());
 	return Model(std::move(materials), std::move(submeshes));
 }
 
