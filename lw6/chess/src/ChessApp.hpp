@@ -8,6 +8,7 @@
 #include <graphics/textures/TextureCache.hpp>
 #include <graphics/windows/CameraController.hpp>
 #include <graphics/windows/GraphicsApplication.hpp>
+#include <graphics/windows/TimeProvider.hpp>
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -38,6 +39,8 @@ protected:
 	{
 		glClearColor(0.1, 0.11, 0.13, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		m_chess.Update(m_time.GetDeltaTime());
 
 		const glm::mat4 viewProjection = perspective * m_camera.GetViewMatrix();
 
@@ -72,4 +75,5 @@ private:
 	DirectLight m_light;
 	Chess m_chess;
 	CameraController m_cameraController;
+	TimeProvider m_time;
 };
