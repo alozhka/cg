@@ -43,9 +43,15 @@ public:
 		m_camera.AddPitch(delta.y * m_sensitivity);
 	}
 
+	void OnScroll(double yOffset)
+	{
+		m_camera.AddRadius(-static_cast<float>(yOffset) * m_zoomSensitivity);
+	}
+
 private:
 	OrbitalCamera& m_camera;
 	bool m_isDragging = false;
 	glm::vec2 m_lastMousePos = { 0, 0 };
 	float m_sensitivity = 1.5;
+	float m_zoomSensitivity = 0.3;
 };

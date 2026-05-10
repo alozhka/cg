@@ -5,11 +5,9 @@
 #include <graphics/textures/TextureCache.hpp>
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <array>
-#include <vector>
 
 class Chess
 {
@@ -21,8 +19,7 @@ public:
 		Knight,
 		Bishop,
 		Queen,
-		King,
-		Count,
+		King
 	};
 
 	enum class Color
@@ -68,7 +65,7 @@ public:
 
 	void Draw(ShaderProgram& shader)
 	{
-		SetModelUniforms(shader, glm::mat4(1.0f));
+		SetModelUniforms(shader, glm::mat4(1));
 		m_board.Draw(shader);
 
 		for (const auto& p : m_pieces)
@@ -79,20 +76,26 @@ public:
 	}
 
 private:
+	static constexpr int BOARD_FILES = 8;
 	static constexpr float BOARD_SIZE = 1.9506f;
-	static constexpr float SQUARE = BOARD_SIZE / 8.0f;
+	static constexpr float SQUARE = BOARD_SIZE / BOARD_FILES;
+	static constexpr float CENTER_OFFSET = (BOARD_FILES - 1) / 2.0f;
 
-	glm::mat4 PieceTransform(const Piece& p) const
+	static glm::mat4 PieceTransform(const Piece& p)
 	{
-		const float x = (static_cast<float>(p.file) - 3.5f) * SQUARE;
-		const float z = (static_cast<float>(p.rank) - 3.5f) * SQUARE;
-		glm::mat4 m(1.0f);
-		m = glm::translate(m, glm::vec3(x, 0.0f, z));
+		const float x = (static_cast<float>(p.file) - CENTER_OFFSET) * SQUARE;
+		const float z = (static_cast<float>(p.rank) - CENTER_OFFSET) * SQUARE;
+		glm::mat4 m = glm::translate(glm::mat4(1), glm::vec3(x, 0, z));
 		if (p.color == Color::Black)
 		{
-			m = glm::rotate(m, glm::pi<float>(), glm::vec3(0, 1, 0));
+			m *= BlackPieceRotation();
 		}
 		return m;
+	}
+
+	static glm::mat4 BlackPieceRotation()
+	{
+		return glm::rotate(glm::mat4(1), glm::pi<float>(), glm::vec3(0, 1, 0));
 	}
 
 	Model& ModelOf(const Piece& p)
@@ -109,21 +112,28 @@ private:
 
 	void SetupStartingPosition()
 	{
-		static constexpr PieceType backRank[8] = {
-			PieceType::Rook,   PieceType::Knight, PieceType::Bishop, PieceType::Queen,
-			PieceType::King,   PieceType::Bishop, PieceType::Knight, PieceType::Rook,
+		static constexpr PieceType backRank[BOARD_FILES] = {
+			PieceType::Rook,
+			PieceType::Knight,
+			PieceType::Bishop,
+			PieceType::Queen,
+			PieceType::King,
+			PieceType::Bishop,
+			PieceType::Knight,
+			PieceType::Rook,
 		};
-		for (int file = 0; file < 8; ++file)
+		size_t i = 0;
+		for (int file = 0; file < BOARD_FILES; ++file)
 		{
-			m_pieces.push_back({ backRank[file],   Color::White, file, 0 });
-			m_pieces.push_back({ PieceType::Pawn,  Color::White, file, 1 });
-			m_pieces.push_back({ PieceType::Pawn,  Color::Black, file, 6 });
-			m_pieces.push_back({ backRank[file],   Color::Black, file, 7 });
+			m_pieces[i++] = { backRank[file], Color::White, file, 0 };
+			m_pieces[i++] = { PieceType::Pawn, Color::White, file, 1 };
+			m_pieces[i++] = { PieceType::Pawn, Color::Black, file, 6 };
+			m_pieces[i++] = { backRank[file], Color::Black, file, 7 };
 		}
 	}
 
 	Model m_board;
-	std::array<Model, static_cast<size_t>(PieceType::Count)> m_white;
-	std::array<Model, static_cast<size_t>(PieceType::Count)> m_black;
-	std::vector<Piece> m_pieces;
+	std::array<Model, 6> m_white;
+	std::array<Model, 6> m_black;
+	std::array<Piece, 32> m_pieces;
 };

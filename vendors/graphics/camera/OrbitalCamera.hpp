@@ -38,7 +38,9 @@ public:
 		m_pitch = std::clamp(m_pitch + d, -m_pitchLimit, m_pitchLimit);
 	}
 
-	void SetRadius(float r) { m_radius = r; }
+	void AddRadius(float d) { SetRadius(m_radius + d); }
+
+	void SetRadius(float r) { m_radius = std::clamp(r, m_minRadius, m_maxRadius); }
 
 	glm::vec3 GetPosition() const
 	{
@@ -58,5 +60,7 @@ private:
 	float m_yaw = 0.;
 	float m_pitch = 0;
 	float m_pitchLimit = glm::radians(80.f);
+	float m_minRadius = 0.5;
+	float m_maxRadius = 20;
 	std::optional<float> m_yawLimit = std::nullopt;
 };

@@ -57,6 +57,7 @@ protected:
 
 		glfwSetMouseButtonCallback(m_window, &GraphicsApplication::MouseButtonCallback);
 		glfwSetCursorPosCallback(m_window, &GraphicsApplication::CursorPosCallback);
+		glfwSetScrollCallback(m_window, &GraphicsApplication::ScrollCallback);
 	}
 
 	virtual ~GraphicsApplication()
@@ -79,6 +80,10 @@ protected:
 	}
 
 	virtual void OnRawMouseMove(double x, double y)
+	{
+	}
+
+	virtual void OnScroll(double xOffset, double yOffset)
 	{
 	}
 
@@ -167,6 +172,14 @@ private:
 		{
 			app->OnMouseMove(app->NormalizeCoords(x, y));
 			app->OnRawMouseMove(x, y);
+		}
+	}
+
+	static void ScrollCallback(GLFWwindow* window, double xOffset, double yOffset)
+	{
+		if (GraphicsApplication* app = GetInstance(window))
+		{
+			app->OnScroll(xOffset, yOffset);
 		}
 	}
 

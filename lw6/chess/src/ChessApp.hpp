@@ -28,8 +28,8 @@ public:
 		m_camera.AddPitch(glm::radians(35.0));
 
 		m_light.SetDirection({ -0.4, -1, -0 });
-		m_light.SetAmbientIntensity(0.3, 0.3, 0.3);
-		m_light.SetDiffuseIntensity(0.8, 0.8, 0.8);
+		m_light.SetAmbientIntensity(0.5, 0.5, 0.5);
+		m_light.SetDiffuseIntensity(1, 1, 1);
 		m_light.SetSpecularIntensity(0.4, 0.4, 0.4);
 	}
 
@@ -58,6 +58,11 @@ protected:
 	void OnMouseMove(glm::vec2 p) override
 	{
 		m_cameraController.OnMouseMove(p);
+	}
+
+	void OnScroll(double xOffset, double yOffset) override
+	{
+		m_cameraController.OnScroll(yOffset);
 	}
 
 private:
