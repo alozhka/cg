@@ -102,7 +102,7 @@ public:
 	}
 
 private:
-	static constexpr float FLIP_SPEED = 180;
+	static constexpr float FLIP_SPEED = 240;
 
 	size_t m_id;
 	std::string m_name;

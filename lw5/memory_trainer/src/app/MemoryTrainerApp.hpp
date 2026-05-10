@@ -58,7 +58,7 @@ protected:
 		if (m_keyboard.IsButtonPressed(GLFW_KEY_R))
 		{
 			m_game->Reset();
-			m_camera.SetTarget({0, 0, 0});
+			m_camera.SetTarget({ 0, 0, 0 });
 		}
 	}
 
@@ -95,7 +95,7 @@ private:
 
 	glm::mat4 m_viewProjection{};
 	ShaderProgram m_shader;
-	OrbitalCamera m_camera;
+	OrbitalCamera m_camera{ glm::radians(80.0f) };
 	CameraController m_cameraController{ m_camera };
 	DirectLight m_light{ { 1, 0, 0 } };
 
