@@ -53,6 +53,14 @@ public:
 		}
 	}
 
+	void SetDiffuseTexture(const Texture* texture)
+	{
+		for (auto& mat : m_materials)
+		{
+			mat.SetDiffuseTexture(texture);
+		}
+	}
+
 private:
 	struct SubMesh
 	{
