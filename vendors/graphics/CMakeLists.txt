@@ -25,6 +25,15 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glm)
 
+# tinyobjloader
+FetchContent_Declare(
+        tinyobjloader
+        GIT_REPOSITORY https://github.com/tinyobjloader/tinyobjloader.git
+        GIT_TAG v2.0.0rc13
+        GIT_SHALLOW ON
+)
+FetchContent_MakeAvailable(tinyobjloader)
+
 # glad
 set(GLAD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../glad)
 add_library(glad ${GLAD_DIR}/src/glad.c)
@@ -35,7 +44,7 @@ find_package(OpenGL REQUIRED)
 
 add_library(graphics INTERFACE)
 target_include_directories(graphics INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>)
-target_link_libraries(graphics INTERFACE glad glfw OpenGL::GL glm)
+target_link_libraries(graphics INTERFACE glad glfw OpenGL::GL glm tinyobjloader)
 
 function(graphics_copy_shader_assets target_name)
     add_custom_command(

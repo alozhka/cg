@@ -1,6 +1,9 @@
-#include <iostream>
+#include "src/ChessApp.hpp"
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
-    return 0;
+	ChessApp app;
+
+	app.MainLoop();
+
+	return 0;
 }
