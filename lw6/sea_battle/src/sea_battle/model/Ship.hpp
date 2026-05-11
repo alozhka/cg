@@ -10,21 +10,21 @@ enum class ShipState
 
 enum class ShipType
 {
-	Cruiser,
+	HeavyBoat,
 	Battleship,
-	Frigate
+	PatrolBoat
 };
 
 inline float GetShipSpeed(ShipType type)
 {
 	switch (type)
 	{
-	case ShipType::Cruiser:
+	case ShipType::HeavyBoat:
 		return 3;
 	case ShipType::Battleship:
-		return 1.8;
-	case ShipType::Frigate:
 		return 4.5;
+	case ShipType::PatrolBoat:
+		return 1.5;
 	}
 
 	throw std::invalid_argument("Unsupported ship type");
