@@ -35,7 +35,14 @@ public:
 
 	void AddPitch(float d)
 	{
-		m_pitch = std::clamp(m_pitch + d, -m_pitchLimit, m_pitchLimit);
+		m_pitch = std::clamp(m_pitch + d, m_minPitch, m_maxPitch);
+	}
+
+	void SetPitchLimits(float minPitch, float maxPitch)
+	{
+		m_minPitch = minPitch;
+		m_maxPitch = maxPitch;
+		m_pitch = std::clamp(m_pitch, m_minPitch, m_maxPitch);
 	}
 
 	void AddRadius(float d) { SetRadius(m_radius + d); }
@@ -59,7 +66,8 @@ private:
 	float m_radius = 3.5;
 	float m_yaw = 0.;
 	float m_pitch = 0;
-	float m_pitchLimit = glm::radians(80.f);
+	float m_minPitch = glm::radians(-80.f);
+	float m_maxPitch = glm::radians(80.f);
 	float m_minRadius = 0.5;
 	float m_maxRadius = 20;
 	std::optional<float> m_yawLimit = std::nullopt;

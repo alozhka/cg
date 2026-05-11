@@ -111,8 +111,8 @@ private:
 
 	static glm::vec3 SquareCenter(float file, float rank)
 	{
-		const float x = (file - CENTER_OFFSET) * SQUARE;
-		const float z = (rank - CENTER_OFFSET) * SQUARE;
+		const float x = (CENTER_OFFSET - rank) * SQUARE;
+		const float z = (file - CENTER_OFFSET) * SQUARE;
 		return { x, 0.0f, z };
 	}
 
