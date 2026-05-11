@@ -39,8 +39,8 @@ public:
 		glm::vec2 delta = p - m_lastMousePos;
 		m_lastMousePos = p;
 
-		m_camera.AddYaw(-delta.x * m_sensitivity);
-		m_camera.AddPitch(delta.y * m_sensitivity);
+		m_camera.AddYaw(delta.x * m_sensitivity);
+		m_camera.AddPitch(-delta.y * m_sensitivity);
 	}
 
 	void OnScroll(double yOffset)

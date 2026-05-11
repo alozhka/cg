@@ -25,8 +25,8 @@ public:
 		m_lastX = x;
 		m_lastY = y;
 
-		m_camera.AddYaw(-static_cast<float>(dx) * m_sensitivity);
-		m_camera.AddPitch(static_cast<float>(dy) * m_sensitivity);
+		m_camera.AddYaw(static_cast<float>(dx) * m_sensitivity);
+		m_camera.AddPitch(-static_cast<float>(dy) * m_sensitivity);
 	}
 
 private:
