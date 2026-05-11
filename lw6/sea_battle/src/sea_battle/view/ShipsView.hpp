@@ -24,7 +24,7 @@ public:
 		m_drawables.clear();
 		for (const ShipDto& ship : m_viewModel.ListShips())
 		{
-			m_drawables.emplace_back(m_cruiserModel, ship.position, glm::vec3{0, 0,0}, ScaleFor(ship.type));
+			m_drawables.emplace_back(m_cruiserModel, ship.position, glm::vec3{0, 90,0}, ScaleFor(ship.type));
 		}
 		for (DrawableModel& drawable : m_drawables)
 		{

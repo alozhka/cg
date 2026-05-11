@@ -20,13 +20,14 @@ inline float GetShipSpeed(ShipType type)
 	switch (type)
 	{
 	case ShipType::Cruiser:
-		return 3.0f;
+		return 3;
 	case ShipType::Battleship:
-		return 1.8f;
+		return 1.8;
 	case ShipType::Frigate:
-		return 4.5f;
+		return 4.5;
 	}
-	return 0.0f;
+
+	throw std::invalid_argument("Unsupported ship type");
 }
 
 class Ship;

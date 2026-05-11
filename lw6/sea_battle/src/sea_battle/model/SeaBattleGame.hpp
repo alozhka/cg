@@ -11,17 +11,17 @@ using SeaBattleGamePtr = std::shared_ptr<SeaBattleGame>;
 class SeaBattleGame
 {
 public:
-	static constexpr float SPAWN_X = -30.0f;
-	static constexpr float DESPAWN_X = 30.0f;
-	static constexpr float WATER_Y = 0.0f;
-	static constexpr float MIN_Z = -8.0f;
-	static constexpr float MAX_Z = 8.0f;
-	static constexpr float SPAWN_INTERVAL = 2.5f;
+	static constexpr float SPAWN_X = -30;
+	static constexpr float DESPAWN_X = 30;
+	static constexpr float WATER_Y = 0;
+	static constexpr float MIN_Z = -8;
+	static constexpr float MAX_Z = 8;
+	static constexpr float SPAWN_INTERVAL = 2.5;
 
 	void Update(float dt)
 	{
 		m_spawnTimer -= dt;
-		if (m_spawnTimer <= 0.0f)
+		if (m_spawnTimer <= 0)
 		{
 			SpawnRandomShip();
 			m_spawnTimer = SPAWN_INTERVAL;
