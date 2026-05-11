@@ -54,14 +54,10 @@ public:
 	explicit Chess(TextureCache& textureCache)
 		: m_boardModel(ObjLoader::Load("assets/chess/board.obj", textureCache))
 		, m_board(m_boardModel)
-		, m_white(LoadPieceModels(textureCache))
-		, m_black(LoadPieceModels(textureCache))
+		, m_pieceModels(LoadPieceModels(textureCache))
+		, m_whiteMaterial(ObjLoader::LoadMaterial("assets/chess/chess.mtl", "white_marble", textureCache))
+		, m_blackMaterial(ObjLoader::LoadMaterial("assets/chess/chess.mtl", "black_marble", textureCache))
 	{
-		const Material blackMaterial = ObjLoader::LoadMaterial("assets/chess/chess.mtl", "black_marble", textureCache);
-		for (auto& m : m_black)
-		{
-			m.SetMaterial(blackMaterial);
-		}
 		SetupStartingPosition();
 		SetupPieceDrawables();
 		SetupScholarsMate();
@@ -93,6 +89,8 @@ public:
 			{
 				continue;
 			}
+			m_pieceModels[static_cast<size_t>(p.type)].SetMaterial(
+				p.color == Color::White ? m_whiteMaterial : m_blackMaterial);
 			m_pieceDrawables[i].SetPosition(PiecePosition(p, i));
 			m_pieceDrawables[i].Draw(shader, glm::mat4(1));
 		}
@@ -165,12 +163,6 @@ private:
 		};
 	}
 
-	Model& ModelOf(const Piece& p)
-	{
-		auto& set = (p.color == Color::White) ? m_white : m_black;
-		return set[static_cast<size_t>(p.type)];
-	}
-
 	void ApplyMove(const Move& mv)
 	{
 		if (mv.capturedIdx >= 0)
@@ -199,7 +191,7 @@ private:
 		for (size_t i = 0; i < m_pieces.size(); ++i)
 		{
 			const Piece& p = m_pieces[i];
-			m_pieceDrawables[i].SetModel(ModelOf(p));
+			m_pieceDrawables[i].SetModel(m_pieceModels[static_cast<size_t>(p.type)]);
 			if (p.color == Color::Black)
 			{
 				m_pieceDrawables[i].SetRotation({ 0, 180, 0 });
@@ -245,8 +237,9 @@ private:
 
 	Model m_boardModel;
 	DrawableModel m_board;
-	std::array<Model, 6> m_white;
-	std::array<Model, 6> m_black;
+	Material m_whiteMaterial;
+	Material m_blackMaterial;
+	std::array<Model, 6> m_pieceModels;
 	std::array<Piece, 32> m_pieces;
 	std::array<DrawableModel, 32> m_pieceDrawables;
 
