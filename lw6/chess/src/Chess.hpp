@@ -107,7 +107,7 @@ private:
 
 	static constexpr float MOVE_DURATION = 1;
 	static constexpr float PAUSE_DURATION = 0.4;
-	static constexpr float KNIGHT_LIFT = 0.12f;
+	static constexpr float KNIGHT_LIFT = -0.12f;
 
 	static glm::vec3 SquareCenter(float file, float rank)
 	{
