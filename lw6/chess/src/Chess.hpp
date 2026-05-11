@@ -7,6 +7,8 @@
 #include <graphics/textures/TextureCache.hpp>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <array>
 #include <cmath>
@@ -51,7 +53,8 @@ public:
 	};
 
 	explicit Chess(TextureCache& textureCache)
-		: m_board(ObjLoader::Load("assets/chess/board.obj", textureCache))
+		: m_boardModel(ObjLoader::Load("assets/chess/board.obj", textureCache))
+		, m_board(m_boardModel)
 		, m_white{
 			ObjLoader::Load("assets/chess/pawn.obj", textureCache),
 			ObjLoader::Load("assets/chess/rook.obj", textureCache),
@@ -89,14 +92,13 @@ public:
 		{
 			ApplyMove(m_moves[m_currentMove]);
 			++m_currentMove;
-			m_elapsed = 0.0f;
+			m_elapsed = 0;
 		}
 	}
 
 	void Draw(ShaderProgram& shader)
 	{
-		DrawableModel board(m_board);
-		board.Draw(shader, glm::mat4(1));
+		m_board.Draw(shader, glm::mat4(1));
 
 		for (size_t i = 0; i < m_pieces.size(); ++i)
 		{
@@ -105,13 +107,8 @@ public:
 			{
 				continue;
 			}
-			DrawableModel piece(ModelOf(p));
-			piece.SetPosition(PiecePosition(p, i));
-			if (p.color == Color::Black)
-			{
-				piece.SetRotation({ 0, 180, 0 });
-			}
-			piece.Draw(shader, glm::mat4(1));
+			SetModelUniforms(shader, PieceTransform(p, i));
+			ModelOf(p).Draw(shader);
 		}
 	}
 
@@ -132,16 +129,17 @@ private:
 		return { x, 0.0f, z };
 	}
 
-	glm::vec3 PiecePosition(const Piece& p, int index) const
+	glm::mat4 PieceTransform(const Piece& p, int index) const
 	{
-		glm::vec3 pos = SquareCenter(static_cast<float>(p.file), static_cast<float>(p.rank));
+		glm::vec3 pos = SquareCenter(p.file, p.rank);
 
 		if (m_currentMove < m_moves.size() && m_moves[m_currentMove].pieceIdx == index)
 		{
 			const Move& mv = m_moves[m_currentMove];
-			const float t = SmoothStep(glm::clamp(m_elapsed / MOVE_DURATION, 0.0f, 1.0f));
-			const glm::vec3 from = SquareCenter(mv.fromFile, mv.fromRank);
-			const glm::vec3 to = SquareCenter(mv.toFile, mv.toRank);
+			float timeForStep = glm::clamp(m_elapsed / MOVE_DURATION, 0.0f, 1.0f);
+			float t = SmoothStep(timeForStep);
+			glm::vec3 from = SquareCenter(mv.fromFile, mv.fromRank);
+			glm::vec3 to = SquareCenter(mv.toFile, mv.toRank);
 			pos = glm::mix(from, to, t);
 
 			if (p.type == PieceType::Knight)
@@ -150,7 +148,12 @@ private:
 			}
 		}
 
-		return pos;
+		glm::mat4 m = glm::translate(glm::mat4(1), pos);
+		if (p.color == Color::Black)
+		{
+			m *= BlackPieceRotation();
+		}
+		return m;
 	}
 
 	static float SmoothStep(float t)
@@ -158,10 +161,21 @@ private:
 		return t * t * (3 - 2 * t);
 	}
 
+	static glm::mat4 BlackPieceRotation()
+	{
+		return glm::rotate(glm::mat4(1), glm::pi<float>(), glm::vec3(0, 1, 0));
+	}
+
 	Model& ModelOf(const Piece& p)
 	{
 		auto& set = (p.color == Color::White) ? m_white : m_black;
 		return set[static_cast<size_t>(p.type)];
+	}
+
+	static void SetModelUniforms(ShaderProgram& shader, const glm::mat4& model)
+	{
+		shader.SetUniformMat4("uModel", model);
+		shader.SetUniformMat3("uNormalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
 	}
 
 	void ApplyMove(const Move& mv)
@@ -214,6 +228,7 @@ private:
 	void ResolveMoves()
 	{
 		std::array<std::array<int, BOARD_FILES>, BOARD_FILES> grid{};
+
 		for (auto& row : grid)
 		{
 			row.fill(-1);
@@ -222,6 +237,7 @@ private:
 		{
 			grid[m_pieces[i].file][m_pieces[i].rank] = i;
 		}
+
 		for (Move& mv : m_moves)
 		{
 			mv.pieceIdx = grid[mv.fromFile][mv.fromRank];
@@ -231,7 +247,8 @@ private:
 		}
 	}
 
-	Model m_board;
+	Model m_boardModel;
+	DrawableModel m_board;
 	std::array<Model, 6> m_white;
 	std::array<Model, 6> m_black;
 	std::array<Piece, 32> m_pieces;
