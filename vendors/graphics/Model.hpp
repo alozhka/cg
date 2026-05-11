@@ -45,6 +45,14 @@ public:
 		}
 	}
 
+	void SetMaterial(const Material& material)
+	{
+		for (auto& mat : m_materials)
+		{
+			mat = material;
+		}
+	}
+
 private:
 	std::vector<Material> m_materials;
 	std::vector<SubMesh> m_submeshes;

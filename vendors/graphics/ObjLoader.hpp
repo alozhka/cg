@@ -11,7 +11,9 @@
 #include <glad/glad.h>
 
 #include <cstddef>
+#include <fstream>
 #include <filesystem>
+#include <map>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -193,6 +195,37 @@ inline Model Load(const std::string& objPath, TextureCache& textureCache)
 	auto materials = detail::BuildMaterials(reader.GetMaterials(), objFile.parent_path(), textureCache);
 	auto submeshes = detail::BuildSubmeshes(reader.GetShapes(), reader.GetAttrib(), materials.size());
 	return Model(std::move(materials), std::move(submeshes));
+}
+
+inline Material LoadMaterial(
+	const std::string& mtlPath,
+	const std::string& materialName,
+	TextureCache& textureCache)
+{
+	const std::filesystem::path mtlFile(mtlPath);
+	std::ifstream stream(mtlPath);
+	if (!stream)
+	{
+		throw std::runtime_error("Failed to open MTL '" + mtlPath + "'");
+	}
+
+	std::map<std::string, int> materialMap;
+	std::vector<tinyobj::material_t> objMaterials;
+	std::string warn;
+	std::string err;
+	tinyobj::LoadMtl(&materialMap, &objMaterials, &stream, &warn, &err);
+	if (!err.empty())
+	{
+		throw std::runtime_error("Failed to load MTL '" + mtlPath + "': " + err);
+	}
+
+	const auto it = materialMap.find(materialName);
+	if (it == materialMap.end())
+	{
+		throw std::runtime_error("Material '" + materialName + "' was not found in MTL '" + mtlPath + "'");
+	}
+
+	return detail::MakeMaterial(objMaterials[it->second], mtlFile.parent_path(), textureCache);
 }
 
 } // namespace ObjLoader

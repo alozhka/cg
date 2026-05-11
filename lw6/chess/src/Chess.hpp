@@ -1,6 +1,7 @@
 #pragma once
 
 #include <graphics/DrawableModel.hpp>
+#include <graphics/Material.hpp>
 #include <graphics/Model.hpp>
 #include <graphics/ObjLoader.hpp>
 #include <graphics/shaders/ShaderProgram.hpp>
@@ -54,27 +55,13 @@ public:
 	explicit Chess(TextureCache& textureCache)
 		: m_boardModel(ObjLoader::Load("assets/chess/board.obj", textureCache))
 		, m_board(m_boardModel)
-		, m_white{
-			ObjLoader::Load("assets/chess/pawn.obj", textureCache),
-			ObjLoader::Load("assets/chess/rook.obj", textureCache),
-			ObjLoader::Load("assets/chess/knight.obj", textureCache),
-			ObjLoader::Load("assets/chess/bishop.obj", textureCache),
-			ObjLoader::Load("assets/chess/queen.obj", textureCache),
-			ObjLoader::Load("assets/chess/king.obj", textureCache),
-		}
-		, m_black{
-			ObjLoader::Load("assets/chess/pawn.obj", textureCache),
-			ObjLoader::Load("assets/chess/rook.obj", textureCache),
-			ObjLoader::Load("assets/chess/knight.obj", textureCache),
-			ObjLoader::Load("assets/chess/bishop.obj", textureCache),
-			ObjLoader::Load("assets/chess/queen.obj", textureCache),
-			ObjLoader::Load("assets/chess/king.obj", textureCache),
-		}
+		, m_white(LoadPieceModels(textureCache))
+		, m_black(LoadPieceModels(textureCache))
 	{
-		const Texture& blackTex = textureCache.Load("assets/chess/black_marble.jpg");
+		const Material blackMaterial = ObjLoader::LoadMaterial("assets/chess/chess.mtl", "black_marble", textureCache);
 		for (auto& m : m_black)
 		{
-			m.SetDiffuseTexture(&blackTex);
+			m.SetMaterial(blackMaterial);
 		}
 		SetupStartingPosition();
 		SetupPieceDrawables();
@@ -154,6 +141,18 @@ private:
 	static float SmoothStep(float t)
 	{
 		return t * t * (3 - 2 * t);
+	}
+
+	static std::array<Model, 6> LoadPieceModels(TextureCache& textureCache)
+	{
+		return {
+			ObjLoader::Load("assets/chess/pawn.obj", textureCache),
+			ObjLoader::Load("assets/chess/rook.obj", textureCache),
+			ObjLoader::Load("assets/chess/knight.obj", textureCache),
+			ObjLoader::Load("assets/chess/bishop.obj", textureCache),
+			ObjLoader::Load("assets/chess/queen.obj", textureCache),
+			ObjLoader::Load("assets/chess/king.obj", textureCache),
+		};
 	}
 
 	Model& ModelOf(const Piece& p)
