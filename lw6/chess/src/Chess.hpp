@@ -8,7 +8,6 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include <array>
 #include <cmath>
@@ -78,6 +77,7 @@ public:
 			m.SetDiffuseTexture(&blackTex);
 		}
 		SetupStartingPosition();
+		SetupPieceDrawables();
 		SetupScholarsMate();
 	}
 
@@ -107,8 +107,8 @@ public:
 			{
 				continue;
 			}
-			SetModelUniforms(shader, PieceTransform(p, i));
-			ModelOf(p).Draw(shader);
+			m_pieceDrawables[i].SetPosition(PiecePosition(p, i));
+			m_pieceDrawables[i].Draw(shader, glm::mat4(1));
 		}
 	}
 
@@ -129,7 +129,7 @@ private:
 		return { x, 0.0f, z };
 	}
 
-	glm::mat4 PieceTransform(const Piece& p, int index) const
+	glm::vec3 PiecePosition(const Piece& p, int index) const
 	{
 		glm::vec3 pos = SquareCenter(p.file, p.rank);
 
@@ -148,12 +148,7 @@ private:
 			}
 		}
 
-		glm::mat4 m = glm::translate(glm::mat4(1), pos);
-		if (p.color == Color::Black)
-		{
-			m *= BlackPieceRotation();
-		}
-		return m;
+		return pos;
 	}
 
 	static float SmoothStep(float t)
@@ -161,21 +156,10 @@ private:
 		return t * t * (3 - 2 * t);
 	}
 
-	static glm::mat4 BlackPieceRotation()
-	{
-		return glm::rotate(glm::mat4(1), glm::pi<float>(), glm::vec3(0, 1, 0));
-	}
-
 	Model& ModelOf(const Piece& p)
 	{
 		auto& set = (p.color == Color::White) ? m_white : m_black;
 		return set[static_cast<size_t>(p.type)];
-	}
-
-	static void SetModelUniforms(ShaderProgram& shader, const glm::mat4& model)
-	{
-		shader.SetUniformMat4("uModel", model);
-		shader.SetUniformMat3("uNormalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
 	}
 
 	void ApplyMove(const Move& mv)
@@ -208,6 +192,19 @@ private:
 			m_pieces[i++] = { PieceType::Pawn, Color::White, file, 1 };
 			m_pieces[i++] = { PieceType::Pawn, Color::Black, file, 6 };
 			m_pieces[i++] = { backRank[file], Color::Black, file, 7 };
+		}
+	}
+
+	void SetupPieceDrawables()
+	{
+		for (size_t i = 0; i < m_pieces.size(); ++i)
+		{
+			const Piece& p = m_pieces[i];
+			m_pieceDrawables[i].SetModel(ModelOf(p));
+			if (p.color == Color::Black)
+			{
+				m_pieceDrawables[i].SetRotation({ 0, 180, 0 });
+			}
 		}
 	}
 
@@ -252,6 +249,7 @@ private:
 	std::array<Model, 6> m_white;
 	std::array<Model, 6> m_black;
 	std::array<Piece, 32> m_pieces;
+	std::array<DrawableModel, 32> m_pieceDrawables;
 
 	std::vector<Move> m_moves;
 	size_t m_currentMove = 0;
