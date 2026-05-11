@@ -5,6 +5,9 @@
 #include <graphics/shared/Randomizer.hpp>
 #include <vector>
 
+class SeaBattleGame;
+using SeaBattleGamePtr = std::shared_ptr<SeaBattleGame>;
+
 class SeaBattleGame
 {
 public:
