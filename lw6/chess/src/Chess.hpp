@@ -11,6 +11,7 @@
 
 #include <array>
 #include <cmath>
+#include <optional>
 #include <vector>
 
 class Chess
@@ -43,12 +44,10 @@ public:
 
 	struct Move
 	{
-		int fromFile;
-		int fromRank;
+		int pieceIdx;
 		int toFile;
 		int toRank;
-		int pieceIdx = -1;
-		int capturedIdx = -1;
+		std::optional<int> capturedIdx;
 	};
 
 	explicit Chess(TextureCache& textureCache)
@@ -117,6 +116,11 @@ private:
 	static constexpr float PAUSE_DURATION = 0.4;
 	static constexpr float KNIGHT_LIFT = 0.12f;
 
+	static constexpr int WhiteBack(int file) { return 4 * file + 0; }
+	static constexpr int WhitePawn(int file) { return 4 * file + 1; }
+	static constexpr int BlackPawn(int file) { return 4 * file + 2; }
+	static constexpr int BlackBack(int file) { return 4 * file + 3; }
+
 	static glm::vec3 SquareCenter(float file, float rank)
 	{
 		const float x = (CENTER_OFFSET - rank) * SQUARE;
@@ -133,7 +137,7 @@ private:
 			const Move& mv = m_moves[m_currentMove];
 			float timeForStep = glm::clamp(m_elapsed / MOVE_DURATION, 0.0f, 1.0f);
 			float t = SmoothStep(timeForStep);
-			glm::vec3 from = SquareCenter(mv.fromFile, mv.fromRank);
+			glm::vec3 from = SquareCenter(p.file, p.rank);
 			glm::vec3 to = SquareCenter(mv.toFile, mv.toRank);
 			pos = glm::mix(from, to, t);
 
@@ -165,9 +169,9 @@ private:
 
 	void ApplyMove(const Move& mv)
 	{
-		if (mv.capturedIdx >= 0)
+		if (mv.capturedIdx)
 		{
-			m_pieces[mv.capturedIdx].alive = false;
+			m_pieces[*mv.capturedIdx].alive = false;
 		}
 		Piece& p = m_pieces[mv.pieceIdx];
 		p.file = mv.toFile;
@@ -176,13 +180,12 @@ private:
 
 	void SetupStartingPosition()
 	{
-		size_t i = 0;
 		for (int file = 0; file < BOARD_FILES; ++file)
 		{
-			m_pieces[i++] = { FIGURES_POSITION[file], Color::White, file, 0 };
-			m_pieces[i++] = { PieceType::Pawn, Color::White, file, 1 };
-			m_pieces[i++] = { PieceType::Pawn, Color::Black, file, 6 };
-			m_pieces[i++] = { FIGURES_POSITION[file], Color::Black, file, 7 };
+			m_pieces[WhiteBack(file)] = { FIGURES_POSITION[file], Color::White, file, 0 };
+			m_pieces[WhitePawn(file)] = { PieceType::Pawn,        Color::White, file, 1 };
+			m_pieces[BlackPawn(file)] = { PieceType::Pawn,        Color::Black, file, 6 };
+			m_pieces[BlackBack(file)] = { FIGURES_POSITION[file], Color::Black, file, 7 };
 		}
 	}
 
@@ -202,37 +205,14 @@ private:
 	void SetupScholarsMate()
 	{
 		m_moves = {
-			{ 4, 1, 4, 3 }, // e2 -> e4
-			{ 4, 6, 4, 4 }, // e7 -> e5
-			{ 5, 0, 2, 3 }, // Bf1 -> c4
-			{ 1, 7, 2, 5 }, // Nb8 -> c6
-			{ 3, 0, 7, 4 }, // Qd1 -> h5
-			{ 6, 7, 5, 5 }, // Ng8 -> f6
-			{ 7, 4, 5, 6 }, // Qxf7#
+			{ WhitePawn(4), 4, 3 },               // e2 -> e4
+			{ BlackPawn(4), 4, 4 },               // e7 -> e5
+			{ WhiteBack(5), 2, 3 },               // Bf1 -> c4
+			{ BlackBack(1), 2, 5 },               // Nb8 -> c6
+			{ WhiteBack(3), 7, 4 },               // Qd1 -> h5
+			{ BlackBack(6), 5, 5 },               // Ng8 -> f6
+			{ WhiteBack(3), 5, 6, BlackPawn(5) }, // Qxf7#
 		};
-		ResolveMoves();
-	}
-
-	void ResolveMoves()
-	{
-		std::array<std::array<int, BOARD_FILES>, BOARD_FILES> grid{};
-
-		for (auto& row : grid)
-		{
-			row.fill(-1);
-		}
-		for (size_t i = 0; i < m_pieces.size(); ++i)
-		{
-			grid[m_pieces[i].file][m_pieces[i].rank] = i;
-		}
-
-		for (Move& mv : m_moves)
-		{
-			mv.pieceIdx = grid[mv.fromFile][mv.fromRank];
-			mv.capturedIdx = grid[mv.toFile][mv.toRank];
-			grid[mv.fromFile][mv.fromRank] = -1;
-			grid[mv.toFile][mv.toRank] = mv.pieceIdx;
-		}
 	}
 
 	Model m_boardModel;
