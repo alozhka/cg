@@ -1,14 +1,15 @@
 #pragma once
 
+#include <graphics/DrawableModel.hpp>
 #include <graphics/Model.hpp>
 #include <graphics/ObjLoader.hpp>
 #include <graphics/shaders/ShaderProgram.hpp>
 #include <graphics/textures/TextureCache.hpp>
 
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include <array>
+#include <cmath>
 #include <vector>
 
 class Chess
@@ -94,8 +95,8 @@ public:
 
 	void Draw(ShaderProgram& shader)
 	{
-		SetModelUniforms(shader, glm::mat4(1));
-		m_board.Draw(shader);
+		DrawableModel board(m_board);
+		board.Draw(shader, glm::mat4(1));
 
 		for (size_t i = 0; i < m_pieces.size(); ++i)
 		{
@@ -104,8 +105,13 @@ public:
 			{
 				continue;
 			}
-			SetModelUniforms(shader, PieceTransform(p, static_cast<int>(i)));
-			ModelOf(p).Draw(shader);
+			DrawableModel piece(ModelOf(p));
+			piece.SetPosition(PiecePosition(p, i));
+			if (p.color == Color::Black)
+			{
+				piece.SetRotation({ 0, 180, 0 });
+			}
+			piece.Draw(shader, glm::mat4(1));
 		}
 	}
 
@@ -126,7 +132,7 @@ private:
 		return { x, 0.0f, z };
 	}
 
-	glm::mat4 PieceTransform(const Piece& p, int index) const
+	glm::vec3 PiecePosition(const Piece& p, int index) const
 	{
 		glm::vec3 pos = SquareCenter(static_cast<float>(p.file), static_cast<float>(p.rank));
 
@@ -134,8 +140,8 @@ private:
 		{
 			const Move& mv = m_moves[m_currentMove];
 			const float t = SmoothStep(glm::clamp(m_elapsed / MOVE_DURATION, 0.0f, 1.0f));
-			const glm::vec3 from = SquareCenter(static_cast<float>(mv.fromFile), static_cast<float>(mv.fromRank));
-			const glm::vec3 to = SquareCenter(static_cast<float>(mv.toFile), static_cast<float>(mv.toRank));
+			const glm::vec3 from = SquareCenter(mv.fromFile, mv.fromRank);
+			const glm::vec3 to = SquareCenter(mv.toFile, mv.toRank);
 			pos = glm::mix(from, to, t);
 
 			if (p.type == PieceType::Knight)
@@ -144,12 +150,7 @@ private:
 			}
 		}
 
-		glm::mat4 m = glm::translate(glm::mat4(1), pos);
-		if (p.color == Color::Black)
-		{
-			m *= BlackPieceRotation();
-		}
-		return m;
+		return pos;
 	}
 
 	static float SmoothStep(float t)
@@ -157,21 +158,10 @@ private:
 		return t * t * (3 - 2 * t);
 	}
 
-	static glm::mat4 BlackPieceRotation()
-	{
-		return glm::rotate(glm::mat4(1), glm::pi<float>(), glm::vec3(0, 1, 0));
-	}
-
 	Model& ModelOf(const Piece& p)
 	{
 		auto& set = (p.color == Color::White) ? m_white : m_black;
 		return set[static_cast<size_t>(p.type)];
-	}
-
-	static void SetModelUniforms(ShaderProgram& shader, const glm::mat4& model)
-	{
-		shader.SetUniformMat4("uModel", model);
-		shader.SetUniformMat3("uNormalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
 	}
 
 	void ApplyMove(const Move& mv)
