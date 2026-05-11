@@ -45,6 +45,8 @@ public:
 		int fromRank;
 		int toFile;
 		int toRank;
+		int pieceIdx = -1;
+		int capturedIdx = -1;
 	};
 
 	explicit Chess(TextureCache& textureCache)
@@ -81,28 +83,12 @@ public:
 		{
 			return;
 		}
-
-		if (!m_animationStarted)
-		{
-			BeginMove();
-			m_animationStarted = true;
-			if (m_animPieceIdx < 0)
-			{
-				++m_currentMove;
-				m_animationStarted = false;
-				return;
-			}
-		}
-
 		m_elapsed += dt;
-		m_animProgress = glm::clamp(m_elapsed / MOVE_DURATION, 0.0f, 1.0f);
-
 		if (m_elapsed >= MOVE_DURATION + PAUSE_DURATION)
 		{
-			FinishMove();
-			m_animationStarted = false;
-			m_elapsed = 0.0f;
+			ApplyMove(m_moves[m_currentMove]);
 			++m_currentMove;
+			m_elapsed = 0.0f;
 		}
 	}
 
@@ -144,17 +130,17 @@ private:
 	{
 		glm::vec3 pos = SquareCenter(static_cast<float>(p.file), static_cast<float>(p.rank));
 
-		if (index == m_animPieceIdx)
+		if (m_currentMove < m_moves.size() && m_moves[m_currentMove].pieceIdx == index)
 		{
-			const float t = SmoothStep(m_animProgress);
-			const glm::vec3 from = SquareCenter(static_cast<float>(m_animFromFile), static_cast<float>(m_animFromRank));
-			const glm::vec3 to = SquareCenter(static_cast<float>(m_animToFile), static_cast<float>(m_animToRank));
+			const Move& mv = m_moves[m_currentMove];
+			const float t = SmoothStep(glm::clamp(m_elapsed / MOVE_DURATION, 0.0f, 1.0f));
+			const glm::vec3 from = SquareCenter(static_cast<float>(mv.fromFile), static_cast<float>(mv.fromRank));
+			const glm::vec3 to = SquareCenter(static_cast<float>(mv.toFile), static_cast<float>(mv.toRank));
 			pos = glm::mix(from, to, t);
 
 			if (p.type == PieceType::Knight)
 			{
-				const float arc = std::sin(t * glm::pi<float>());
-				pos.y += KNIGHT_LIFT * arc;
+				pos.y += KNIGHT_LIFT * std::sin(t * glm::pi<float>());
 			}
 		}
 
@@ -168,8 +154,7 @@ private:
 
 	static float SmoothStep(float t)
 	{
-		t = glm::clamp(t, 0.0f, 1.0f);
-		return t * t * (3.0f - 2.0f * t);
+		return t * t * (3 - 2 * t);
 	}
 
 	static glm::mat4 BlackPieceRotation()
@@ -189,48 +174,15 @@ private:
 		shader.SetUniformMat3("uNormalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
 	}
 
-	int FindPieceAt(int file, int rank) const
+	void ApplyMove(const Move& mv)
 	{
-		for (size_t i = 0; i < m_pieces.size(); ++i)
+		if (mv.capturedIdx >= 0)
 		{
-			const Piece& p = m_pieces[i];
-			if (p.alive && p.file == file && p.rank == rank)
-			{
-				return i;
-			}
+			m_pieces[mv.capturedIdx].alive = false;
 		}
-		return -1;
-	}
-
-	void BeginMove()
-	{
-		const Move& mv = m_moves[m_currentMove];
-		m_animPieceIdx = FindPieceAt(mv.fromFile, mv.fromRank);
-		m_animFromFile = mv.fromFile;
-		m_animFromRank = mv.fromRank;
-		m_animToFile = mv.toFile;
-		m_animToRank = mv.toRank;
-		m_animProgress = 0.0f;
-		m_elapsed = 0.0f;
-	}
-
-	void FinishMove()
-	{
-		if (m_animPieceIdx < 0)
-		{
-			return;
-		}
-		const Move& mv = m_moves[m_currentMove];
-		const int captured = FindPieceAt(mv.toFile, mv.toRank);
-		if (captured >= 0 && captured != m_animPieceIdx)
-		{
-			m_pieces[captured].alive = false;
-		}
-		Piece& p = m_pieces[m_animPieceIdx];
+		Piece& p = m_pieces[mv.pieceIdx];
 		p.file = mv.toFile;
 		p.rank = mv.toRank;
-		m_animPieceIdx = -1;
-		m_animProgress = 0.0f;
 	}
 
 	void SetupStartingPosition()
@@ -266,6 +218,27 @@ private:
 			{ 6, 7, 5, 5 }, // Ng8 -> f6
 			{ 7, 4, 5, 6 }, // Qxf7#
 		};
+		ResolveMoves();
+	}
+
+	void ResolveMoves()
+	{
+		std::array<std::array<int, BOARD_FILES>, BOARD_FILES> grid{};
+		for (auto& row : grid)
+		{
+			row.fill(-1);
+		}
+		for (size_t i = 0; i < m_pieces.size(); ++i)
+		{
+			grid[m_pieces[i].file][m_pieces[i].rank] = i;
+		}
+		for (Move& mv : m_moves)
+		{
+			mv.pieceIdx = grid[mv.fromFile][mv.fromRank];
+			mv.capturedIdx = grid[mv.toFile][mv.toRank];
+			grid[mv.fromFile][mv.fromRank] = -1;
+			grid[mv.toFile][mv.toRank] = mv.pieceIdx;
+		}
 	}
 
 	Model m_board;
@@ -275,12 +248,5 @@ private:
 
 	std::vector<Move> m_moves;
 	size_t m_currentMove = 0;
-	bool m_animationStarted = false;
 	float m_elapsed = 0.0f;
-	int m_animPieceIdx = -1;
-	int m_animFromFile = 0;
-	int m_animFromRank = 0;
-	int m_animToFile = 0;
-	int m_animToRank = 0;
-	float m_animProgress = 0.0f;
 };
