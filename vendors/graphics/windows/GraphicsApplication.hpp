@@ -8,6 +8,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/geometric.hpp>
 #include <glm/matrix.hpp>
+#include <glm/trigonometric.hpp>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -203,7 +204,7 @@ private:
 protected:
 	float m_zNear = 0.1;
 	float m_zFar = 100;
-	float m_fieldOfView = 55;
+	float m_fieldOfView = glm::radians(55.0f);
 
 private:
 	GLFWwindow* m_window;
