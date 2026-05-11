@@ -194,7 +194,7 @@ inline Model Load(const std::string& objPath, TextureCache& textureCache)
 
 	auto materials = detail::BuildMaterials(reader.GetMaterials(), objFile.parent_path(), textureCache);
 	auto submeshes = detail::BuildSubmeshes(reader.GetShapes(), reader.GetAttrib(), materials.size());
-	return Model(std::move(materials), std::move(submeshes));
+	return Model{std::move(materials), std::move(submeshes)};
 }
 
 inline Material LoadMaterial(

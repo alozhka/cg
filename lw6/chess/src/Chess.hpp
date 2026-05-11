@@ -105,6 +105,17 @@ private:
 	static constexpr float SQUARE = BOARD_SIZE / BOARD_FILES;
 	static constexpr float CENTER_OFFSET = (BOARD_FILES - 1) / 2.0f;
 
+	static constexpr std::array<PieceType, BOARD_FILES> FIGURES_POSITION = {
+		PieceType::Rook,
+		PieceType::Knight,
+		PieceType::Bishop,
+		PieceType::Queen,
+		PieceType::King,
+		PieceType::Bishop,
+		PieceType::Knight,
+		PieceType::Rook,
+	};
+
 	static constexpr float MOVE_DURATION = 1;
 	static constexpr float PAUSE_DURATION = 0.4;
 	static constexpr float KNIGHT_LIFT = -0.12f;
@@ -174,23 +185,13 @@ private:
 
 	void SetupStartingPosition()
 	{
-		static constexpr PieceType backRank[BOARD_FILES] = {
-			PieceType::Rook,
-			PieceType::Knight,
-			PieceType::Bishop,
-			PieceType::Queen,
-			PieceType::King,
-			PieceType::Bishop,
-			PieceType::Knight,
-			PieceType::Rook,
-		};
 		size_t i = 0;
 		for (int file = 0; file < BOARD_FILES; ++file)
 		{
-			m_pieces[i++] = { backRank[file], Color::White, file, 0 };
+			m_pieces[i++] = { FIGURES_POSITION[file], Color::White, file, 0 };
 			m_pieces[i++] = { PieceType::Pawn, Color::White, file, 1 };
 			m_pieces[i++] = { PieceType::Pawn, Color::Black, file, 6 };
-			m_pieces[i++] = { backRank[file], Color::Black, file, 7 };
+			m_pieces[i++] = { FIGURES_POSITION[file], Color::Black, file, 7 };
 		}
 	}
 
@@ -252,5 +253,5 @@ private:
 
 	std::vector<Move> m_moves;
 	size_t m_currentMove = 0;
-	float m_elapsed = 0.0f;
+	float m_elapsed = 0;
 };
