@@ -8,7 +8,6 @@
 #include <graphics/textures/TextureCache.hpp>
 
 #include <glm/glm.hpp>
-#include <glm/gtc/constants.hpp>
 
 #include <array>
 #include <cmath>
@@ -19,7 +18,7 @@ class Chess
 public:
 	enum class PieceType
 	{
-		Pawn = 0,
+		Pawn,
 		Rook,
 		Knight,
 		Bishop,
@@ -118,7 +117,7 @@ private:
 
 	static constexpr float MOVE_DURATION = 1;
 	static constexpr float PAUSE_DURATION = 0.4;
-	static constexpr float KNIGHT_LIFT = -0.12f;
+	static constexpr float KNIGHT_LIFT = 0.12f;
 
 	static glm::vec3 SquareCenter(float file, float rank)
 	{

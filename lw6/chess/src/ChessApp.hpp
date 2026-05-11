@@ -25,9 +25,9 @@ public:
 		glEnable(GL_DEPTH_TEST);
 
 		m_camera.SetTarget({ 0, -0.2, 0 });
-		m_camera.SetPitchLimits(glm::radians(-80.0), glm::radians(-4.0));
+		m_camera.SetPitchLimits(glm::radians(8.0), glm::radians(80.0));
 		m_camera.SetRadius(2.5);
-		m_camera.AddPitch(glm::radians(-35.0));
+		m_camera.AddPitch(glm::radians(35.0));
 
 		m_light.SetDirection({ -0.4, -1, -0 });
 		m_light.SetAmbientIntensity(0.5, 0.5, 0.5);
