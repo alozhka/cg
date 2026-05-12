@@ -137,7 +137,7 @@ struct IndexedBucket
 	void AppendVertex(const tinyobj::attrib_t& attrib, const tinyobj::index_t& idx)
 	{
 		const IndexKey key{ idx.vertex_index, idx.normal_index, idx.texcoord_index };
-		const auto [it, inserted] = dedup.try_emplace(key, static_cast<GLuint>(vertices.size()));
+		const auto [it, inserted] = dedup.try_emplace(key, vertices.size());
 		if (inserted)
 		{
 			vertices.push_back(MakeVertex(attrib, idx));

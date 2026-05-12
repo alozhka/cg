@@ -68,12 +68,12 @@ public:
 		{
 			return;
 		}
-		m_elapsed += dt;
-		if (m_elapsed >= MOVE_DURATION + PAUSE_DURATION)
+		m_elapsedTime += dt;
+		if (m_elapsedTime >= MOVE_DURATION + PAUSE_DURATION)
 		{
 			ApplyMove(m_moves[m_currentMove]);
 			++m_currentMove;
-			m_elapsed = 0;
+			m_elapsedTime = 0;
 		}
 	}
 
@@ -135,7 +135,7 @@ private:
 		if (m_currentMove < m_moves.size() && m_moves[m_currentMove].pieceIdx == index)
 		{
 			const Move& mv = m_moves[m_currentMove];
-			float timeForStep = glm::clamp(m_elapsed / MOVE_DURATION, 0.0f, 1.0f);
+			float timeForStep = glm::clamp(m_elapsedTime / MOVE_DURATION, 0.0f, 1.0f);
 			float t = SmoothStep(timeForStep);
 			glm::vec3 from = SquareCenter(p.file, p.rank);
 			glm::vec3 to = SquareCenter(mv.toFile, mv.toRank);
@@ -225,5 +225,5 @@ private:
 
 	std::vector<Move> m_moves;
 	size_t m_currentMove = 0;
-	float m_elapsed = 0;
+	float m_elapsedTime = 0;
 };
