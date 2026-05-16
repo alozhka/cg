@@ -13,19 +13,43 @@ uniform Star uStars[5];
 
 out vec4 FragColor;
 
-// Signed distance to a regular 5-point star. The tip points along local +Y.
-float sdStar5(vec2 p, float r, float rf)
+const vec2 rightFoldNormal = vec2(0.809016994, -0.587785252); // (cos 72, -sin 72)
+const vec2 leftFoldNormal = vec2(-0.809016994, -0.587785252);
+
+vec2 reflectOutsideHalfPlane(vec2 point, vec2 normal)
 {
-    const vec2 k1 = vec2(0.809016994, -0.587785252); // (cos 72, -sin 72)
-    const vec2 k2 = vec2(-0.809016994, -0.587785252);
-    p.x = abs(p.x);
-    p -= 2.0 * max(dot(k1, p), 0.0) * k1;
-    p -= 2.0 * max(dot(k2, p), 0.0) * k2;
-    p.x = abs(p.x);
-    p.y -= r;
-    vec2 ba = rf * vec2(-k1.y, k1.x) - vec2(0.0, 1.0);
-    float h = clamp(dot(p, ba) / dot(ba, ba), 0.0, r);
-    return length(p - ba * h) * sign(p.y * ba.x - p.x * ba.y);
+    return point - 2.0 * max(dot(normal, point), 0.0) * normal;
+}
+
+float cross2d(vec2 a, vec2 b)
+{
+    return a.x * b.y - a.y * b.x;
+}
+
+vec2 foldToReferenceStarArm(vec2 point)
+{
+    point.x = abs(point.x);
+    point = reflectOutsideHalfPlane(point, rightFoldNormal);
+    point = reflectOutsideHalfPlane(point, leftFoldNormal);
+    point.x = abs(point.x);
+
+    return point;
+}
+
+float signedDistanceToStar(vec2 point, float outerRadius)
+{
+    const float innerToOuterRadiusRatio = 0.381966011;
+
+    point = foldToReferenceStarArm(point);
+    point.y -= outerRadius;
+
+    vec2 starArmEdge = innerToOuterRadiusRatio * vec2(-rightFoldNormal.y, rightFoldNormal.x) - vec2(0.0, 1.0);
+    float edgeProjectionFactor = clamp(dot(point, starArmEdge) / dot(starArmEdge, starArmEdge), 0.0, outerRadius);
+    vec2 closestPointOnEdge = starArmEdge * edgeProjectionFactor;
+    float distanceToEdge = length(point - closestPointOnEdge);
+    float side = sign(cross2d(starArmEdge, point));
+
+    return distanceToEdge * side;
 }
 
 bool insideStar(vec2 p, Star star)
@@ -36,8 +60,7 @@ bool insideStar(vec2 p, Star star)
     vec2 q = vec2(c * d.x - s * d.y, s * d.x + c * d.y);
     q.y = -q.y;
 
-    const float kStarRatio = 0.381966011;
-    return sdStar5(q, star.radius, kStarRatio) <= 0.0;
+    return signedDistanceToStar(q, star.radius) <= 0.0;
 }
 
 void main()
