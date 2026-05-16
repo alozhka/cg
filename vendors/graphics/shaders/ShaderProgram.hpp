@@ -61,6 +61,12 @@ public:
 		glUniform4fv(location, 1, glm::value_ptr(v));
 	}
 
+	void SetUniformVec2(const std::string& name, const glm::vec2& v)
+	{
+		GLint location = glGetUniformLocation(m_program, name.c_str());
+		glUniform2fv(location, 1, glm::value_ptr(v));
+	}
+
 	void SetUniformMat3(const std::string& name, const glm::mat3& m)
 	{
 		GLint location = glGetUniformLocation(m_program, name.c_str());

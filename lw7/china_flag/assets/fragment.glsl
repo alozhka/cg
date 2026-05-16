@@ -2,19 +2,21 @@
 
 in vec2 vWorldPos;
 
-uniform vec3 uBackground;
-uniform vec3 uStarColor;
-// xy = центр, z = внешний радиус, w = угол поворота (рад)
-uniform vec4 uStars[5];
+struct Star
+{
+    vec2 center;
+    float radius;
+    float rotation;
+};
+
+uniform Star uStars[5];
 
 out vec4 FragColor;
 
-// SDF правильной 5-конечной звезды (Inigo Quilez).
-// "Tip" звезды направлен в +Y локального фрейма.
-// r — внешний радиус, rf — отношение внутр./внеш.
+// Signed distance to a regular 5-point star. The tip points along local +Y.
 float sdStar5(vec2 p, float r, float rf)
 {
-    const vec2 k1 = vec2(0.809016994, -0.587785252); // (cos72°, -sin72°)
+    const vec2 k1 = vec2(0.809016994, -0.587785252); // (cos 72, -sin 72)
     const vec2 k2 = vec2(-0.809016994, -0.587785252);
     p.x = abs(p.x);
     p -= 2.0 * max(dot(k1, p), 0.0) * k1;
@@ -26,28 +28,33 @@ float sdStar5(vec2 p, float r, float rf)
     return length(p - ba * h) * sign(p.y * ba.x - p.x * ba.y);
 }
 
-bool insideStar(vec2 p, vec4 star)
+bool insideStar(vec2 p, Star star)
 {
-    vec2 d = p - star.xy;
-    float c = cos(-star.w);
-    float s = sin(-star.w);
+    vec2 d = p - star.center;
+    float c = cos(-star.rotation);
+    float s = sin(-star.rotation);
     vec2 q = vec2(c * d.x - s * d.y, s * d.x + c * d.y);
-    // В мире y вниз; "tip вверх" в мире = -Y. Внутри SDF tip — это +Y,
-    // поэтому ось Y инвертируем перед подачей.
     q.y = -q.y;
+
     const float kStarRatio = 0.381966011;
-    return sdStar5(q, star.z, kStarRatio) <= 0.0;
+    return sdStar5(q, star.radius, kStarRatio) <= 0.0;
 }
 
 void main()
 {
-    vec3 color = uBackground;
+    const vec3 flagColor = vec3(0.93, 0.11, 0.15);
+    const vec3 starColor = vec3(1.0, 1.0, 0.0);
+
+    bool isStar = false;
     for (int i = 0; i < 5; ++i)
     {
         if (insideStar(vWorldPos, uStars[i]))
         {
-            color = uStarColor;
+            isStar = true;
+            break;
         }
     }
+
+    vec3 color = isStar ? starColor : flagColor;
     FragColor = vec4(color, 1.0);
 }
