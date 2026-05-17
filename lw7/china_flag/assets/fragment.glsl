@@ -13,54 +13,55 @@ uniform Star uStars[5];
 
 out vec4 FragColor;
 
-const vec2 rightFoldNormal = vec2(0.809016994, -0.587785252); // (cos 72, -sin 72)
-const vec2 leftFoldNormal = vec2(-0.809016994, -0.587785252);
+const float PI = 3.1415926;
+const float INNER_TO_OUTER_RADIUS_RATIO = 0.381966011;
 
-vec2 reflectOutsideHalfPlane(vec2 point, vec2 normal)
+bool IsPointOnTheLeft(vec2 p0, vec2 p1, vec2 p)
 {
-    return point - 2.0 * max(dot(normal, point), 0.0) * normal;
+    vec2 edge = p1 - p0;
+    vec2 normal = vec2(-edge.y, edge.x);
+    return dot(p - p0, normal) > -1e-6;
 }
 
-float cross2d(vec2 a, vec2 b)
+bool IsPointInsideTriangle(vec2 p0, vec2 p1, vec2 p2, vec2 p)
 {
-    return a.x * b.y - a.y * b.x;
+    return
+        IsPointOnTheLeft(p0, p1, p) &&
+        IsPointOnTheLeft(p1, p2, p) &&
+        IsPointOnTheLeft(p2, p0, p);
 }
 
-vec2 foldToReferenceStarArm(vec2 point)
+vec2[10] BuildStarVertices(float outerRadius, float rotation)
 {
-    point.x = abs(point.x);
-    point = reflectOutsideHalfPlane(point, rightFoldNormal);
-    point = reflectOutsideHalfPlane(point, leftFoldNormal);
-    point.x = abs(point.x);
-
-    return point;
+    float innerRadius = outerRadius * INNER_TO_OUTER_RADIUS_RATIO;
+    vec2 vertices[10];
+    for (int i = 0; i < 10; ++i)
+    {
+        float angle = PI / 2.0 - rotation + PI / 5.0 * float(i);
+        float r = (i % 2 == 0) ? outerRadius : innerRadius;
+        vertices[i] = vec2(cos(angle), sin(angle)) * r;
+    }
+    return vertices;
 }
 
-float signedDistanceToStar(vec2 point, float outerRadius)
+bool IsInsideStar(vec2 worldPoint, Star star)
 {
-    const float innerToOuterRadiusRatio = 0.381966011;
+    vec2 p = worldPoint - star.center;
+    p.y = -p.y;
 
-    point = foldToReferenceStarArm(point);
-    point.y -= outerRadius;
+    vec2 vertices[10] = BuildStarVertices(star.radius, star.rotation);
 
-    vec2 starArmEdge = innerToOuterRadiusRatio * vec2(-rightFoldNormal.y, rightFoldNormal.x) - vec2(0.0, 1.0);
-    float edgeProjectionFactor = clamp(dot(point, starArmEdge) / dot(starArmEdge, starArmEdge), 0.0, outerRadius);
-    vec2 closestPointOnEdge = starArmEdge * edgeProjectionFactor;
-    float distanceToEdge = length(point - closestPointOnEdge);
-    float side = sign(cross2d(starArmEdge, point));
+    for (int i = 0; i < 10; ++i)
+    {
+        vec2 p1 = vertices[i];
+        vec2 p2 = vertices[(i + 1) % 10];
+        if (IsPointInsideTriangle(vec2(0.0), p1, p2, p))
+        {
+            return true;
+        }
+    }
 
-    return distanceToEdge * side;
-}
-
-bool insideStar(vec2 p, Star star)
-{
-    vec2 d = p - star.center;
-    float c = cos(-star.rotation);
-    float s = sin(-star.rotation);
-    vec2 q = vec2(c * d.x - s * d.y, s * d.x + c * d.y);
-    q.y = -q.y;
-
-    return signedDistanceToStar(q, star.radius) <= 0.0;
+    return false;
 }
 
 void main()
@@ -71,7 +72,7 @@ void main()
     bool isStar = false;
     for (int i = 0; i < 5; ++i)
     {
-        if (insideStar(vWorldPos, uStars[i]))
+        if (IsInsideStar(vWorldPos, uStars[i]))
         {
             isStar = true;
             break;

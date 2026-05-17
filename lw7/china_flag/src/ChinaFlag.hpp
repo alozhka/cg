@@ -8,8 +8,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <array>
-#include <cstddef>
 #include <cmath>
+#include <cstddef>
 #include <string>
 
 class ChinaFlag

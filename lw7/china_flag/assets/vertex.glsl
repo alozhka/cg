@@ -1,8 +1,5 @@
 #version 330 core
 
-// 2D-флаг: aPos приходит в мировых координатах квада;
-// uMVP переводит их в clip space, фрагмент рисует звёзды по vWorldPos.
-
 layout (location = 0) in vec2 aPos;
 
 uniform mat4 uMVP;
