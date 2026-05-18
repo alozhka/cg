@@ -36,57 +36,52 @@ public:
 private:
 	static std::vector<glm::vec2> BuildUVGrid(int uCount, int vCount)
 	{
-		const int uVertsCount = uCount + 1;
-		const int vVertsCount = vCount + 1;
-
 		std::vector<glm::vec2> uv;
-		uv.reserve(uVertsCount * vVertsCount);
+		uv.reserve(uCount * vCount);
 
-		for (int vIdx = 0; vIdx < vVertsCount; ++vIdx)
+		for (int vIdx = 0; vIdx < vCount + 1; ++vIdx)
 		{
-			const float v = vIdx / vCount;
-			for (int uIdx = 0; uIdx < uVertsCount; ++uIdx)
+			const float v = static_cast<float>(vIdx) / vCount;
+			for (int uIdx = 0; uIdx < uCount + 1; ++uIdx)
 			{
-				const float u = uIdx / uCount;
+				const float u = static_cast<float>(uIdx) / uCount;
 				uv.emplace_back(u, v);
 			}
 		}
 		return uv;
 	}
 
-	static std::vector<GLuint> BuildWireframeIndices(int uSteps, int vSteps)
+	static std::vector<GLuint> BuildWireframeIndices(int uCount, int vCount)
 	{
-		const int uVerts = uSteps + 1;
-		const int vVerts = vSteps + 1;
-
-		// row-major: соседние по u лежат подряд
-		auto flatIndex = [uVerts](int u, int v) {
-			return static_cast<GLuint>(v * uVerts + u);
-		};
+		const int uVertsCount = uCount + 1;
+		const int vVertsCount = vCount + 1;
 
 		std::vector<GLuint> indices;
-		indices.reserve(2 * (static_cast<size_t>(uSteps) * vVerts + static_cast<size_t>(vSteps) * uVerts));
+		indices.reserve(2 * (uCount * vVertsCount + vCount * uVertsCount));
 
-		// Рёбра вдоль u: uSteps отрезков на каждой v-линии
-		for (int v = 0; v < vVerts; ++v)
+		for (int v = 0; v < vVertsCount; ++v)
 		{
-			for (int u = 0; u < uSteps; ++u)
+			for (int u = 0; u < uCount; ++u)
 			{
-				indices.push_back(flatIndex(u, v));
-				indices.push_back(flatIndex(u + 1, v));
+				indices.push_back(FlatIndex(u, v, uVertsCount));
+				indices.push_back(FlatIndex(u + 1, v, uVertsCount));
 			}
 		}
 
-		// Рёбра вдоль v: vSteps отрезков на каждом u-меридиане
-		for (int u = 0; u < uVerts; ++u)
+		for (int u = 0; u < uVertsCount; ++u)
 		{
-			for (int v = 0; v < vSteps; ++v)
+			for (int v = 0; v < vCount; ++v)
 			{
-				indices.push_back(flatIndex(u, v));
-				indices.push_back(flatIndex(u, v + 1));
+				indices.push_back(FlatIndex(u, v, uVertsCount));
+				indices.push_back(FlatIndex(u, v + 1, uVertsCount));
 			}
 		}
 		return indices;
+	}
+
+	static GLuint FlatIndex(int u, int v, int uVertsCount)
+	{
+		return static_cast<GLuint>(v * uVertsCount + u);
 	}
 
 	void DefineAttributes(const std::vector<glm::vec2>& uv, const std::vector<GLuint>& indices)
