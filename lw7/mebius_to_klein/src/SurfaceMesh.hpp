@@ -12,7 +12,7 @@ public:
 	SurfaceMesh(int uCount, int vCount)
 	{
 		const auto uv = BuildUVGrid(uCount, vCount);
-		const auto indices = BuildWireframeIndices(uCount, vCount);
+		const auto indices = BuildTriangleIndices(uCount, vCount);
 		DefineAttributes(uv, indices);
 	}
 
@@ -29,7 +29,7 @@ public:
 	void Draw() const
 	{
 		glBindVertexArray(m_vao);
-		glDrawElements(GL_LINES, m_indexCount, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, m_indexCount, GL_UNSIGNED_INT, nullptr);
 		glBindVertexArray(0);
 	}
 
@@ -51,29 +51,29 @@ private:
 		return uv;
 	}
 
-	static std::vector<GLuint> BuildWireframeIndices(int uCount, int vCount)
+	static std::vector<GLuint> BuildTriangleIndices(int uCount, int vCount)
 	{
 		const int uVertsCount = uCount + 1;
-		const int vVertsCount = vCount + 1;
 
 		std::vector<GLuint> indices;
-		indices.reserve(2 * (uCount * vVertsCount + vCount * uVertsCount));
+		indices.reserve(6 * uCount * vCount);
 
-		for (int v = 0; v < vVertsCount; ++v)
+		for (int v = 0; v < vCount; ++v)
 		{
 			for (int u = 0; u < uCount; ++u)
 			{
-				indices.push_back(FlatIndex(u, v, uVertsCount));
-				indices.push_back(FlatIndex(u + 1, v, uVertsCount));
-			}
-		}
+				const GLuint i00 = FlatIndex(u,     v,     uVertsCount);
+				const GLuint i10 = FlatIndex(u + 1, v,     uVertsCount);
+				const GLuint i01 = FlatIndex(u,     v + 1, uVertsCount);
+				const GLuint i11 = FlatIndex(u + 1, v + 1, uVertsCount);
 
-		for (int u = 0; u < uVertsCount; ++u)
-		{
-			for (int v = 0; v < vCount; ++v)
-			{
-				indices.push_back(FlatIndex(u, v, uVertsCount));
-				indices.push_back(FlatIndex(u, v + 1, uVertsCount));
+				indices.push_back(i00);
+				indices.push_back(i10);
+				indices.push_back(i11);
+
+				indices.push_back(i00);
+				indices.push_back(i11);
+				indices.push_back(i01);
 			}
 		}
 		return indices;

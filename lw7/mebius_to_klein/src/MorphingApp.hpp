@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MobiusToKleinTransform.hpp"
+#include "MobiusToKleinMorphing.hpp"
 
 #include <graphics/camera/OrbitalCamera.hpp>
 #include <graphics/windows/CameraController.hpp>
@@ -52,7 +52,7 @@ protected:
 	}
 
 private:
-	MobiusToKleinTransform m_transform;
+	MobiusToKleinMorphing m_transform;
 	OrbitalCamera m_camera;
 	CameraController m_controller;
 	TimeProvider m_time;

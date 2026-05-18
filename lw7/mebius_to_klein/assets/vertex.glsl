@@ -7,17 +7,19 @@ uniform float uPhase;
 uniform float uR;
 uniform float uMobiusHalfWidth;
 
+out vec3 vNormal;
+
 const float PI = 3.14159265358979323846;
 const float TWO_PI = 6.28318530717958647692;
 
-vec3 mobiusPos(float u, float t)
+vec3 GetMobiusPos(float u, float t)
 {
     float v = mix(-uMobiusHalfWidth, uMobiusHalfWidth, t);
     float r = uR + v * cos(u * 0.5);
     return vec3(r * cos(u), r * sin(u), v * sin(u * 0.5));
 }
 
-vec3 kleinPos(float u, float t)
+vec3 GetKleinPos(float u, float t)
 {
     float v = t * TWO_PI;
     float cu = cos(u);
@@ -40,8 +42,20 @@ vec3 kleinPos(float u, float t)
     }
     float z = r * sv;
 
-    // Сжимаем к ~единичному масштабу и центрируем по вертикали
     return vec3(x, y, z) * 0.08;
+}
+
+vec3 GetSurface(float u, float t)
+{
+    return mix(GetMobiusPos(u, t), GetKleinPos(u, t), uPhase);
+}
+
+vec3 GetSurfaceNormal(float u, float t)
+{
+    const float EPS = 0.001;
+    vec3 du = GetSurface(u + EPS, t) - GetSurface(u - EPS, t);
+    vec3 dt = GetSurface(u, t + EPS) - GetSurface(u, t - EPS);
+    return normalize(cross(du, dt));
 }
 
 void main()
@@ -49,6 +63,8 @@ void main()
     float u = aUV.x * TWO_PI;
     float t = aUV.y;
 
-    vec3 p = mix(mobiusPos(u, t), kleinPos(u, t), uPhase);
+    vec3 p = GetSurface(u, t);
+    vNormal = GetSurfaceNormal(u, t);
+
     gl_Position = uMVP * vec4(p, 1.0);
 }
