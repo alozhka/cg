@@ -11,17 +11,17 @@ class RippleEffect
 {
 public:
 	RippleEffect()
-		: m_initialTexture("assets/initial_image.jpg") // heisenberg_stunned
-		, m_targetTexture("assets/target_image.jpg") // heisenberg_lying
+		: m_initialTexture("assets/heisenberg_stunned.jpg") // heisenberg_stunned
+		, m_targetTexture("assets/heisenberg_lying.jpg") // heisenberg_lying
 	{
 		m_shader.LoadFromFile("assets/vertex.glsl", "assets/fragment.glsl");
 	}
 
-	void Draw(glm::vec2 origin, float animTime, bool swapped)
+	void Draw(glm::vec2 rippleOrigin, float transitionTime, bool flipped)
 	{
 		m_shader.Use();
 
-		if (swapped)
+		if (flipped)
 		{
 			m_targetTexture.Bind(0);
 			m_initialTexture.Bind(1);
@@ -34,8 +34,8 @@ public:
 
 		m_shader.SetUniformInt("uTex0", 0);
 		m_shader.SetUniformInt("uTex1", 1);
-		m_shader.SetUniformVec2("uOrigin", origin);
-		m_shader.SetUniformFloat("uTime", animTime);
+		m_shader.SetUniformVec2("uOrigin", rippleOrigin);
+		m_shader.SetUniformFloat("uTime", transitionTime);
 
 		m_quad.Draw();
 	}

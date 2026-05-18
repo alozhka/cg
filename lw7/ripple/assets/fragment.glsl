@@ -8,35 +8,35 @@ uniform vec2 uOrigin;
 uniform float uTime;
 out vec4 FragColor;
 
-const float WAVE_SPEED = 0.65;
-const float FREQUENCY = 22.0;
-const float DECAY = 5.5;
-const float AMPLITUDE = 0.07;
-const float BLEND_RANGE = 0.4;
-const float BRIGHTNESS_K = 0.65;
+const float FRONT_SPEED   = 0.65;
+const float RING_DENSITY  = 35.0;
+const float RING_FALLOFF  = 5.5;
+const float WARP_STRENGTH = 0.07;
+const float REVEAL_RATE   = 0.4;
+const float CREST_SHADOW  = 0.65;
 
 void main()
 {
-    float d = distance(vTexCoords, uOrigin);
+    float dist = distance(vTexCoords, uOrigin);
 
-    float phase = uTime * WAVE_SPEED - d;
+    float phase = uTime * FRONT_SPEED - dist;
 
-    vec2 sampleUV = vTexCoords;
-    float blend = 0.0;
+    vec2 displacedUV = vTexCoords;
+    float revealBlend = 0.0;
     float brightness = 1.0;
 
     if (phase > 0.0)
     {
-        float envelope = exp(-DECAY * phase);
-        float wave = sin(FREQUENCY * phase);
+        float envelope = exp(-RING_FALLOFF * phase);
+        float ripple = sin(RING_DENSITY * phase);
 
-        vec2 dir = normalize(vTexCoords - uOrigin );
-        sampleUV = vTexCoords + dir * (AMPLITUDE * envelope * wave);
+        vec2 dir = normalize(vTexCoords - uOrigin);
+        displacedUV = vTexCoords + dir * (WARP_STRENGTH * envelope * ripple);
 
-        blend = smoothstep(0.0, BLEND_RANGE, phase);
-        brightness = 1.0 - BRIGHTNESS_K * envelope * abs(wave);
+        revealBlend = smoothstep(0.0, REVEAL_RATE, phase);
+        brightness = 1.0 - CREST_SHADOW * envelope * abs(ripple);
     }
 
-    vec4 color = mix(texture(uTex0, sampleUV), texture(uTex1, sampleUV), blend);
+    vec4 color = mix(texture(uTex0, displacedUV), texture(uTex1, displacedUV), revealBlend);
     FragColor = vec4(color.rgb * brightness, 1.0);
 }

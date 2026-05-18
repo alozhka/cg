@@ -23,27 +23,27 @@ protected:
 
 		float dt = m_time.GetDeltaTime();
 
-		if (m_animating)
+		if (m_transitioning)
 		{
-			m_animTime += dt;
-			if (m_animTime >= CLICK_COOLDOWN)
+			m_transitionTime += dt;
+			if (m_transitionTime >= CLICK_COOLDOWN)
 			{
-				m_animTime = 0;
-				m_animating = false;
-				m_swapped = !m_swapped;
+				m_transitionTime = 0;
+				m_transitioning = false;
+				m_flipped = !m_flipped;
 			}
 		}
 
-		m_effect.Draw(m_origin, m_animTime, m_swapped);
+		m_effect.Draw(m_rippleOrigin, m_transitionTime, m_flipped);
 	}
 
 	void OnMouseButton(int button, int action, glm::vec2 p) override
 	{
-		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && !m_animating)
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && !m_transitioning)
 		{
-			m_origin = glm::vec2(p.x * 0.5 + 0.5, p.y * 0.5 + 0.5);
-			m_animTime = 0;
-			m_animating = true;
+			m_rippleOrigin = glm::vec2(p.x * 0.5 + 0.5, p.y * 0.5 + 0.5);
+			m_transitionTime = 0;
+			m_transitioning = true;
 		}
 	}
 
@@ -53,8 +53,8 @@ private:
 	RippleEffect m_effect;
 	TimeProvider m_time;
 
-	glm::vec2 m_origin{};
-	float m_animTime = 0;
-	bool m_animating = false;
-	bool m_swapped = false;
+	glm::vec2 m_rippleOrigin{};
+	float m_transitionTime = 0;
+	bool m_transitioning = false;
+	bool m_flipped = false;
 };
