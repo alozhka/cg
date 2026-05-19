@@ -11,8 +11,8 @@ class RippleEffect
 {
 public:
 	RippleEffect()
-		: m_initialTexture("assets/heisenberg_stunned.jpg") // heisenberg_stunned
-		, m_targetTexture("assets/heisenberg_lying.jpg") // heisenberg_lying
+		: m_initialTexture("assets/heisenberg_stunned.jpg")
+		, m_targetTexture("assets/heisenberg_lying.jpg")
 	{
 		m_shader.LoadFromFile("assets/vertex.glsl", "assets/fragment.glsl");
 	}
