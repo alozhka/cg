@@ -9,8 +9,8 @@ uniform float uMobiusHalfWidth;
 
 out vec3 vNormal;
 
-const float PI = 3.14159265358979323846;
-const float TWO_PI = 6.28318530717958647692;
+const float PI = 3.1415926;
+const float TWO_PI = 6.2831853;
 
 vec3 GetMobiusPos(float u, float t)
 {

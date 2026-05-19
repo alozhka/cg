@@ -62,9 +62,9 @@ private:
 		{
 			for (int u = 0; u < uCount; ++u)
 			{
-				const GLuint i00 = FlatIndex(u,     v,     uVertsCount);
-				const GLuint i10 = FlatIndex(u + 1, v,     uVertsCount);
-				const GLuint i01 = FlatIndex(u,     v + 1, uVertsCount);
+				const GLuint i00 = FlatIndex(u, v, uVertsCount);
+				const GLuint i10 = FlatIndex(u + 1, v, uVertsCount);
+				const GLuint i01 = FlatIndex(u, v + 1, uVertsCount);
 				const GLuint i11 = FlatIndex(u + 1, v + 1, uVertsCount);
 
 				indices.push_back(i00);
