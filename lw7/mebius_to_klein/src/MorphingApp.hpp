@@ -33,7 +33,7 @@ protected:
 		m_elapsed += m_time.GetDeltaTime();
 		const glm::mat4 mvp = perspective * m_camera.GetViewMatrix();
 
-		m_transform.Draw(mvp, m_elapsed);
+		m_transform.Draw(mvp, m_camera.GetPosition(), m_elapsed);
 	}
 
 	void OnMouseButton(int button, int action, glm::vec2 p) override

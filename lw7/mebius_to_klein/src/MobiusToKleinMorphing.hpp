@@ -18,7 +18,7 @@ public:
 		m_shader.LoadFromFile("assets/vertex.glsl", "assets/fragment.glsl");
 	}
 
-	void Draw(const glm::mat4& mvp, float time)
+	void Draw(const glm::mat4& mvp, const glm::vec3& cameraPos, float time)
 	{
 		const float phase = 0.5 * (1 - std::cos(time * MorphSpeed));
 
@@ -29,6 +29,7 @@ public:
 		m_shader.SetUniformFloat("uMobiusHalfWidth", MobiusHalfWidth);
 		m_shader.SetUniformVec3("uColor", glm::vec3(0.35, 0.95, 0.55));
 		m_shader.SetUniformVec3("uLightDir", glm::normalize(glm::vec3(1.0, 0.4, 0.5)));
+		m_shader.SetUniformVec3("uCameraPos", cameraPos);
 
 		m_mesh.Draw();
 	}

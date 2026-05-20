@@ -8,6 +8,7 @@ uniform float uR;
 uniform float uMobiusHalfWidth;
 
 out vec3 vNormal;
+out vec3 vFragPos;
 
 const float PI = 3.1415926;
 const float TWO_PI = 6.2831853;
@@ -65,6 +66,7 @@ void main()
 
     vec3 p = GetSurface(u, t);
     vNormal = GetSurfaceNormal(u, t);
+    vFragPos = p;
 
     gl_Position = uMVP * vec4(p, 1.0);
 }
