@@ -68,5 +68,5 @@ void main()
     vNormal = GetSurfaceNormal(u, t);
     vFragPos = p;
 
-    gl_Position = uMVP * vec4(p, 1.0);
+    gl_Position = uMVP * vec4(p, 1);
 }

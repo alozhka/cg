@@ -15,6 +15,6 @@ void main()
 
     // x'=R×cos(x)
     // y'=R×sin(x)
-    vec3 p = vec3(R * cos(x), R * sin(x), 0.0);
-    gl_Position = uMVP * vec4(p, 1.0);
+    vec3 p = vec3(R * cos(x), R * sin(x), 0);
+    gl_Position = uMVP * vec4(p, 1);
 }

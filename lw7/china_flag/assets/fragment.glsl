@@ -37,7 +37,7 @@ vec2[10] BuildStarVertices(float outerRadius, float rotation)
     vec2 vertices[10];
     for (int i = 0; i < 10; ++i)
     {
-        float angle = PI / 2.0 - rotation + PI / 5.0 * float(i);
+        float angle = PI / 2 - rotation + PI / 5 * float(i);
         float r = (i % 2 == 0) ? outerRadius : innerRadius;
         vertices[i] = vec2(cos(angle), sin(angle)) * r;
     }
@@ -67,7 +67,7 @@ bool IsInsideStar(vec2 worldPoint, Star star)
 void main()
 {
     const vec3 flagColor = vec3(0.93, 0.11, 0.15);
-    const vec3 starColor = vec3(1.0, 1.0, 0.0);
+    const vec3 starColor = vec3(1, 1, 0);
 
     bool isStar = false;
     for (int i = 0; i < 5; ++i)
@@ -80,5 +80,5 @@ void main()
     }
 
     vec3 color = isStar ? starColor : flagColor;
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(color, 1);
 }
