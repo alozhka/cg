@@ -38,12 +38,13 @@ public:
 	{
 		m_shader.LoadFromFile("assets/vertex.glsl", "assets/fragment.glsl");
 		InitTexture();
+		// Изначально буфер обнулён — заливаем чёрную текстуру, чтобы до
+		// первой презентации не было неинициализированного содержимого.
+		UploadFrameBuffer();
 		BuildScene();
 		InitCamera();
 		CaptureMouseInput();
 
-		m_prevPosition = m_camera.GetPosition();
-		m_prevForward = m_camera.GetForward();
 		StartRender();
 	}
 
@@ -57,11 +58,13 @@ public:
 	}
 
 protected:
-	void OnDraw(const glm::mat4& /*perspective*/) override
+	void OnDraw(const glm::mat4&) override
 	{
 		HandleInput(m_time.GetDeltaTime());
+		// Сначала презентуем готовый кадр (если есть), потом думаем о рестарте.
+		// Иначе следующий StartRender перебьёт флаг и кадр уйдёт в небытие.
+		MaybePresentFrame();
 		MaybeRestartRender();
-		UploadFrameBuffer();
 
 		glClearColor(0.f, 0.f, 0.f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -124,22 +127,39 @@ private:
 
 	void MaybeRestartRender()
 	{
-		const glm::vec3 pos = m_camera.GetPosition();
-		const glm::vec3 fwd = m_camera.GetForward();
-		if (pos == m_prevPosition && fwd == m_prevForward)
+		// Пока текущий кадр не дорендерился — не дёргаем рестарт, иначе экран
+		// будет мигать чёрным/частично-отрисованным при каждом движении.
+		if (m_renderer.IsRendering())
 		{
 			return;
 		}
 
-		m_prevPosition = pos;
-		m_prevForward = fwd;
+		const glm::vec3 pos = m_camera.GetPosition();
+		const glm::vec3 fwd = m_camera.GetForward();
+		if (pos == m_renderedPosition && fwd == m_renderedForward)
+		{
+			return;
+		}
 
-		m_renderer.Stop();
 		StartRender();
+	}
+
+	void MaybePresentFrame()
+	{
+		if (m_renderer.IsRendering() || !m_framePending)
+		{
+			return;
+		}
+		UploadFrameBuffer();
+		m_framePending = false;
 	}
 
 	void StartRender()
 	{
+		m_renderedPosition = m_camera.GetPosition();
+		m_renderedForward = m_camera.GetForward();
+		m_framePending = true;
+
 		const FirstPersonCamera cameraSnap = m_camera;
 		const float fov = m_fieldOfView;
 		const float aspect = static_cast<float>(m_width) / static_cast<float>(m_height);
@@ -205,8 +225,12 @@ private:
 	KeyboardReader m_keys;
 	TimeProvider m_time;
 
-	glm::vec3 m_prevPosition{ 0.f };
-	glm::vec3 m_prevForward{ 0.f };
+	// Состояние камеры на момент старта текущего/последнего рендера. Сравниваем
+	// с актуальным состоянием, чтобы понять, нужно ли запускать новый кадр.
+	glm::vec3 m_renderedPosition{ 0.f };
+	glm::vec3 m_renderedForward{ 0.f };
+	// Кадр построен, но ещё не залит в GL-текстуру.
+	bool m_framePending = false;
 
 	FrameBuffer m_frameBuffer;
 	Renderer m_renderer;
