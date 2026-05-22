@@ -41,6 +41,19 @@ public:
 		return glm::vec3{ fwd.z, 0, -fwd.x };
 	}
 
+	// right = forward × worldUp в правосторонней СК (без учёта pitch).
+	glm::vec3 GetRight() const
+	{
+		glm::vec3 fwd = GetForwardXZ();
+		return glm::normalize(glm::vec3{ -fwd.z, 0, fwd.x });
+	}
+
+	// up = right × forward (наклоняется вместе с pitch).
+	glm::vec3 GetUp() const
+	{
+		return glm::normalize(glm::cross(GetRight(), GetForward()));
+	}
+
 	glm::vec3 GetPosition() const
 	{
 		return m_position;
