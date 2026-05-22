@@ -1,17 +1,19 @@
 #pragma once
 
 #include "ISceneObject.hpp"
+#include "../shading/MaterialData.hpp"
 
 #include <cmath>
 #include <glm/geometric.hpp>
+#include <utility>
 
 class Plane : public ISceneObject
 {
 public:
-	Plane(glm::vec3 point, glm::vec3 normal, glm::vec3 color)
+	Plane(glm::vec3 point, glm::vec3 normal, MaterialPtr material)
 		: m_point(point)
 		, m_normal(glm::normalize(normal))
-		, m_color(color)
+		, m_material(std::move(material))
 	{
 	}
 
@@ -34,7 +36,7 @@ public:
 		// Нормаль развёрнута в полупространство наблюдателя — корректное
 		// освещение с обеих сторон плоскости.
 		hit.normal = denom < 0.f ? m_normal : -m_normal;
-		hit.baseColor = m_color;
+		hit.material = m_material;
 		return true;
 	}
 
@@ -43,5 +45,5 @@ private:
 
 	glm::vec3 m_point;
 	glm::vec3 m_normal;
-	glm::vec3 m_color;
+	MaterialPtr m_material;
 };

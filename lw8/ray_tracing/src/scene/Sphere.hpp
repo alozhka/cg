@@ -1,17 +1,19 @@
 #pragma once
 
 #include "ISceneObject.hpp"
+#include "../shading/MaterialData.hpp"
 
 #include <cmath>
 #include <glm/geometric.hpp>
+#include <utility>
 
 class Sphere : public ISceneObject
 {
 public:
-	Sphere(glm::vec3 center, float radius, glm::vec3 color)
+	Sphere(glm::vec3 center, float radius, MaterialPtr material)
 		: m_center(center)
 		, m_radius(radius)
-		, m_color(color)
+		, m_material(std::move(material))
 	{
 	}
 
@@ -41,7 +43,7 @@ public:
 		hit.t = t;
 		hit.point = ray.origin + ray.direction * t;
 		hit.normal = (hit.point - m_center) / m_radius;
-		hit.baseColor = m_color;
+		hit.material = m_material;
 		return true;
 	}
 
@@ -50,5 +52,5 @@ private:
 
 	glm::vec3 m_center;
 	float m_radius;
-	glm::vec3 m_color;
+	MaterialPtr m_material;
 };

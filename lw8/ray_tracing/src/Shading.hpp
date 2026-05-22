@@ -3,6 +3,7 @@
 #include "core/HitInfo.hpp"
 #include "core/Ray.hpp"
 #include "scene/Scene.hpp"
+#include "shading/PhongShader.hpp"
 
 #include <algorithm>
 #include <cstdint>
@@ -13,9 +14,6 @@
 class Shading
 {
 public:
-	// Простейшая Lambert-модель с одним направленным источником света. На этапе 3
-	// здесь появится Phong + материалы; пока — только diffuse + ambient для
-	// визуальной проверки геометрии.
 	static glm::vec3 TraceRay(const Scene& scene, const Ray& ray)
 	{
 		HitInfo hit;
@@ -24,11 +22,7 @@ public:
 			return SkyGradient(ray);
 		}
 
-		const glm::vec3 lightDir = glm::normalize(glm::vec3{ -1, -1, -0.4 });
-		constexpr float AMBIENT = 0.15;
-		const float ndl = std::max(0.f, glm::dot(hit.normal, -lightDir));
-
-		return hit.baseColor * (AMBIENT + glm::vec3{ ndl });
+		return PhongShader::Shade(hit, -ray.direction, scene.GetLights());
 	}
 
 	static std::uint32_t PackColor(glm::vec3 c)

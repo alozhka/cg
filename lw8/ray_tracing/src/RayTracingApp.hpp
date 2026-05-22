@@ -8,6 +8,8 @@
 #include "scene/Plane.hpp"
 #include "scene/Scene.hpp"
 #include "scene/Sphere.hpp"
+#include "shading/Light.hpp"
+#include "shading/MaterialData.hpp"
 
 #include <graphics/TexturedMesh.hpp>
 #include <graphics/camera/FirstPersonCamera.hpp>
@@ -87,17 +89,48 @@ private:
 
 	void BuildScene()
 	{
-		m_scene.Add(std::make_unique<Plane>(
-			glm::vec3{ 0.f, 0.f, 0.f },
-			glm::vec3{ 0.f, 1.f, 0.f },
-			glm::vec3{ 0.6f, 0.6f, 0.6f }));
+		auto floorMat = std::make_shared<MaterialData>(MaterialData{
+			.ambient = glm::vec3{ 0.2 },
+			.diffuse = glm::vec3{ 0.6 },
+			.specular = glm::vec3{ 0.05 },
+			.shininess = 8,
+		});
+		auto redMat = std::make_shared<MaterialData>(MaterialData{
+			.ambient = glm::vec3{ 0.2, 0.04, 0.04 },
+			.diffuse = glm::vec3{ 0.9, 0.2, 0.2 },
+			.specular = glm::vec3{ 0.3 },
+			.shininess = 16,
+		});
+		auto greenMat = std::make_shared<MaterialData>(MaterialData{
+			.ambient = glm::vec3{ 0.04, 0.2, 0.04 },
+			.diffuse = glm::vec3{ 0.2, 0.9, 0.2 },
+			.specular = glm::vec3{ 0.6 },
+			.shininess = 64,
+		});
+		auto blueMat = std::make_shared<MaterialData>(MaterialData{
+			.ambient = glm::vec3{ 0.04, 0.08, 0.2 },
+			.diffuse = glm::vec3{ 0.2, 0.4, 0.9 },
+			.specular = glm::vec3{ 0.9 },
+			.shininess = 256,
+		});
 
-		m_scene.Add(std::make_unique<Sphere>(
-			glm::vec3{ -1.2f, 0.5f, 0.f }, 0.5f, glm::vec3{ 0.9f, 0.2f, 0.2f }));
-		m_scene.Add(std::make_unique<Sphere>(
-			glm::vec3{ 0.f, 0.5f, 0.f }, 0.5f, glm::vec3{ 0.2f, 0.9f, 0.2f }));
-		m_scene.Add(std::make_unique<Sphere>(
-			glm::vec3{ 1.2f, 0.5f, 0.f }, 0.5f, glm::vec3{ 0.2f, 0.4f, 0.9f }));
+		m_scene.Add(std::make_unique<Plane>(
+			glm::vec3{ 0, 0, 0 }, glm::vec3{ 0, 1, 0 }, floorMat));
+
+		m_scene.Add(std::make_unique<Sphere>(glm::vec3{ -1.2, 0.5, 0 }, 0.5, redMat));
+		m_scene.Add(std::make_unique<Sphere>(glm::vec3{ 0, 0.5, 0 }, 0.5, greenMat));
+		m_scene.Add(std::make_unique<Sphere>(glm::vec3{ 1.2, 0.5, 0 }, 0.5, blueMat));
+
+		m_scene.Add(std::make_unique<DirectLight>(
+			glm::vec3{ -1, -1, -0.4 },
+			glm::vec3{ 0.15 },
+			glm::vec3{ 0.7 },
+			glm::vec3{ 0.8 }));
+		m_scene.Add(std::make_unique<PointLight>(
+			glm::vec3{ 1.5, 1.8, 1.5 },
+			glm::vec3{ 0 },
+			glm::vec3{ 0.5, 0.4, 0.3 },
+			glm::vec3{ 0.5, 0.4, 0.3 }));
 	}
 
 	void InitCamera()
