@@ -39,7 +39,7 @@ public:
 	}
 
 private:
-	static constexpr float EPSILON = 1e-4f;
+	static constexpr float EPSILON = 1e-4;
 
 	glm::vec3 m_point;
 	glm::vec3 m_normal;

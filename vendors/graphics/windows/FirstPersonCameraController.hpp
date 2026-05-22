@@ -7,19 +7,13 @@ class FirstPersonCameraController
 public:
 	explicit FirstPersonCameraController(FirstPersonCamera& camera)
 		: m_camera(camera)
+		, m_lastX(camera.GetPosition().x)
+		, m_lastY(camera.GetPosition().y)
 	{
 	}
 
 	void OnRawMouseMove(double x, double y)
 	{
-		if (!m_initialized)
-		{
-			m_lastX = x;
-			m_lastY = y;
-			m_initialized = true;
-			return;
-		}
-
 		double dx = x - m_lastX;
 		double dy = y - m_lastY;
 		m_lastX = x;
@@ -31,8 +25,7 @@ public:
 
 private:
 	FirstPersonCamera& m_camera;
-	double m_lastX = 0;
-	double m_lastY = 0;
-	bool m_initialized = false;
-	float m_sensitivity = 0.003f;
+	double m_lastX;
+	double m_lastY;
+	float m_sensitivity = 0.003;
 };

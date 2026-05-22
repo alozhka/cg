@@ -115,13 +115,30 @@ private:
 		const float step = MOVE_SPEED * dt;
 
 		glm::vec3 pos = m_camera.GetPosition();
-		if (m_keys.IsButtonPressed(GLFW_KEY_W)) pos += forward * step;
-		if (m_keys.IsButtonPressed(GLFW_KEY_S)) pos -= forward * step;
-		if (m_keys.IsButtonPressed(GLFW_KEY_D)) pos += right * step;
-		if (m_keys.IsButtonPressed(GLFW_KEY_A)) pos -= right * step;
-		if (m_keys.IsButtonPressed(GLFW_KEY_SPACE)) pos.y += step;
-		if (m_keys.IsButtonPressed(GLFW_KEY_LEFT_SHIFT)) pos.y -= step;
-
+		if (m_keys.IsButtonPressed(GLFW_KEY_W))
+		{
+			pos += forward * step;
+		}
+		if (m_keys.IsButtonPressed(GLFW_KEY_S))
+		{
+			pos -= forward * step;
+		}
+		if (m_keys.IsButtonPressed(GLFW_KEY_D))
+		{
+			pos += right * step;
+		}
+		if (m_keys.IsButtonPressed(GLFW_KEY_A))
+		{
+			pos -= right * step;
+		}
+		if (m_keys.IsButtonPressed(GLFW_KEY_SPACE))
+		{
+			pos.y += step;
+		}
+		if (m_keys.IsButtonPressed(GLFW_KEY_LEFT_SHIFT))
+		{
+			pos.y -= step;
+		}
 		m_camera.SetPosition(pos);
 	}
 
@@ -171,22 +188,20 @@ private:
 				const float u = (2.f * (static_cast<float>(x) + 0.5f) / static_cast<float>(w)) - 1.f;
 				const float v = 1.f - (2.f * (static_cast<float>(y) + 0.5f) / static_cast<float>(h));
 				const Ray ray = Ray::Primary(cameraSnap, u, v, fov, aspect);
-				return PackColor(TraceRay(scene, ray));
+				return Shading::PackColor(Shading::TraceRay(scene, ray));
 			});
 	}
 
 	static std::vector<TexturedVertex> BuildQuadVertices()
 	{
-		// Полноэкранный квад: позиции в NDC, normal не используется,
-		// UV.y = 0 наверху — чтобы строка 0 framebuffer'а оказалась наверху экрана.
-		const glm::vec3 n{ 0.f, 0.f, 1.f };
+		constexpr glm::vec3 n{ 0, 0, 1 };
 		return {
-			{ { -1.f, -1.f, 0.f }, n, { 0.f, 1.f } },
-			{ {  1.f, -1.f, 0.f }, n, { 1.f, 1.f } },
-			{ {  1.f,  1.f, 0.f }, n, { 1.f, 0.f } },
-			{ { -1.f, -1.f, 0.f }, n, { 0.f, 1.f } },
-			{ {  1.f,  1.f, 0.f }, n, { 1.f, 0.f } },
-			{ { -1.f,  1.f, 0.f }, n, { 0.f, 0.f } },
+			{ { -1, -1, 0 }, n, { 0, 1 } },
+			{ { 1, -1, 0 }, n, { 1, 1 } },
+			{ { 1, 1, 0 }, n, { 1, 0 } },
+			{ { -1, -1, 0 }, n, { 0, 1 } },
+			{ { 1, 1, 0 }, n, { 1, 0 } },
+			{ { -1, 1, 0 }, n, { 0, 0 } },
 		};
 	}
 
@@ -227,8 +242,8 @@ private:
 
 	// Состояние камеры на момент старта текущего/последнего рендера. Сравниваем
 	// с актуальным состоянием, чтобы понять, нужно ли запускать новый кадр.
-	glm::vec3 m_renderedPosition{ 0.f };
-	glm::vec3 m_renderedForward{ 0.f };
+	glm::vec3 m_renderedPosition{ 0 };
+	glm::vec3 m_renderedForward{ 0 };
 	// Кадр построен, но ещё не залит в GL-текстуру.
 	bool m_framePending = false;
 

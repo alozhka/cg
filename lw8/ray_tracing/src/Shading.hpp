@@ -10,32 +10,47 @@
 #include <glm/geometric.hpp>
 #include <glm/vec3.hpp>
 
-// Простейшая Lambert-модель с одним направленным источником света. На этапе 3
-// здесь появится Phong + материалы; пока — только diffuse + ambient для
-// визуальной проверки геометрии.
-inline glm::vec3 TraceRay(const Scene& scene, const Ray& ray)
+class Shading
 {
-	HitInfo hit;
-	if (!scene.Intersect(ray, hit))
+public:
+	// Простейшая Lambert-модель с одним направленным источником света. На этапе 3
+	// здесь появится Phong + материалы; пока — только diffuse + ambient для
+	// визуальной проверки геометрии.
+	static glm::vec3 TraceRay(const Scene& scene, const Ray& ray)
 	{
-		// Простой градиент неба, чтобы было видно где «промах».
-		const float t = 0.5f * (ray.direction.y + 1.f);
-		return glm::mix(glm::vec3{ 1.f }, glm::vec3{ 0.5f, 0.7f, 1.f }, t);
+		HitInfo hit;
+		if (!scene.Intersect(ray, hit))
+		{
+			return SkyGradient(ray);
+		}
+
+		const glm::vec3 lightDir = glm::normalize(glm::vec3{ -1, -1, -0.4 });
+		constexpr float AMBIENT = 0.15;
+		const float ndl = std::max(0.f, glm::dot(hit.normal, -lightDir));
+
+		return hit.baseColor * (AMBIENT + glm::vec3{ ndl });
 	}
 
-	const glm::vec3 lightDir = glm::normalize(glm::vec3{ -1.f, -1.f, -0.4f });
-	const glm::vec3 ambient{ 0.15f };
-	const float ndl = std::max(0.f, glm::dot(hit.normal, -lightDir));
+	static std::uint32_t PackColor(glm::vec3 c)
+	{
+		c = glm::clamp(c, glm::vec3{ 0 }, glm::vec3{ 1 });
 
-	return hit.baseColor * (ambient + glm::vec3{ ndl });
-}
+		auto r = static_cast<uint8_t>(c.r * 255);
+		auto g = static_cast<uint8_t>(c.g * 255);
+		auto b = static_cast<uint8_t>(c.b * 255);
 
-inline std::uint32_t PackColor(glm::vec3 c)
-{
-	c = glm::clamp(c, glm::vec3{ 0.f }, glm::vec3{ 1.f });
-	const auto r = static_cast<std::uint8_t>(c.r * 255.f);
-	const auto g = static_cast<std::uint8_t>(c.g * 255.f);
-	const auto b = static_cast<std::uint8_t>(c.b * 255.f);
-	const std::uint8_t a = 0xff;
-	return std::uint32_t(a) << 24 | std::uint32_t(r) << 16 | std::uint32_t(g) << 8 | std::uint32_t(b);
-}
+		constexpr std::uint8_t a = 0xFF;
+
+		return static_cast<std::uint32_t>(a) << 24
+			| static_cast<std::uint32_t>(r) << 16
+			| static_cast<std::uint32_t>(g) << 8
+			| static_cast<std::uint32_t>(b);
+	}
+
+private:
+	static glm::vec3 SkyGradient(const Ray& ray)
+	{
+		const float t = 0.5f * (ray.direction.y + 1);
+		return glm::mix(glm::vec3{ 1 }, glm::vec3{ 0.5, 0.7, 1 }, t);
+	}
+};
