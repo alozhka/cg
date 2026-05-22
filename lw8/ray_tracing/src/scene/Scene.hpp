@@ -33,6 +33,21 @@ public:
 		return anyHit;
 	}
 
+	// Есть ли препятствие на луче в пределах [0, maxDist]. Останавливаемся на первом.
+	bool IsOccluded(const Ray& ray, float maxDist) const
+	{
+		for (const auto& object : m_objects)
+		{
+			HitInfo probe;
+			probe.t = maxDist;
+			if (object->Intersect(ray, probe))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	const std::vector<std::unique_ptr<ILight>>& GetLights() const
 	{
 		return m_lights;

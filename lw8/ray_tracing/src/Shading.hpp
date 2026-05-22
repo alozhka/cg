@@ -22,7 +22,7 @@ public:
 			return SkyGradient(ray);
 		}
 
-		return PhongShader::Shade(hit, -ray.direction, scene.GetLights());
+		return PhongShader::Shade(hit, -ray.direction, scene);
 	}
 
 	static std::uint32_t PackColor(glm::vec3 c)
