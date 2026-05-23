@@ -8,6 +8,7 @@
 #include "scene/Plane.hpp"
 #include "scene/Scene.hpp"
 #include "scene/Sphere.hpp"
+#include "scene/Torus.hpp"
 #include "shading/Light.hpp"
 #include "shading/MaterialData.hpp"
 
@@ -21,6 +22,7 @@
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include <glm/ext/matrix_transform.hpp>
 
 #include <memory>
 #include <string>
@@ -113,13 +115,43 @@ private:
 			.specular = glm::vec3{ 0.9 },
 			.shininess = 256,
 		});
+		auto orangeMat = std::make_shared<MaterialData>(MaterialData{
+			.ambient = glm::vec3{ 0.2, 0.1, 0.02 },
+			.diffuse = glm::vec3{ 0.95, 0.55, 0.15 },
+			.specular = glm::vec3{ 0.4 },
+			.shininess = 32,
+		});
+		auto yellowMat = std::make_shared<MaterialData>(MaterialData{
+			.ambient = glm::vec3{ 0.2, 0.18, 0.04 },
+			.diffuse = glm::vec3{ 0.95, 0.9, 0.2 },
+			.specular = glm::vec3{ 0.4 },
+			.shininess = 64,
+		});
 
 		m_scene.Add(std::make_unique<Plane>(
 			glm::vec3{ 0, 0, 0 }, glm::vec3{ 0, 1, 0 }, floorMat));
 
-		m_scene.Add(std::make_unique<Sphere>(glm::vec3{ -1.2, 0.5, 0 }, 0.5, redMat));
-		m_scene.Add(std::make_unique<Sphere>(glm::vec3{ 0, 0.5, 0 }, 0.5, greenMat));
-		m_scene.Add(std::make_unique<Sphere>(glm::vec3{ 1.2, 0.5, 0 }, 0.5, blueMat));
+		// Детская пирамидка: 5 торов, убывающий R, фиксированный r,
+		// центры — на расстоянии 2r друг над другом (тангенциально касаются).
+		struct TorusSpec
+		{
+			float R;
+			float y;
+			MaterialPtr material;
+		};
+		constexpr float r = 0.12f;
+		const TorusSpec specs[] = {
+			{ 0.90f, 1 * r, redMat },
+			{ 0.75f, 3 * r, orangeMat },
+			{ 0.60f, 5 * r, yellowMat },
+			{ 0.45f, 7 * r, greenMat },
+			{ 0.30f, 9 * r, blueMat },
+		};
+		for (const auto& s : specs)
+		{
+			const glm::mat4 transform = glm::translate(glm::mat4{ 1.f }, glm::vec3{ 0.f, s.y, 0.f });
+			m_scene.Add(std::make_unique<Torus>(s.R, r, transform, s.material));
+		}
 
 		m_scene.Add(std::make_unique<DirectLight>(
 			glm::vec3{ -1, -1, -0.4 },
