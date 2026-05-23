@@ -33,12 +33,12 @@ public:
 		auto g = static_cast<uint8_t>(c.g * 255);
 		auto b = static_cast<uint8_t>(c.b * 255);
 
-		constexpr std::uint8_t a = 0xFF;
+		constexpr uint8_t a = 0xFF;
 
-		return static_cast<std::uint32_t>(a) << 24
-			| static_cast<std::uint32_t>(r) << 16
-			| static_cast<std::uint32_t>(g) << 8
-			| static_cast<std::uint32_t>(b);
+		return static_cast<uint32_t>(a) << 24
+			| static_cast<uint32_t>(r) << 16
+			| static_cast<uint32_t>(g) << 8
+			| static_cast<uint32_t>(b);
 	}
 
 private:

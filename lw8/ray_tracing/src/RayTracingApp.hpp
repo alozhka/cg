@@ -1,32 +1,26 @@
 #pragma once
 
 #include "FrameBuffer.hpp"
+#include "Quad.hpp"
 #include "Renderer.hpp"
 #include "Shading.hpp"
 
 #include "core/Ray.hpp"
-#include "scene/Plane.hpp"
+#include "scene/PyramidScene.hpp"
 #include "scene/Scene.hpp"
-#include "scene/Sphere.hpp"
-#include "scene/Torus.hpp"
-#include "shading/Light.hpp"
-#include "shading/MaterialData.hpp"
 
-#include <graphics/TexturedMesh.hpp>
 #include <graphics/camera/FirstPersonCamera.hpp>
 #include <graphics/shaders/ShaderProgram.hpp>
 #include <graphics/windows/FirstPersonCameraController.hpp>
 #include <graphics/windows/GraphicsApplication.hpp>
+#include <graphics/windows/KeyboardCameraController.hpp>
 #include <graphics/windows/KeyboardReader.hpp>
 #include <graphics/windows/TimeProvider.hpp>
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
-#include <glm/ext/matrix_transform.hpp>
 
-#include <memory>
 #include <string>
-#include <vector>
 
 class RayTracingApp : public GraphicsApplication
 {
@@ -35,16 +29,14 @@ public:
 		: GraphicsApplication(static_cast<int>(width), static_cast<int>(height), title)
 		, m_width(width)
 		, m_height(height)
-		, m_frameBuffer(width, height)
 		, m_cameraController(m_camera)
 		, m_keys(CreateKeyboardReader())
-		, m_quad(BuildQuadVertices())
+		, m_keyboardController(m_camera, m_keys)
+		, m_frameBuffer(width, height)
+		, m_quad(width, height)
 	{
 		m_shader.LoadFromFile("assets/vertex.glsl", "assets/fragment.glsl");
-		InitTexture();
-		// Изначально буфер обнулён — заливаем чёрную текстуру, чтобы до
-		// первой презентации не было неинициализированного содержимого.
-		UploadFrameBuffer();
+		m_quad.Upload(m_frameBuffer);
 		BuildScene();
 		InitCamera();
 		CaptureMouseInput();
@@ -55,16 +47,12 @@ public:
 	~RayTracingApp() override
 	{
 		m_renderer.Stop();
-		if (m_texture)
-		{
-			glDeleteTextures(1, &m_texture);
-		}
 	}
 
 protected:
 	void OnDraw(const glm::mat4&) override
 	{
-		HandleInput(m_time.GetDeltaTime());
+		m_keyboardController.Update(m_time.GetDeltaTime());
 		// Сначала презентуем готовый кадр (если есть), потом думаем о рестарте.
 		// Иначе следующий StartRender перебьёт флаг и кадр уйдёт в небытие.
 		MaybePresentFrame();
@@ -74,11 +62,8 @@ protected:
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		m_shader.Use();
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, m_texture);
 		m_shader.SetUniformInt("uTex", 0);
-
-		m_quad.Draw(GL_TRIANGLES);
+		m_quad.Draw();
 	}
 
 	void OnRawMouseMove(double x, double y) override
@@ -87,124 +72,15 @@ protected:
 	}
 
 private:
-	static constexpr float MOVE_SPEED = 3.0f;
-
 	void BuildScene()
 	{
-		auto floorMat = std::make_shared<MaterialData>(MaterialData{
-			.ambient = glm::vec3{ 0.2 },
-			.diffuse = glm::vec3{ 0.6 },
-			.specular = glm::vec3{ 0.05 },
-			.shininess = 8,
-		});
-		auto redMat = std::make_shared<MaterialData>(MaterialData{
-			.ambient = glm::vec3{ 0.2, 0.04, 0.04 },
-			.diffuse = glm::vec3{ 0.9, 0.2, 0.2 },
-			.specular = glm::vec3{ 0.3 },
-			.shininess = 16,
-		});
-		auto greenMat = std::make_shared<MaterialData>(MaterialData{
-			.ambient = glm::vec3{ 0.04, 0.2, 0.04 },
-			.diffuse = glm::vec3{ 0.2, 0.9, 0.2 },
-			.specular = glm::vec3{ 0.6 },
-			.shininess = 64,
-		});
-		auto blueMat = std::make_shared<MaterialData>(MaterialData{
-			.ambient = glm::vec3{ 0.04, 0.08, 0.2 },
-			.diffuse = glm::vec3{ 0.2, 0.4, 0.9 },
-			.specular = glm::vec3{ 0.9 },
-			.shininess = 256,
-		});
-		auto orangeMat = std::make_shared<MaterialData>(MaterialData{
-			.ambient = glm::vec3{ 0.2, 0.1, 0.02 },
-			.diffuse = glm::vec3{ 0.95, 0.55, 0.15 },
-			.specular = glm::vec3{ 0.4 },
-			.shininess = 32,
-		});
-		auto yellowMat = std::make_shared<MaterialData>(MaterialData{
-			.ambient = glm::vec3{ 0.2, 0.18, 0.04 },
-			.diffuse = glm::vec3{ 0.95, 0.9, 0.2 },
-			.specular = glm::vec3{ 0.4 },
-			.shininess = 64,
-		});
-
-		m_scene.Add(std::make_unique<Plane>(
-			glm::vec3{ 0, 0, 0 }, glm::vec3{ 0, 1, 0 }, floorMat));
-
-		// Детская пирамидка: 5 торов, убывающий R, фиксированный r,
-		// центры — на расстоянии 2r друг над другом (тангенциально касаются).
-		struct TorusSpec
-		{
-			float R;
-			float y;
-			MaterialPtr material;
-		};
-		constexpr float r = 0.12f;
-		const TorusSpec specs[] = {
-			{ 0.90f, 1 * r, redMat },
-			{ 0.75f, 3 * r, orangeMat },
-			{ 0.60f, 5 * r, yellowMat },
-			{ 0.45f, 7 * r, greenMat },
-			{ 0.30f, 9 * r, blueMat },
-		};
-		for (const auto& s : specs)
-		{
-			const glm::mat4 transform = glm::translate(glm::mat4{ 1.f }, glm::vec3{ 0.f, s.y, 0.f });
-			m_scene.Add(std::make_unique<Torus>(s.R, r, transform, s.material));
-		}
-
-		m_scene.Add(std::make_unique<DirectLight>(
-			glm::vec3{ -1, -1, -0.4 },
-			glm::vec3{ 0.15 },
-			glm::vec3{ 0.7 },
-			glm::vec3{ 0.8 }));
-		m_scene.Add(std::make_unique<PointLight>(
-			glm::vec3{ 1.5, 1.8, 1.5 },
-			glm::vec3{ 0 },
-			glm::vec3{ 0.5, 0.4, 0.3 },
-			glm::vec3{ 0.5, 0.4, 0.3 }));
+		PyramidScene::Build(m_scene);
 	}
 
 	void InitCamera()
 	{
-		m_camera.SetPosition(glm::vec3{ 0.f, 1.0f, 5.f });
-		// yaw=0 смотрит вдоль +X. Поворачиваем на -90°, чтобы смотреть в -Z
-		// (в направлении сцены).
+		m_camera.SetPosition(glm::vec3{ 0, 1, 5 });
 		m_camera.AddYaw(glm::radians(-90.f));
-	}
-
-	void HandleInput(float dt)
-	{
-		const glm::vec3 forward = m_camera.GetForwardXZ();
-		const glm::vec3 right = m_camera.GetRight();
-		const float step = MOVE_SPEED * dt;
-
-		glm::vec3 pos = m_camera.GetPosition();
-		if (m_keys.IsButtonPressed(GLFW_KEY_W))
-		{
-			pos += forward * step;
-		}
-		if (m_keys.IsButtonPressed(GLFW_KEY_S))
-		{
-			pos -= forward * step;
-		}
-		if (m_keys.IsButtonPressed(GLFW_KEY_D))
-		{
-			pos += right * step;
-		}
-		if (m_keys.IsButtonPressed(GLFW_KEY_A))
-		{
-			pos -= right * step;
-		}
-		if (m_keys.IsButtonPressed(GLFW_KEY_SPACE))
-		{
-			pos.y += step;
-		}
-		if (m_keys.IsButtonPressed(GLFW_KEY_LEFT_SHIFT))
-		{
-			pos.y -= step;
-		}
-		m_camera.SetPosition(pos);
 	}
 
 	void MaybeRestartRender()
@@ -232,7 +108,7 @@ private:
 		{
 			return;
 		}
-		UploadFrameBuffer();
+		m_quad.Upload(m_frameBuffer);
 		m_framePending = false;
 	}
 
@@ -257,45 +133,6 @@ private:
 			});
 	}
 
-	static std::vector<TexturedVertex> BuildQuadVertices()
-	{
-		constexpr glm::vec3 n{ 0, 0, 1 };
-		return {
-			{ { -1, -1, 0 }, n, { 0, 1 } },
-			{ { 1, -1, 0 }, n, { 1, 1 } },
-			{ { 1, 1, 0 }, n, { 1, 0 } },
-			{ { -1, -1, 0 }, n, { 0, 1 } },
-			{ { 1, 1, 0 }, n, { 1, 0 } },
-			{ { -1, 1, 0 }, n, { 0, 0 } },
-		};
-	}
-
-	void InitTexture()
-	{
-		glGenTextures(1, &m_texture);
-		glBindTexture(GL_TEXTURE_2D, m_texture);
-		glTexImage2D(
-			GL_TEXTURE_2D, 0, GL_RGBA8,
-			static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height),
-			0, GL_BGRA, GL_UNSIGNED_BYTE, nullptr);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glBindTexture(GL_TEXTURE_2D, 0);
-	}
-
-	void UploadFrameBuffer()
-	{
-		// Framebuffer хранит пиксели в формате 0xAARRGGBB. В памяти little-endian
-		// это байты B, G, R, A — соответствует GL_BGRA + GL_UNSIGNED_BYTE.
-		glBindTexture(GL_TEXTURE_2D, m_texture);
-		glTexSubImage2D(
-			GL_TEXTURE_2D, 0, 0, 0,
-			static_cast<GLsizei>(m_width), static_cast<GLsizei>(m_height),
-			GL_BGRA, GL_UNSIGNED_BYTE, m_frameBuffer.GetPixels(0));
-	}
-
 	unsigned m_width;
 	unsigned m_height;
 
@@ -303,6 +140,7 @@ private:
 	FirstPersonCamera m_camera;
 	FirstPersonCameraController m_cameraController;
 	KeyboardReader m_keys;
+	KeyboardCameraController m_keyboardController;
 	TimeProvider m_time;
 
 	// Состояние камеры на момент старта текущего/последнего рендера. Сравниваем
@@ -315,7 +153,6 @@ private:
 	FrameBuffer m_frameBuffer;
 	Renderer m_renderer;
 
-	TexturedMesh m_quad;
+	Quad m_quad;
 	ShaderProgram m_shader;
-	GLuint m_texture = 0;
 };
