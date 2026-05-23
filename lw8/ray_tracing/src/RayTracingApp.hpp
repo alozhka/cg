@@ -8,6 +8,7 @@
 #include "core/Ray.hpp"
 #include "scene/PyramidScene.hpp"
 #include "scene/Scene.hpp"
+#include "scene/TeapotScene.hpp"
 
 #include <graphics/camera/FirstPersonCamera.hpp>
 #include <graphics/shaders/ShaderProgram.hpp>
@@ -75,6 +76,7 @@ private:
 	void BuildScene()
 	{
 		PyramidScene::Build(m_scene);
+		TeapotScene::Build(m_scene);
 	}
 
 	void InitCamera()
