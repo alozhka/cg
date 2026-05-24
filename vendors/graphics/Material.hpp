@@ -18,13 +18,10 @@ public:
 	{
 	}
 
-	void SetAmbient(const glm::vec3& v) { m_ambient = v; }
-	void SetDiffuse(const glm::vec3& v) { m_diffuse = v; }
-	void SetSpecular(const glm::vec3& v) { m_specular = v; }
-	void SetShininess(float s) { m_shininess = s; }
-
-	void SetDiffuseTexture(const Texture* texture) { m_diffuseTexture = texture; }
-	const Texture* GetDiffuseTexture() const { return m_diffuseTexture; }
+	void SetDiffuseTexture(const Texture* texture)
+	{
+		m_diffuseTexture = texture;
+	}
 
 	void Apply(ShaderProgram& shader) const
 	{
@@ -43,9 +40,9 @@ public:
 	}
 
 private:
-	glm::vec3 m_ambient{ 0.2f, 0.2f, 0.2f };
-	glm::vec3 m_diffuse{ 0.8f, 0.8f, 0.8f };
-	glm::vec3 m_specular{ 0.5f, 0.5f, 0.5f };
-	float m_shininess = 32.0f;
+	glm::vec3 m_ambient{ 0.2, 0.2, 0.2 };
+	glm::vec3 m_diffuse{ 0.8, 0.8, 0.8 };
+	glm::vec3 m_specular{ 0.5, 0.5, 0.5 };
+	float m_shininess = 32;
 	const Texture* m_diffuseTexture = nullptr;
 };

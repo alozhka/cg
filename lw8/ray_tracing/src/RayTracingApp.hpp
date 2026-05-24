@@ -7,6 +7,7 @@
 #include "scene/PyramidScene.hpp"
 #include "scene/TeapotScene.hpp"
 
+#include <graphics/CompositeDrawable3D.hpp>
 #include <graphics/camera/FirstPersonCamera.hpp>
 #include <graphics/shaders/ShaderProgram.hpp>
 #include <graphics/windows/FirstPersonCameraController.hpp>
@@ -39,7 +40,9 @@ public:
 		, m_quad(width, height)
 	{
 		m_shader.LoadFromFile("assets/vertex.glsl", "assets/fragment.glsl");
-		m_quad.Upload(m_frameBuffer);
+		m_rasterShader.LoadFromFile("assets/raster_vertex.glsl", "assets/raster_fragment.glsl");
+
+		glEnable(GL_DEPTH_TEST);
 		BuildScene();
 		InitCamera();
 		CaptureMouseInput();
@@ -53,32 +56,72 @@ public:
 protected:
 	void OnDraw(const glm::mat4& perspective) override
 	{
-		m_keyboardController.Update(m_time.GetDeltaTime());
-
-		PresentFrameIfRendered();
 
 		const glm::mat4 viewProjection = perspective * m_camera.GetViewMatrix();
-		RestartRenderIfReady(viewProjection);
+		HandleInput(viewProjection);
 
 		glClearColor(0, 0, 0, 1);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		m_shader.Use();
-		m_shader.SetUniformInt("uTex", 0);
-		m_quad.Draw();
+		Draw(viewProjection);
 	}
 
 	void OnRawMouseMove(double x, double y) override
 	{
+		if (m_renderMode == RenderMode::RayTracing)
+		{
+			return;
+		}
 		m_cameraController.OnRawMouseMove(x, y);
 	}
 
 private:
+	void Draw(const glm::mat4& viewProjection)
+	{
+		if (m_renderMode == RenderMode::Raster || m_renderer.IsRendering())
+		{
+			m_rasterShader.SetUniformMat4("uViewProjection", viewProjection);
+			m_rasterShader.SetUniformVec3("uCameraPos", m_camera.GetPosition());
+			m_rasterShader.Use();
+			m_rasterScene.Draw(m_rasterShader, glm::mat4{ 1 });
+		}
+		else
+		{
+			m_quad.Upload(m_frameBuffer);
+
+			m_shader.Use();
+			m_shader.SetUniformInt("uTex", 0);
+			m_quad.Draw();
+		}
+	}
+
+
+	void HandleInput(const glm::mat4& viewProjection)
+	{
+		if (m_renderMode == RenderMode::Raster)
+		{
+			m_keyboardController.Update(m_time.GetDeltaTime());
+		}
+
+		if (m_keys.IsButtonPressed(GLFW_KEY_ENTER))
+		{
+			if (m_renderMode == RenderMode::Raster)
+			{
+				m_renderer.Render(m_frameBuffer, m_camera, m_scene, viewProjection);
+				m_renderMode = RenderMode::RayTracing;
+			}
+			else
+			{
+				m_renderMode = RenderMode::Raster;
+			}
+		}
+	}
+
 	void BuildScene()
 	{
 		PyramidScene::Build(m_scene);
-		// лагает с ним капец
-		// TeapotScene::Build(m_scene);
+		PyramidScene::Build(m_rasterScene);
+		TeapotScene::Build(m_scene);
 	}
 
 	void InitCamera()
@@ -87,56 +130,24 @@ private:
 		m_camera.AddYaw(glm::radians<float>(-90));
 	}
 
-	void PresentFrameIfRendered()
-	{
-		if (m_renderer.IsRendering())
-		{
-			return;
-		}
-		m_quad.Upload(m_frameBuffer);
-	}
-
-	void RestartRenderIfReady(const glm::mat4& viewProjection)
-	{
-		if (m_renderer.IsRendering())
-		{
-			return;
-		}
-
-		const glm::vec3 pos = m_camera.GetPosition();
-		const glm::vec3 fwd = m_camera.GetForward();
-		if (pos == m_prevPosition && fwd == m_prevForward)
-		{
-			return;
-		}
-
-		StartRender(viewProjection);
-	}
-
-	void StartRender(const glm::mat4& viewProjection)
-	{
-		m_prevPosition = m_camera.GetPosition();
-		m_prevForward = m_camera.GetForward();
-
-		m_renderer.Render(m_frameBuffer, m_camera, m_scene, viewProjection);
-	}
-
 	unsigned m_width;
 	unsigned m_height;
 
 	Scene m_scene;
+	CompositeDrawable3D m_rasterScene;
+
 	FirstPersonCamera m_camera;
 	FirstPersonCameraController m_cameraController;
 	KeyboardReader m_keys;
 	KeyboardCameraController m_keyboardController;
 	TimeProvider m_time;
 
-	glm::vec3 m_prevPosition{ 0 };
-	glm::vec3 m_prevForward{ 0 };
+	RenderMode m_renderMode = RenderMode::Raster;
 
 	FrameBuffer m_frameBuffer;
 	Renderer m_renderer;
 
 	Quad m_quad;
 	ShaderProgram m_shader;
+	ShaderProgram m_rasterShader;
 };

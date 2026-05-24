@@ -10,22 +10,14 @@
 class Scene
 {
 public:
-	void Add(std::unique_ptr<ISceneObject> object)
+	void Add(const std::shared_ptr<ISceneObject>& object)
 	{
-		m_objects.push_back(std::move(object));
+		m_objects.push_back(object);
 	}
 
-	void Add(std::unique_ptr<ILight> light)
+	void Add(std::shared_ptr<ILight> light)
 	{
 		m_lights.push_back(std::move(light));
-	}
-
-	void DrawRaster()
-	{
-		for (const auto & obj : m_objects)
-		{
-			// obj->Draw();
-		}
 	}
 
 	bool Intersect(const Ray& ray, HitInfo& hit) const
@@ -55,12 +47,12 @@ public:
 		return false;
 	}
 
-	const std::vector<std::unique_ptr<ILight>>& GetLights() const
+	const std::vector<std::shared_ptr<ILight>>& GetLights() const
 	{
 		return m_lights;
 	}
 
 private:
-	std::vector<std::unique_ptr<ISceneObject>> m_objects;
-	std::vector<std::unique_ptr<ILight>> m_lights;
+	std::vector<std::shared_ptr<ISceneObject>> m_objects;
+	std::vector<std::shared_ptr<ILight>> m_lights;
 };
