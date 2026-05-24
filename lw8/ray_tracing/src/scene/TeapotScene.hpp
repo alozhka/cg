@@ -1,9 +1,9 @@
 #pragma once
 
-#include "MeshObject.hpp"
-#include "ObjMeshLoader.hpp"
-#include "Plane.hpp"
-#include "Scene.hpp"
+#include "../core/Scene.hpp"
+#include "../objects/MeshObject.hpp"
+#include "../objects/ObjMeshLoader.hpp"
+#include "../objects/Plane.hpp"
 #include "../shading/Light.hpp"
 #include "../shading/MaterialData.hpp"
 

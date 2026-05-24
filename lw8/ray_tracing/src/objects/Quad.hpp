@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FrameBuffer.hpp"
+#include "../render/FrameBuffer.hpp"
 
 #include <graphics/TexturedMesh.hpp>
 

@@ -1,7 +1,7 @@
 #pragma once
 
+#include "../core/ISceneObject.hpp"
 #include "../shading/MaterialData.hpp"
-#include "ISceneObject.hpp"
 
 #include <algorithm>
 #include <cmath>

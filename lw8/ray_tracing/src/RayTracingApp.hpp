@@ -1,13 +1,13 @@
 #pragma once
 
-#include "FrameBuffer.hpp"
-#include "Quad.hpp"
-#include "Renderer.hpp"
-#include "Shading.hpp"
+#include "objects/Quad.hpp"
+#include "render/FrameBuffer.hpp"
+#include "render/Renderer.hpp"
+#include "shading/Shading.hpp"
 
 #include "core/Ray.hpp"
+#include "core/Scene.hpp"
 #include "scene/PyramidScene.hpp"
-#include "scene/Scene.hpp"
 #include "scene/TeapotScene.hpp"
 
 #include <graphics/camera/FirstPersonCamera.hpp>
@@ -22,6 +22,12 @@
 #include <glad/glad.h>
 
 #include <string>
+
+enum class RenderMode
+{
+	Raster = 0,
+	RayTracing = 1,
+};
 
 class RayTracingApp : public GraphicsApplication
 {
@@ -59,7 +65,7 @@ protected:
 		MaybePresentFrame();
 		MaybeRestartRender();
 
-		glClearColor(0.f, 0.f, 0.f, 1.f);
+		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		m_shader.Use();

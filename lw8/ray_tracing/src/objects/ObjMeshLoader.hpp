@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RayMesh.hpp"
 #include "../shading/MaterialData.hpp"
+#include "../core/RayMesh.hpp"
 
 #include <tiny_obj_loader.h>
 

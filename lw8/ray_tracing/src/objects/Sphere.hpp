@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ISceneObject.hpp"
+#include "../core/ISceneObject.hpp"
 #include "../shading/MaterialData.hpp"
 
 #include <cmath>

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../core/HitInfo.hpp"
-#include "../core/Ray.hpp"
+#include "HitInfo.hpp"
+#include "Ray.hpp"
 
 class ISceneObject
 {

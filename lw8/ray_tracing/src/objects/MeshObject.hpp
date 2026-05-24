@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ISceneObject.hpp"
-#include "RayMesh.hpp"
+#include "../core/ISceneObject.hpp"
+#include "../core/RayMesh.hpp"
 #include "../shading/MaterialData.hpp"
 
 #include <glm/geometric.hpp>

@@ -20,6 +20,14 @@ public:
 		m_lights.push_back(std::move(light));
 	}
 
+	void DrawRaster()
+	{
+		for (const auto & obj : m_objects)
+		{
+			// obj->Draw();
+		}
+	}
+
 	bool Intersect(const Ray& ray, HitInfo& hit) const
 	{
 		bool anyHit = false;

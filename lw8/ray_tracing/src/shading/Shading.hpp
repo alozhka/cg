@@ -1,9 +1,9 @@
 #pragma once
 
-#include "core/HitInfo.hpp"
-#include "core/Ray.hpp"
-#include "scene/Scene.hpp"
-#include "shading/PhongShader.hpp"
+#include "../core/HitInfo.hpp"
+#include "../core/Ray.hpp"
+#include "../core/Scene.hpp"
+#include "PhongShader.hpp"
 
 #include <algorithm>
 #include <cstdint>

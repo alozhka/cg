@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AABB.hpp"
-#include "../core/Ray.hpp"
+#include "Ray.hpp"
 
 #include <cmath>
 #include <cstdint>

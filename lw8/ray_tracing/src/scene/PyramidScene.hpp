@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Plane.hpp"
-#include "Scene.hpp"
-#include "Torus.hpp"
+#include "../core/Scene.hpp"
+#include "../objects/Plane.hpp"
+#include "../objects/Torus.hpp"
 #include "../shading/Light.hpp"
 #include "../shading/MaterialData.hpp"
 

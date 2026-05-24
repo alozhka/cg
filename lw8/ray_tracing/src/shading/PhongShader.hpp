@@ -2,7 +2,7 @@
 
 #include "../core/HitInfo.hpp"
 #include "../core/Ray.hpp"
-#include "../scene/Scene.hpp"
+#include "../core/Scene.hpp"
 #include "Light.hpp"
 #include "MaterialData.hpp"
 
