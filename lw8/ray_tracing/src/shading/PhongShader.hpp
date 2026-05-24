@@ -22,28 +22,25 @@ public:
 		const MaterialData& m = *hit.material;
 		glm::vec3 color{ 0 };
 
-		for (const auto& light : scene.GetLights())
+		for (auto& light : scene.GetLights())
 		{
-			const LightSample s = light->Sample(hit.point);
+			LightSample s = light->Sample(hit.point);
 
-			// Ambient накладывается всегда — даже в тени.
 			color += m.ambient * s.ambient;
 
-			// Сдвиг origin вдоль нормали лечит self-shadow acne.
-			const Ray shadowRay{ hit.point + hit.normal * SHADOW_BIAS, s.direction };
-			if (scene.IsOccluded(shadowRay, s.distance - SHADOW_BIAS))
+			Ray shadowRay{ hit.point + hit.normal * SHADOW_BIAS, s.direction };
+			if (scene.IsOverlappedByObject(shadowRay, s.distance - SHADOW_BIAS))
 			{
 				continue;
 			}
 
-			const float ndl = glm::dot(hit.normal, s.direction);
+			float ndl = glm::dot(hit.normal, s.direction);
 			if (ndl > 0)
 			{
 				color += m.diffuse * s.diffuse * ndl;
 
-				// R = 2(N·L)N - L; specular = (R·V)^shininess.
-				const glm::vec3 reflected = 2.f * ndl * hit.normal - s.direction;
-				const float rdv = std::max(0.f, glm::dot(reflected, dirToObserver));
+				glm::vec3 reflected = glm::reflect(-s.direction, hit.normal);
+				float rdv = std::max(0.f, glm::dot(reflected, dirToObserver));
 				if (rdv > 0)
 				{
 					color += m.specular * s.specular * std::pow(rdv, m.shininess);

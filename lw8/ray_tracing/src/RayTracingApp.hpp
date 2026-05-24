@@ -1,12 +1,9 @@
 #pragma once
 
+#include "core/Scene.hpp"
 #include "objects/Quad.hpp"
 #include "render/FrameBuffer.hpp"
 #include "render/Renderer.hpp"
-#include "shading/Shading.hpp"
-
-#include "core/Ray.hpp"
-#include "core/Scene.hpp"
 #include "scene/PyramidScene.hpp"
 #include "scene/TeapotScene.hpp"
 
@@ -18,7 +15,6 @@
 #include <graphics/windows/KeyboardReader.hpp>
 #include <graphics/windows/TimeProvider.hpp>
 
-#include <GLFW/glfw3.h>
 #include <glad/glad.h>
 
 #include <string>
@@ -47,8 +43,6 @@ public:
 		BuildScene();
 		InitCamera();
 		CaptureMouseInput();
-
-		StartRender();
 	}
 
 	~RayTracingApp() override
@@ -57,13 +51,14 @@ public:
 	}
 
 protected:
-	void OnDraw(const glm::mat4&) override
+	void OnDraw(const glm::mat4& perspective) override
 	{
 		m_keyboardController.Update(m_time.GetDeltaTime());
-		// Сначала презентуем готовый кадр (если есть), потом думаем о рестарте.
-		// Иначе следующий StartRender перебьёт флаг и кадр уйдёт в небытие.
+
 		PresentFrameIfRendered();
-		RestartRenderIfReady();
+
+		const glm::mat4 viewProjection = perspective * m_camera.GetViewMatrix();
+		RestartRenderIfReady(viewProjection);
 
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -82,13 +77,14 @@ private:
 	void BuildScene()
 	{
 		PyramidScene::Build(m_scene);
-		TeapotScene::Build(m_scene);
+		// лагает с ним капец
+		// TeapotScene::Build(m_scene);
 	}
 
 	void InitCamera()
 	{
 		m_camera.SetPosition(glm::vec3{ 0, 1, 5 });
-		m_camera.AddYaw(glm::radians(-90.f));
+		m_camera.AddYaw(glm::radians<float>(-90));
 	}
 
 	void PresentFrameIfRendered()
@@ -100,7 +96,7 @@ private:
 		m_quad.Upload(m_frameBuffer);
 	}
 
-	void RestartRenderIfReady()
+	void RestartRenderIfReady(const glm::mat4& viewProjection)
 	{
 		if (m_renderer.IsRendering())
 		{
@@ -114,27 +110,15 @@ private:
 			return;
 		}
 
-		StartRender();
+		StartRender(viewProjection);
 	}
 
-	void StartRender()
+	void StartRender(const glm::mat4& viewProjection)
 	{
 		m_prevPosition = m_camera.GetPosition();
 		m_prevForward = m_camera.GetForward();
 
-		const FirstPersonCamera cameraSnap = m_camera;
-		const float fov = m_fieldOfView;
-		const float aspect = static_cast<float>(m_width) / static_cast<float>(m_height);
-		const Scene& scene = m_scene;
-
-		m_renderer.Render(m_frameBuffer,
-			[&scene, cameraSnap, fov, aspect](int x, int y, int w, int h) -> std::uint32_t {
-				// Центр пикселя в нормированных координатах с v вверх.
-				const float u = (2.f * (static_cast<float>(x) + 0.5f) / static_cast<float>(w)) - 1.f;
-				const float v = 1.f - (2.f * (static_cast<float>(y) + 0.5f) / static_cast<float>(h));
-				const Ray ray = Ray::Primary(cameraSnap, u, v, fov, aspect);
-				return Shading::PackColor(Shading::TraceRay(scene, ray));
-			});
+		m_renderer.Render(m_frameBuffer, m_camera, m_scene, viewProjection);
 	}
 
 	unsigned m_width;

@@ -41,8 +41,7 @@ public:
 		return anyHit;
 	}
 
-	// Есть ли препятствие на луче в пределах [0, maxDist]. Останавливаемся на первом.
-	bool IsOccluded(const Ray& ray, float maxDist) const
+	bool IsOverlappedByObject(const Ray& ray, float maxDist) const
 	{
 		for (const auto& object : m_objects)
 		{
