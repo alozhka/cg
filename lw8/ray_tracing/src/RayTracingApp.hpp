@@ -62,8 +62,8 @@ protected:
 		m_keyboardController.Update(m_time.GetDeltaTime());
 		// Сначала презентуем готовый кадр (если есть), потом думаем о рестарте.
 		// Иначе следующий StartRender перебьёт флаг и кадр уйдёт в небытие.
-		MaybePresentFrame();
-		MaybeRestartRender();
+		PresentFrameIfRendered();
+		RestartRenderIfReady();
 
 		glClearColor(0, 0, 0, 1);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -91,10 +91,17 @@ private:
 		m_camera.AddYaw(glm::radians(-90.f));
 	}
 
-	void MaybeRestartRender()
+	void PresentFrameIfRendered()
 	{
-		// Пока текущий кадр не дорендерился — не дёргаем рестарт, иначе экран
-		// будет мигать чёрным/частично-отрисованным при каждом движении.
+		if (m_renderer.IsRendering())
+		{
+			return;
+		}
+		m_quad.Upload(m_frameBuffer);
+	}
+
+	void RestartRenderIfReady()
+	{
 		if (m_renderer.IsRendering())
 		{
 			return;
@@ -102,7 +109,7 @@ private:
 
 		const glm::vec3 pos = m_camera.GetPosition();
 		const glm::vec3 fwd = m_camera.GetForward();
-		if (pos == m_renderedPosition && fwd == m_renderedForward)
+		if (pos == m_prevPosition && fwd == m_prevForward)
 		{
 			return;
 		}
@@ -110,21 +117,10 @@ private:
 		StartRender();
 	}
 
-	void MaybePresentFrame()
-	{
-		if (m_renderer.IsRendering() || !m_framePending)
-		{
-			return;
-		}
-		m_quad.Upload(m_frameBuffer);
-		m_framePending = false;
-	}
-
 	void StartRender()
 	{
-		m_renderedPosition = m_camera.GetPosition();
-		m_renderedForward = m_camera.GetForward();
-		m_framePending = true;
+		m_prevPosition = m_camera.GetPosition();
+		m_prevForward = m_camera.GetForward();
 
 		const FirstPersonCamera cameraSnap = m_camera;
 		const float fov = m_fieldOfView;
@@ -151,12 +147,8 @@ private:
 	KeyboardCameraController m_keyboardController;
 	TimeProvider m_time;
 
-	// Состояние камеры на момент старта текущего/последнего рендера. Сравниваем
-	// с актуальным состоянием, чтобы понять, нужно ли запускать новый кадр.
-	glm::vec3 m_renderedPosition{ 0 };
-	glm::vec3 m_renderedForward{ 0 };
-	// Кадр построен, но ещё не залит в GL-текстуру.
-	bool m_framePending = false;
+	glm::vec3 m_prevPosition{ 0 };
+	glm::vec3 m_prevForward{ 0 };
 
 	FrameBuffer m_frameBuffer;
 	Renderer m_renderer;

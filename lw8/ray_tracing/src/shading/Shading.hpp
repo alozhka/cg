@@ -25,7 +25,7 @@ public:
 		return PhongShader::Shade(hit, -ray.direction, scene);
 	}
 
-	static std::uint32_t PackColor(glm::vec3 c)
+	static uint32_t PackColor(glm::vec3 c)
 	{
 		c = glm::clamp(c, glm::vec3{ 0 }, glm::vec3{ 1 });
 
