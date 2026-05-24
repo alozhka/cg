@@ -29,8 +29,8 @@ enum class RenderMode
 class RayTracingApp : public GraphicsApplication
 {
 public:
-	RayTracingApp(unsigned width, unsigned height, const std::string& title)
-		: GraphicsApplication(static_cast<int>(width), static_cast<int>(height), title)
+	RayTracingApp(unsigned width, unsigned height)
+		: GraphicsApplication(static_cast<int>(width), static_cast<int>(height), "Ray Tracing")
 		, m_width(width)
 		, m_height(height)
 		, m_cameraController(m_camera)
@@ -39,7 +39,7 @@ public:
 		, m_frameBuffer(width, height)
 		, m_quad(width, height)
 	{
-		m_shader.LoadFromFile("assets/vertex.glsl", "assets/fragment.glsl");
+		m_quadShader.LoadFromFile("assets/vertex.glsl", "assets/fragment.glsl");
 		m_rasterShader.LoadFromFile("assets/raster_vertex.glsl", "assets/raster_fragment.glsl");
 
 		glEnable(GL_DEPTH_TEST);
@@ -56,7 +56,7 @@ public:
 protected:
 	void OnDraw(const glm::mat4& perspective) override
 	{
-
+		UpdateTitle();
 		const glm::mat4 viewProjection = perspective * m_camera.GetViewMatrix();
 		HandleInput(viewProjection);
 
@@ -89,12 +89,11 @@ private:
 		{
 			m_quad.Upload(m_frameBuffer);
 
-			m_shader.Use();
-			m_shader.SetUniformInt("uTex", 0);
+			m_quadShader.Use();
+			m_quadShader.SetUniformInt("uTex", 0);
 			m_quad.Draw();
 		}
 	}
-
 
 	void HandleInput(const glm::mat4& viewProjection)
 	{
@@ -103,7 +102,7 @@ private:
 			m_keyboardController.Update(m_time.GetDeltaTime());
 		}
 
-		if (m_keys.IsButtonPressed(GLFW_KEY_ENTER))
+		if (m_keys.WasJustPressed(GLFW_KEY_ENTER))
 		{
 			if (m_renderMode == RenderMode::Raster)
 			{
@@ -122,12 +121,34 @@ private:
 		PyramidScene::Build(m_scene);
 		PyramidScene::Build(m_rasterScene);
 		TeapotScene::Build(m_scene);
+		TeapotScene::Build(m_rasterScene);
 	}
 
 	void InitCamera()
 	{
 		m_camera.SetPosition(glm::vec3{ 0, 1, 5 });
 		m_camera.AddYaw(glm::radians<float>(-90));
+	}
+
+	void UpdateTitle()
+	{
+		std::string title = "Object scene. Mode: ";
+
+		if (m_renderMode == RenderMode::Raster)
+		{
+			title += " Raster.";
+		}
+		else
+		{
+			title += " Ray Tracing.";
+		}
+
+		if (m_renderer.IsRendering())
+		{
+			title += " Rendering in progress...";
+		}
+
+		SetWindowTitle(title);
 	}
 
 	unsigned m_width;
@@ -148,6 +169,6 @@ private:
 	Renderer m_renderer;
 
 	Quad m_quad;
-	ShaderProgram m_shader;
+	ShaderProgram m_quadShader;
 	ShaderProgram m_rasterShader;
 };

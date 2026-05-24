@@ -2,6 +2,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include <unordered_map>
+
 class KeyboardReader
 {
 public:
@@ -15,6 +17,14 @@ public:
 		return IsWindowAvailable() && glfwGetKey(m_window, button) == GLFW_PRESS;
 	}
 
+	bool WasJustPressed(int button)
+	{
+		bool pressed = IsButtonPressed(button);
+		bool justPressed = pressed && !m_pressed[button];
+		m_pressed[button] = pressed;
+		return justPressed;
+	}
+
 private:
 	bool IsWindowAvailable() const
 	{
@@ -22,4 +32,5 @@ private:
 	}
 
 	GLFWwindow* m_window;
+	std::unordered_map<int, bool> m_pressed;
 };
