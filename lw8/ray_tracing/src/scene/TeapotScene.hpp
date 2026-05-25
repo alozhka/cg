@@ -3,9 +3,7 @@
 #include "../core/ObjMeshLoader.hpp"
 #include "../core/Scene.hpp"
 #include "../objects/MeshObject.hpp"
-#include "../objects/Plane.hpp"
 #include "../raster_objects/GpuMesh.hpp"
-#include "../shading/Light.hpp"
 #include "../shading/MaterialData.hpp"
 
 #include <graphics/CompositeDrawable3D.hpp>

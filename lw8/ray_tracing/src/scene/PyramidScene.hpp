@@ -25,22 +25,8 @@ public:
 
 	static void Build(CompositeDrawable3D& scene)
 	{
-		auto plane = std::make_shared<GpuPlane>(MATERIALS.floor);
-		scene.AddChild(plane);
-
-		const std::array<TorusSpec, 5> specs = {
-			{
-				{ 0.90, 1 * TUBE_RADIUS, MATERIALS.red },
-				{ 0.75, 3 * TUBE_RADIUS, MATERIALS.orange },
-				{ 0.60, 5 * TUBE_RADIUS, MATERIALS.yellow },
-				{ 0.45, 7 * TUBE_RADIUS, MATERIALS.green },
-				{ 0.30, 9 * TUBE_RADIUS, MATERIALS.blue },
-			}
-		};
-		for (const auto& s : specs)
-		{
-			scene.AddChild(std::make_shared<GpuTorus>(s.R, TUBE_RADIUS, glm::vec3{ 0, s.y, 0 }, s.material));
-		}
+		AddFloor(scene);
+		AddPyramid(scene);
 	}
 
 private:
@@ -65,20 +51,38 @@ private:
 
 	static void AddFloor(Scene& scene)
 	{
-		scene.Add(PLANE);
+		scene.Add(std::make_shared<Plane>(glm::vec3{ 0, 0, 0 }, glm::vec3{ 0, 1, 0 }, MATERIALS.floor));
+	}
+
+	static void AddFloor(CompositeDrawable3D& scene)
+	{
+		auto plane = std::make_shared<GpuPlane>(MATERIALS.floor);
+		scene.AddChild(plane);
 	}
 
 	static void AddPyramid(Scene& scene)
 	{
-		for (const auto& torus : TORUSES)
+		const std::array<TorusSpec, 5> specs = BuildPyramidSpecs();
+		for (const auto& s : specs)
 		{
-			scene.Add(torus);
+			const glm::mat4 transform = glm::translate(glm::mat4{ 1 }, glm::vec3{ 0, s.y, 0 });
+			scene.Add(std::make_shared<Torus>(s.R, TUBE_RADIUS, transform, s.material));
+		}
+	}
+
+	static void AddPyramid(CompositeDrawable3D& scene)
+	{
+		const std::array<TorusSpec, 5> specs = BuildPyramidSpecs();
+		for (const auto& s : specs)
+		{
+			scene.AddChild(std::make_shared<GpuTorus>(s.R, TUBE_RADIUS, glm::vec3{ 0, s.y, 0 }, s.material));
 		}
 	}
 
 	static void AddLights(Scene& scene)
 	{
-		for (const auto& light : LIGHTS)
+		std::vector<std::shared_ptr<ILight>> lights = BuildLights();
+		for (const auto& light : lights)
 		{
 			scene.Add(light);
 		}
@@ -142,10 +146,8 @@ private:
 		return lights;
 	}
 
-	static std::vector<std::shared_ptr<Torus>> BuildPyramid()
+	static std::array<TorusSpec, 5> BuildPyramidSpecs()
 	{
-		std::vector<std::shared_ptr<Torus>> toruses;
-
 		const std::array<TorusSpec, 5> specs = {
 			{
 				{ 0.90, 1 * TUBE_RADIUS, MATERIALS.red },
@@ -155,17 +157,8 @@ private:
 				{ 0.30, 9 * TUBE_RADIUS, MATERIALS.blue },
 			}
 		};
-		for (const auto& s : specs)
-		{
-			const glm::mat4 transform = glm::translate(glm::mat4{ 1 }, glm::vec3{ 0, s.y, 0 });
-			toruses.push_back(std::make_shared<Torus>(s.R, TUBE_RADIUS, transform, s.material));
-		}
-
-		return toruses;
+		return specs;
 	}
 
 	inline static Materials MATERIALS = BuildMaterials();
-	inline static std::vector<std::shared_ptr<ILight>> LIGHTS = BuildLights();
-	inline static std::vector<std::shared_ptr<Torus>> TORUSES = BuildPyramid();
-	inline static std::shared_ptr<Plane> PLANE = std::make_shared<Plane>(glm::vec3{ 0, 0, 0 }, glm::vec3{ 0, 1, 0 }, MATERIALS.floor);
 };

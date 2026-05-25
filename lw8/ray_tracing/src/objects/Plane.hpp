@@ -10,7 +10,7 @@
 class Plane : public ISceneObject
 {
 public:
-	Plane(glm::vec3 point, glm::vec3 normal, MaterialPtr material)
+	Plane(glm::vec3 point, glm::vec3 normal, const MaterialPtr& material)
 		: m_point(point)
 		, m_normal(glm::normalize(normal))
 		, m_material(std::move(material))
@@ -33,9 +33,7 @@ public:
 
 		hit.t = t;
 		hit.point = ray.origin + ray.direction * t;
-		// Нормаль развёрнута в полупространство наблюдателя — корректное
-		// освещение с обеих сторон плоскости.
-		hit.normal = denom < 0.f ? m_normal : -m_normal;
+		hit.normal = denom < 0 ? m_normal : -m_normal;
 		hit.material = m_material;
 		return true;
 	}
