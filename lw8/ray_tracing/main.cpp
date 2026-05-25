@@ -6,7 +6,7 @@ int main()
 {
 	try
 	{
-		RayTracingApp app(1024, 768);
+		RayTracingApp app(800, 600);
 		app.MainLoop();
 	}
 	catch (const std::exception& e)

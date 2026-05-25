@@ -18,9 +18,6 @@
 // Точка пересечения ищется brute-force сэмплингом F вдоль луча внутри
 // ограничивающей сферы: смена знака между соседними сэмплами или |F| ниже
 // абсолютного порога считается срабатыванием, далее простая бисекция.
-//
-// Аналитика квартики вынесена в бонус — этот путь проще и устойчивее
-// к касательным лучам.
 class Torus : public ISceneObject
 {
 public:
@@ -37,64 +34,136 @@ public:
 
 	bool Intersect(const Ray& ray, HitInfo& hit) const override
 	{
-		// Луч в локальную систему. Преобразуем origin и (origin + direction)
-		// как точки — это даёт корректный локальный direction даже при
-		// неединичном масштабе матрицы.
-		const glm::vec3 oLocal = glm::vec3(m_invTransform * glm::vec4(ray.origin, 1.f));
-		const glm::vec3 eLocal = glm::vec3(m_invTransform * glm::vec4(ray.origin + ray.direction, 1.f));
-		const glm::vec3 dLocal = eLocal - oLocal;
+		const Ray localRay = ToLocalRay(ray);
 
-		float tStart = 0.f;
-		float tEnd = 0.f;
-		if (!IntersectBoundingSphere(oLocal, dLocal, EPSILON, hit.t, tStart, tEnd))
+		float sphereEntryT = 0.f;
+		float sphereExitT = 0.f;
+		if (!IntersectBoundingSphere(localRay, MIN_RAY_DISTANCE, hit.t, sphereEntryT, sphereExitT))
 		{
 			return false;
 		}
 
-		const float step = (tEnd - tStart) / static_cast<float>(SEARCH_STEPS);
-		float prevT = tStart;
-		float prevF = Evaluate(oLocal + dLocal * prevT);
+		float hitT = 0.f;
+		if (!FindSurfaceHit(localRay, sphereEntryT, sphereExitT, hit.t, hitT))
+		{
+			return false;
+		}
+
+		FillHit(localRay, hitT, hit);
+		return true;
+	}
+
+private:
+	static constexpr int SEARCH_STEPS = 2048;
+	static constexpr int REFINE_ITERATIONS = 24;
+	static constexpr float MIN_RAY_DISTANCE = 1e-4f;
+	static constexpr float NEAR_ZERO_THRESHOLD = 1e-3f;
+
+	struct Sample
+	{
+		float t;
+		float value;
+	};
+
+	// Луч в локальную систему. Преобразуем origin и (origin + direction)
+	// как точки — это даёт корректный локальный direction даже при
+	// неединичном масштабе матрицы. Свой тип нужен потому, что Ray
+	// нормализует направление в конструкторе, а локальное направление
+	// должно остаться неединичным для согласованной параметризации по t.
+	Ray ToLocalRay(const Ray& worldRay) const
+	{
+		const glm::vec3 origin = glm::vec3(m_invTransform * glm::vec4(worldRay.origin, 1.f));
+		const glm::vec3 target = glm::vec3(m_invTransform * glm::vec4(worldRay.origin + worldRay.direction, 1.f));
+		return { origin, target - origin };
+	}
+
+	bool IntersectBoundingSphere(
+		const Ray& ray,
+		float minT, float maxT,
+		float& entryT, float& exitT) const
+	{
+		const float a = glm::dot(ray.direction, ray.direction);
+		const float halfB = glm::dot(ray.origin, ray.direction);
+		const float radius = m_R + m_r;
+		const float c = glm::dot(ray.origin, ray.origin) - radius * radius;
+		const float disc = halfB * halfB - a * c;
+		if (disc < 0.f)
+		{
+			return false;
+		}
+		const float sq = std::sqrt(disc);
+		entryT = std::max(minT, (-halfB - sq) / a);
+		exitT = std::min(maxT, (-halfB + sq) / a);
+		return exitT >= entryT;
+	}
+
+	// Грубый поиск ближайшего корня F вдоль локального луча в [startT, endT].
+	// Возвращает t уточнённый бисекцией, либо false если корень не найден.
+	bool FindSurfaceHit(
+		const Ray& ray,
+		float startT, float endT,
+		float maxT,
+		float& outT) const
+	{
+		const float step = (endT - startT) / static_cast<float>(SEARCH_STEPS);
+		Sample previous{ startT, Evaluate(ray.At(startT)) };
 
 		for (int i = 1; i <= SEARCH_STEPS; ++i)
 		{
-			const float curT = (i == SEARCH_STEPS) ? tEnd : (tStart + step * static_cast<float>(i));
-			const float curF = Evaluate(oLocal + dLocal * curT);
+			const float t = (i == SEARCH_STEPS) ? endT : startT + step * static_cast<float>(i);
+			const Sample current{ t, Evaluate(ray.At(t)) };
 
-			const bool signFlip = prevF * curF < 0.f;
-			const bool nearZero = std::abs(prevF) < TANGENT_EPS || std::abs(curF) < TANGENT_EPS;
-			if (signFlip || nearZero)
+			if (HasRootBetween(previous, current))
 			{
-				const float tHit = RefineRoot(oLocal, dLocal, prevT, curT);
-				if (tHit < EPSILON || tHit >= hit.t)
+				const float candidate = RefineRoot(ray, previous.t, current.t);
+				if (candidate >= MIN_RAY_DISTANCE && candidate <= maxT)
 				{
-					return false;
+					outT = candidate;
+					return true;
 				}
-
-				const glm::vec3 pLocal = oLocal + dLocal * tHit;
-				glm::vec3 nWorld = glm::normalize(m_normalMatrix * SurfaceNormal(pLocal));
-				if (glm::dot(nWorld, ray.direction) > 0.f)
-				{
-					nWorld = -nWorld;
-				}
-
-				hit.t = tHit;
-				hit.point = ray.origin + ray.direction * tHit;
-				hit.normal = nWorld;
-				hit.material = m_material;
-				return true;
 			}
 
-			prevT = curT;
-			prevF = curF;
+			previous = current;
 		}
 		return false;
 	}
 
-private:
-	static constexpr int SEARCH_STEPS = 1024;
-	static constexpr int REFINE_ITERATIONS = 12;
-	static constexpr float EPSILON = 1e-4f;
-	static constexpr float TANGENT_EPS = 1e-4f;
+	static bool HasRootBetween(const Sample& a, const Sample& b)
+	{
+		const bool signFlip = a.value * b.value < 0.f;
+		const bool nearZero = std::abs(a.value) < NEAR_ZERO_THRESHOLD
+			|| std::abs(b.value) < NEAR_ZERO_THRESHOLD;
+		return signFlip || nearZero;
+	}
+
+	float RefineRoot(const Ray& ray, float left, float right) const
+	{
+		float leftValue = Evaluate(ray.At(left));
+		for (int i = 0; i < REFINE_ITERATIONS; ++i)
+		{
+			const float mid = 0.5f * (left + right);
+			const float midValue = Evaluate(ray.At(mid));
+			if (leftValue * midValue <= 0.f)
+			{
+				right = mid;
+			}
+			else
+			{
+				left = mid;
+				leftValue = midValue;
+			}
+		}
+		return 0.5f * (left + right);
+	}
+
+	void FillHit(const Ray& ray, float t, HitInfo& hit) const
+	{
+		const glm::vec3 localPoint = ray.At(t);
+		hit.t = t;
+		hit.point = glm::vec3(m_transform * glm::vec4(localPoint, 1.f));
+		hit.normal = glm::normalize(m_normalMatrix * SurfaceNormal(localPoint));
+		hit.material = m_material;
+	}
 
 	float Evaluate(const glm::vec3& p) const
 	{
@@ -110,52 +179,11 @@ private:
 		const float lenXZ = std::sqrt(p.x * p.x + p.z * p.z);
 		if (lenXZ < 1e-6f)
 		{
-			// Точка на оси Y — нормаль направлена строго вверх/вниз.
 			return glm::vec3{ 0.f, p.y >= 0.f ? 1.f : -1.f, 0.f };
 		}
 		const float k = m_R / lenXZ;
 		const glm::vec3 ringCenter{ p.x * k, 0.f, p.z * k };
 		return glm::normalize(p - ringCenter);
-	}
-
-	bool IntersectBoundingSphere(
-		const glm::vec3& o, const glm::vec3& d,
-		float minT, float maxT,
-		float& start, float& end) const
-	{
-		const float a = glm::dot(d, d);
-		const float halfB = glm::dot(o, d);
-		const float radius = m_R + m_r;
-		const float c = glm::dot(o, o) - radius * radius;
-		const float disc = halfB * halfB - a * c;
-		if (disc < 0.f)
-		{
-			return false;
-		}
-		const float sq = std::sqrt(disc);
-		start = std::max(minT, (-halfB - sq) / a);
-		end = std::min(maxT, (-halfB + sq) / a);
-		return end >= start;
-	}
-
-	float RefineRoot(const glm::vec3& o, const glm::vec3& d, float left, float right) const
-	{
-		float leftValue = Evaluate(o + d * left);
-		for (int i = 0; i < REFINE_ITERATIONS; ++i)
-		{
-			const float mid = 0.5f * (left + right);
-			const float midValue = Evaluate(o + d * mid);
-			if (leftValue * midValue <= 0.f)
-			{
-				right = mid;
-			}
-			else
-			{
-				left = mid;
-				leftValue = midValue;
-			}
-		}
-		return 0.5f * (left + right);
 	}
 
 	float m_R;

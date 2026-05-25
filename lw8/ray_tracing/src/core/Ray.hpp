@@ -13,6 +13,11 @@ struct Ray
 	{
 	}
 
+	glm::vec3 At(float t) const
+	{
+		return origin + direction * t;
+	}
+
 	glm::vec3 origin{ 0 };
 	glm::vec3 direction{ 0, 0, 1 };
 };
