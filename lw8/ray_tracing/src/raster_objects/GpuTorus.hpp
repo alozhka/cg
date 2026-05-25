@@ -6,17 +6,10 @@
 #include <graphics/Mesh.hpp>
 #include <graphics/Vertex.hpp>
 
-#include <glm/glm.hpp>
-
 #include <cmath>
 #include <utility>
 #include <vector>
 
-// Тор с осью вдоль локального Y — то же соглашение, что и в RT-варианте.
-// Параметризация:
-//   x = (R + r·cos v) · cos u
-//   y = r · sin v
-//   z = (R + r·cos v) · sin u
 class GpuTorus : public Drawable3D
 {
 public:

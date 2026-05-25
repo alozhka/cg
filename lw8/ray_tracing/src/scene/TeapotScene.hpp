@@ -2,7 +2,7 @@
 
 #include "../core/ObjMeshLoader.hpp"
 #include "../core/Scene.hpp"
-#include "../objects/MeshObject.hpp"
+#include "../objects/RayModel.hpp"
 #include "../raster_objects/GpuMesh.hpp"
 
 #include <graphics/CompositeDrawable3D.hpp>
@@ -17,7 +17,7 @@ public:
 	static void Build(Scene& scene)
 	{
 		auto loaded = ObjMeshLoader::Load("assets/models/teapot.obj");
-		scene.Add(std::make_unique<MeshObject>(loaded.mesh, std::move(loaded.materials), TEAPOT_TRANSFORM));
+		scene.Add(std::make_unique<RayModel>(loaded.mesh, std::move(loaded.materials), TEAPOT_TRANSFORM));
 	}
 
 	static void Build(CompositeDrawable3D& scene)

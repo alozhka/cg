@@ -13,10 +13,10 @@
 #include <utility>
 #include <vector>
 
-class MeshObject : public ISceneObject
+class RayModel : public ISceneObject
 {
 public:
-	MeshObject(
+	RayModel(
 		std::shared_ptr<const RayMesh> mesh,
 		std::vector<MaterialPtr> materials,
 		const glm::mat4& transform = glm::mat4{ 1.f })

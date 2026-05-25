@@ -32,10 +32,10 @@ public:
 		tFar = tMax;
 		for (int k = 0; k < 3; ++k)
 		{
-			const float invD = 1.f / ray.direction[k];
+			const float invD = 1 / ray.direction[k];
 			float t0 = (m_min[k] - ray.origin[k]) * invD;
 			float t1 = (m_max[k] - ray.origin[k]) * invD;
-			if (invD < 0.f)
+			if (invD < 0)
 			{
 				std::swap(t0, t1);
 			}
@@ -53,7 +53,7 @@ public:
 	{
 		float tNear = 0.f;
 		float tFar = 0.f;
-		return Intersect(ray, 0.f, tMax, tNear, tFar);
+		return Intersect(ray, 0, tMax, tNear, tFar);
 	}
 
 private:

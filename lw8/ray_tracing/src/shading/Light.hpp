@@ -5,12 +5,9 @@
 
 #include <limits>
 
-// Освещённость, поступающая в данную точку от одного источника света.
 struct LightSample
 {
-	// Направление от точки К источнику (единичный).
 	glm::vec3 direction{ 0, 1, 0 };
-	// Расстояние до источника. Для направленных — +inf.
 	float distance = std::numeric_limits<float>::infinity();
 	glm::vec3 ambient{ 0 };
 	glm::vec3 diffuse{ 0 };
