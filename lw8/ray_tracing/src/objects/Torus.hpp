@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../core/AABB.hpp"
 #include "../core/ISceneObject.hpp"
 #include "../shading/MaterialData.hpp"
 
@@ -16,7 +17,7 @@
 // F(p) = (p·p + R² − r²)² − 4R²(pₓ² + p_z²)
 //
 // Точка пересечения ищется brute-force сэмплингом F вдоль луча внутри
-// ограничивающей сферы: смена знака между соседними сэмплами или |F| ниже
+// ограничивающей коробки: смена знака между соседними сэмплами или |F| ниже
 // абсолютного порога считается срабатыванием, далее простая бисекция.
 class Torus : public ISceneObject
 {
@@ -29,27 +30,30 @@ public:
 		, m_invTransform(glm::inverse(transform))
 		, m_normalMatrix(glm::transpose(glm::mat3(m_invTransform)))
 		, m_material(std::move(material))
+		, m_bounds(
+			  glm::vec3{ -(m_R + m_r), -m_r, -(m_R + m_r) },
+			  glm::vec3{ m_R + m_r, m_r, m_R + m_r })
 	{
 	}
 
 	bool Intersect(const Ray& ray, HitInfo& hit) const override
 	{
-		const Ray localRay = ToLocalRay(ray);
+		const Ray localRay = CreateLocalRay(ray);
 
-		float sphereEntryT = 0.f;
-		float sphereExitT = 0.f;
-		if (!IntersectBoundingSphere(localRay, MIN_RAY_DISTANCE, hit.t, sphereEntryT, sphereExitT))
+		float entryAt = 0;
+		float exitAt = 0;
+		if (!m_bounds.Intersect(localRay, MIN_RAY_DISTANCE, hit.t, entryAt, exitAt))
 		{
 			return false;
 		}
 
-		float hitT = 0.f;
-		if (!FindSurfaceHit(localRay, sphereEntryT, sphereExitT, hit.t, hitT))
+		float hitAt = 0;
+		if (!FindSurfaceHit(localRay, entryAt, exitAt, hit.t, hitAt))
 		{
 			return false;
 		}
 
-		FillHit(localRay, hitT, hit);
+		FillHit(localRay, hitAt, hit);
 		return true;
 	}
 
@@ -65,40 +69,13 @@ private:
 		float value;
 	};
 
-	// Луч в локальную систему. Преобразуем origin и (origin + direction)
-	// как точки — это даёт корректный локальный direction даже при
-	// неединичном масштабе матрицы. Свой тип нужен потому, что Ray
-	// нормализует направление в конструкторе, а локальное направление
-	// должно остаться неединичным для согласованной параметризации по t.
-	Ray ToLocalRay(const Ray& worldRay) const
+	Ray CreateLocalRay(const Ray& worldRay) const
 	{
-		const glm::vec3 origin = glm::vec3(m_invTransform * glm::vec4(worldRay.origin, 1.f));
-		const glm::vec3 target = glm::vec3(m_invTransform * glm::vec4(worldRay.origin + worldRay.direction, 1.f));
-		return { origin, target - origin };
+		const glm::vec3 origin = glm::vec3(m_invTransform * glm::vec4(worldRay.origin, 1));
+		const glm::vec3 direction = glm::mat3(m_invTransform) * worldRay.direction;
+		return { origin, direction };
 	}
 
-	bool IntersectBoundingSphere(
-		const Ray& ray,
-		float minT, float maxT,
-		float& entryT, float& exitT) const
-	{
-		const float a = glm::dot(ray.direction, ray.direction);
-		const float halfB = glm::dot(ray.origin, ray.direction);
-		const float radius = m_R + m_r;
-		const float c = glm::dot(ray.origin, ray.origin) - radius * radius;
-		const float disc = halfB * halfB - a * c;
-		if (disc < 0.f)
-		{
-			return false;
-		}
-		const float sq = std::sqrt(disc);
-		entryT = std::max(minT, (-halfB - sq) / a);
-		exitT = std::min(maxT, (-halfB + sq) / a);
-		return exitT >= entryT;
-	}
-
-	// Грубый поиск ближайшего корня F вдоль локального луча в [startT, endT].
-	// Возвращает t уточнённый бисекцией, либо false если корень не найден.
 	bool FindSurfaceHit(
 		const Ray& ray,
 		float startT, float endT,
@@ -192,4 +169,5 @@ private:
 	glm::mat4 m_invTransform;
 	glm::mat3 m_normalMatrix;
 	MaterialPtr m_material;
+	AABB m_bounds;
 };

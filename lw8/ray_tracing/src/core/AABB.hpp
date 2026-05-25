@@ -26,12 +26,10 @@ public:
 		m_max = glm::max(m_max, p);
 	}
 
-	// Slab-метод. Деление на 0 при d.k==0 даёт +/-inf, что корректно
-	// обрабатывается последующими min/max — луч просто "пролетает мимо" по оси.
-	bool Intersect(const Ray& ray, float tMax) const
+	bool Intersect(const Ray& ray, float tMin, float tMax, float& tNear, float& tFar) const
 	{
-		float tNear = 0.f;
-		float tFar = tMax;
+		tNear = tMin;
+		tFar = tMax;
 		for (int k = 0; k < 3; ++k)
 		{
 			const float invD = 1.f / ray.direction[k];
@@ -49,6 +47,13 @@ public:
 			}
 		}
 		return true;
+	}
+
+	bool Intersect(const Ray& ray, float tMax) const
+	{
+		float tNear = 0.f;
+		float tFar = 0.f;
+		return Intersect(ray, 0.f, tMax, tNear, tFar);
 	}
 
 private:
