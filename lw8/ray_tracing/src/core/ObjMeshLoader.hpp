@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../shading/MaterialData.hpp"
-#include "../core/RayMesh.hpp"
+#include "RayMesh.hpp"
 
 #include <tiny_obj_loader.h>
 
@@ -27,18 +27,7 @@ public:
 
 	static Loaded Load(const std::string& path)
 	{
-		const std::filesystem::path objFile(path);
-		const std::filesystem::path baseDir = objFile.parent_path();
-
-		tinyobj::ObjReaderConfig config;
-		config.mtl_search_path = baseDir.string();
-		config.triangulate = true;
-
-		tinyobj::ObjReader reader;
-		if (!reader.ParseFromFile(path, config))
-		{
-			throw std::runtime_error("Failed to load OBJ '" + path + "': " + reader.Error());
-		}
+		tinyobj::ObjReader reader = Parse(path);
 
 		const tinyobj::attrib_t& attrib = reader.GetAttrib();
 		const auto& shapes = reader.GetShapes();
@@ -117,6 +106,24 @@ private:
 			return h;
 		}
 	};
+
+	static tinyobj::ObjReader Parse(const std::string& filepath)
+	{
+		const std::filesystem::path objFile(filepath);
+		const std::filesystem::path baseDir = objFile.parent_path();
+
+		tinyobj::ObjReaderConfig config;
+		config.mtl_search_path = baseDir.string();
+		config.triangulate = true;
+
+		tinyobj::ObjReader reader;
+		if (!reader.ParseFromFile(filepath, config))
+		{
+			throw std::runtime_error("Failed to load OBJ '" + filepath + "': " + reader.Error());
+		}
+
+		return reader;
+	}
 
 	static std::vector<MaterialPtr> BuildMaterials(const std::vector<tinyobj::material_t>& src)
 	{

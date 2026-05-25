@@ -26,7 +26,7 @@ enum class RenderMode
 	RayTracing = 1,
 };
 
-class RayTracingApp : public GraphicsApplication
+class RayTracingApp final : public GraphicsApplication
 {
 public:
 	RayTracingApp(unsigned width, unsigned height)

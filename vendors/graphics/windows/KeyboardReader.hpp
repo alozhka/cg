@@ -20,8 +20,8 @@ public:
 	bool WasJustPressed(int button)
 	{
 		bool pressed = IsButtonPressed(button);
-		bool justPressed = pressed && !m_pressed[button];
-		m_pressed[button] = pressed;
+		bool justPressed = pressed && !m_isPressed[button];
+		m_isPressed[button] = pressed;
 		return justPressed;
 	}
 
@@ -32,5 +32,5 @@ private:
 	}
 
 	GLFWwindow* m_window;
-	std::unordered_map<int, bool> m_pressed;
+	std::unordered_map<int, bool> m_isPressed;
 };

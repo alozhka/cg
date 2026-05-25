@@ -32,8 +32,6 @@ public:
 
 	void Upload(const FrameBuffer& frame)
 	{
-		// FrameBuffer хранит пиксели в формате 0xAARRGGBB. В памяти little-endian
-		// это байты B, G, R, A — соответствует GL_BGRA + GL_UNSIGNED_BYTE.
 		glBindTexture(GL_TEXTURE_2D, m_texture);
 		glTexSubImage2D(
 			GL_TEXTURE_2D,

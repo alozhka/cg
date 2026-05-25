@@ -1,8 +1,8 @@
 #pragma once
 
+#include "../core/ObjMeshLoader.hpp"
 #include "../core/Scene.hpp"
 #include "../objects/MeshObject.hpp"
-#include "../objects/ObjMeshLoader.hpp"
 #include "../objects/Plane.hpp"
 #include "../raster_objects/GpuMesh.hpp"
 #include "../shading/Light.hpp"
@@ -26,14 +26,14 @@ public:
 	static void Build(CompositeDrawable3D& scene)
 	{
 		auto loaded = LoadTeapot();
-		scene.AddChild(std::make_shared<GpuMesh>(loaded.mesh, GreenMaterial(), TEAPOT_POSITION));
+		scene.AddChild(std::make_shared<GpuMesh>(loaded.mesh, CreateGreenMaterial(), TEAPOT_POSITION));
 	}
 
 private:
-	inline static const glm::vec3 TEAPOT_POSITION{ 3.2f, 0.f, -0.2f };
-	inline static const glm::mat4 TEAPOT_TRANSFORM = glm::translate(glm::mat4{ 1 }, TEAPOT_POSITION);
+	static constexpr glm::vec3 TEAPOT_POSITION{ 3.2, 0, -0.2 };
+	static constexpr glm::mat4 TEAPOT_TRANSFORM = glm::translate(glm::mat4{ 1 }, TEAPOT_POSITION);
 
-	static MaterialPtr GreenMaterial()
+	static MaterialPtr CreateGreenMaterial()
 	{
 		static const MaterialPtr material = std::make_shared<MaterialData>(MaterialData{
 			.ambient = glm::vec3{ 0.05, 0.1, 0.05 },
@@ -47,11 +47,9 @@ private:
 	static ObjMeshLoader::Loaded LoadTeapot()
 	{
 		auto loaded = ObjMeshLoader::Load("assets/models/teapot.obj");
-		// Чайник в файле без MTL, поэтому материалов всего один (default).
-		// Заменяем его на наш зелёный.
 		for (auto& m : loaded.materials)
 		{
-			m = GreenMaterial();
+			m = CreateGreenMaterial();
 		}
 		return loaded;
 	}
