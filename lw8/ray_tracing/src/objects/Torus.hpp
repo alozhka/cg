@@ -13,17 +13,14 @@
 #include <glm/vec3.hpp>
 #include <utility>
 
-// Тор с осью вдоль локального Y.
-// F(p) = (p·p + R² − r²)² − 4R²(pₓ² + p_z²)
-//
-// Точка пересечения ищется brute-force сэмплингом F вдоль луча внутри
-// ограничивающей коробки: смена знака между соседними сэмплами или |F| ниже
-// абсолютного порога считается срабатыванием, далее простая бисекция.
 class Torus : public ISceneObject
 {
 public:
-	Torus(float majorRadius, float minorRadius,
-		const glm::mat4& transform, MaterialPtr material)
+	Torus(
+		float majorRadius,
+		float minorRadius,
+		const glm::mat4& transform,
+		const MaterialPtr& material)
 		: m_R(majorRadius)
 		, m_r(minorRadius)
 		, m_transform(transform)
@@ -38,7 +35,7 @@ public:
 
 	bool Intersect(const Ray& ray, HitInfo& hit) const override
 	{
-		const Ray localRay = CreateLocalRay(ray);
+		Ray localRay = CreateLocalRay(ray);
 
 		float entryAt = 0;
 		float exitAt = 0;
@@ -58,11 +55,6 @@ public:
 	}
 
 private:
-	static constexpr int SEARCH_STEPS = 2048;
-	static constexpr int REFINE_ITERATIONS = 24;
-	static constexpr float MIN_RAY_DISTANCE = 1e-4f;
-	static constexpr float NEAR_ZERO_THRESHOLD = 1e-3f;
-
 	struct Sample
 	{
 		float t;
@@ -71,31 +63,32 @@ private:
 
 	Ray CreateLocalRay(const Ray& worldRay) const
 	{
-		const glm::vec3 origin = glm::vec3(m_invTransform * glm::vec4(worldRay.origin, 1));
-		const glm::vec3 direction = glm::mat3(m_invTransform) * worldRay.direction;
+		glm::vec3 origin = glm::vec3(m_invTransform * glm::vec4(worldRay.origin, 1));
+		glm::vec3 direction = glm::mat3(m_invTransform) * worldRay.direction;
 		return { origin, direction };
 	}
 
 	bool FindSurfaceHit(
 		const Ray& ray,
-		float startT, float endT,
-		float maxT,
-		float& outT) const
+		float startAt,
+		float endAt,
+		float max,
+		float& hitAt) const
 	{
-		const float step = (endT - startT) / static_cast<float>(SEARCH_STEPS);
-		Sample previous{ startT, Evaluate(ray.At(startT)) };
+		float step = (endAt - startAt) / SEARCH_STEPS;
+		Sample previous{ startAt, Evaluate(ray.At(startAt)) };
 
 		for (int i = 1; i <= SEARCH_STEPS; ++i)
 		{
-			const float t = (i == SEARCH_STEPS) ? endT : startT + step * static_cast<float>(i);
-			const Sample current{ t, Evaluate(ray.At(t)) };
+			float t = startAt + step * static_cast<float>(i);
+			Sample current{ t, Evaluate(ray.At(t)) };
 
 			if (HasRootBetween(previous, current))
 			{
-				const float candidate = RefineRoot(ray, previous.t, current.t);
-				if (candidate >= MIN_RAY_DISTANCE && candidate <= maxT)
+				float candidate = RefineRoot(ray, previous.t, current.t);
+				if (candidate >= MIN_RAY_DISTANCE && candidate <= max)
 				{
-					outT = candidate;
+					hitAt = candidate;
 					return true;
 				}
 			}
@@ -107,20 +100,20 @@ private:
 
 	static bool HasRootBetween(const Sample& a, const Sample& b)
 	{
-		const bool signFlip = a.value * b.value < 0.f;
-		const bool nearZero = std::abs(a.value) < NEAR_ZERO_THRESHOLD
-			|| std::abs(b.value) < NEAR_ZERO_THRESHOLD;
-		return signFlip || nearZero;
+		const bool isSignFlipped = a.value * b.value < 0;
+		const bool isNearZero = glm::abs(a.value) < NEAR_ZERO_THRESHOLD || glm::abs(b.value) < NEAR_ZERO_THRESHOLD;
+		return isSignFlipped || isNearZero;
 	}
 
 	float RefineRoot(const Ray& ray, float left, float right) const
 	{
 		float leftValue = Evaluate(ray.At(left));
+
 		for (int i = 0; i < REFINE_ITERATIONS; ++i)
 		{
-			const float mid = 0.5f * (left + right);
-			const float midValue = Evaluate(ray.At(mid));
-			if (leftValue * midValue <= 0.f)
+			float mid = 0.5 * (left + right);
+			float midValue = Evaluate(ray.At(mid));
+			if (leftValue * midValue <= 0)
 			{
 				right = mid;
 			}
@@ -130,38 +123,46 @@ private:
 				leftValue = midValue;
 			}
 		}
-		return 0.5f * (left + right);
+
+		return 0.5 * (left + right);
 	}
 
 	void FillHit(const Ray& ray, float t, HitInfo& hit) const
 	{
 		const glm::vec3 localPoint = ray.At(t);
 		hit.t = t;
-		hit.point = glm::vec3(m_transform * glm::vec4(localPoint, 1.f));
+		hit.point = glm::vec3(m_transform * glm::vec4(localPoint, 1));
 		hit.normal = glm::normalize(m_normalMatrix * SurfaceNormal(localPoint));
 		hit.material = m_material;
 	}
 
+	// F(p) = (p·p + R² − r²)² − 4R²(p_x² + p_z²)
 	float Evaluate(const glm::vec3& p) const
 	{
-		const float sum = glm::dot(p, p) + m_R * m_R - m_r * m_r;
-		return sum * sum - 4.f * m_R * m_R * (p.x * p.x + p.z * p.z);
+		float sum = glm::dot(p, p) + m_R * m_R - m_r * m_r;
+		return sum * sum - 4 * m_R * m_R * (p.x * p.x + p.z * p.z);
 	}
 
-	// Геометрическая нормаль: ближайшая точка центральной окружности тубы
-	// лежит в плоскости XZ на расстоянии R от оси Y. Нормаль — единичный
-	// вектор от этой точки к точке поверхности.
 	glm::vec3 SurfaceNormal(const glm::vec3& p) const
 	{
-		const float lenXZ = std::sqrt(p.x * p.x + p.z * p.z);
-		if (lenXZ < 1e-6f)
+		glm::vec2 pXZ = { p.x, p.z };
+		float length = glm::length(pXZ);
+
+		if (length < 1e-6f)
 		{
-			return glm::vec3{ 0.f, p.y >= 0.f ? 1.f : -1.f, 0.f };
+			return glm::vec3{ 0, p.y >= 0 ? 1 : -1, 0 };
 		}
-		const float k = m_R / lenXZ;
-		const glm::vec3 ringCenter{ p.x * k, 0.f, p.z * k };
-		return glm::normalize(p - ringCenter);
+
+		glm::vec2 circle = pXZ * m_R / length;
+		glm::vec3 center{ circle.x, 0, circle.y };
+
+		return glm::normalize(p - center);
 	}
+
+	static constexpr int SEARCH_STEPS = 2048;
+	static constexpr int REFINE_ITERATIONS = 12;
+	static constexpr float MIN_RAY_DISTANCE = 1e-4f;
+	static constexpr float NEAR_ZERO_THRESHOLD = 1e-3f;
 
 	float m_R;
 	float m_r;
