@@ -1,6 +1,8 @@
 #pragma once
+#define GLM_ENABLE_EXPERIMENTAL
 
 #include "../core/Ray.hpp"
+#include "glm/gtx/component_wise.hpp"
 
 #include <algorithm>
 #include <glm/vec3.hpp>
@@ -28,25 +30,13 @@ public:
 
 	bool Intersect(const Ray& ray, float tMin, float tMax, float& tNear, float& tFar) const
 	{
-		tNear = tMin;
-		tFar = tMax;
-		for (int k = 0; k < 3; ++k)
-		{
-			const float invD = 1 / ray.direction[k];
-			float t0 = (m_min[k] - ray.origin[k]) * invD;
-			float t1 = (m_max[k] - ray.origin[k]) * invD;
-			if (invD < 0)
-			{
-				std::swap(t0, t1);
-			}
-			tNear = std::max(tNear, t0);
-			tFar = std::min(tFar, t1);
-			if (tFar < tNear)
-			{
-				return false;
-			}
-		}
-		return true;
+		const glm::vec3 invDirection = 1.0f / ray.direction;
+		const glm::vec3 t0 = (m_min - ray.origin) * invDirection;
+		const glm::vec3 t1 = (m_max - ray.origin) * invDirection;
+
+		tNear = std::max(tMin, glm::compMax(glm::min(t0, t1)));
+		tFar = std::min(tMax, glm::compMin(glm::max(t0, t1)));
+		return tNear <= tFar;
 	}
 
 	bool Intersect(const Ray& ray, float tMax) const
