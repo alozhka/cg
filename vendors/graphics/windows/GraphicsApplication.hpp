@@ -101,6 +101,13 @@ protected:
 		glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
 
+	glm::vec2 GetCursorPosition() const
+	{
+		double x, y;
+		glfwGetCursorPos(m_window, &x, &y);
+		return { x, y };
+	}
+
 	KeyboardReader CreateKeyboardReader() const
 	{
 		return KeyboardReader(m_window);

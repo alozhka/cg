@@ -46,6 +46,7 @@ public:
 		BuildScene();
 		InitCamera();
 		CaptureMouseInput();
+		m_cameraController.SetCursorPosition(GetCursorPosition());
 	}
 
 	~RayTracingApp() override

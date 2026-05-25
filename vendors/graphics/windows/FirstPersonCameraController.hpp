@@ -7,9 +7,13 @@ class FirstPersonCameraController
 public:
 	explicit FirstPersonCameraController(FirstPersonCamera& camera)
 		: m_camera(camera)
-		, m_lastX(camera.GetPosition().x)
-		, m_lastY(camera.GetPosition().y)
 	{
+	}
+
+	void SetCursorPosition(glm::vec2 pos)
+	{
+		m_lastX = pos.x;
+		m_lastY = pos.y;
 	}
 
 	void OnRawMouseMove(double x, double y)
@@ -25,7 +29,7 @@ public:
 
 private:
 	FirstPersonCamera& m_camera;
-	double m_lastX;
-	double m_lastY;
+	double m_lastX = 0;
+	double m_lastY = 0;
 	float m_sensitivity = 0.003;
 };
