@@ -30,49 +30,51 @@ public:
 
 	bool Intersect(const Ray& ray, HitInfo& hit) const override
 	{
-		// Луч в локальную систему меша. Origin и origin+direction
-		// преобразуем как точки — корректно при неединичном масштабе.
-		const glm::vec3 oLocal = glm::vec3(m_invTransform * glm::vec4(ray.origin, 1.f));
-		const glm::vec3 eLocal = glm::vec3(m_invTransform * glm::vec4(ray.origin + ray.direction, 1.f));
-		const glm::vec3 dLocal = eLocal - oLocal;
-		const float dLen = glm::length(dLocal);
-		if (dLen <= 0.f)
-		{
-			return false;
-		}
-		const Ray localRay{ oLocal, dLocal / dLen };
+		Ray localRay = CreateLocalRay(ray);
 
-		// Текущий hit.t в мировых единицах -> локальные через масштаб направления.
-		const float localTMax = hit.t * dLen;
-
-		MeshHit mh;
-		if (!m_mesh->Intersect(localRay, localTMax, mh))
+		MeshHit meshHit;
+		if (!m_mesh->Intersect(localRay, hit.t, meshHit))
 		{
 			return false;
 		}
 
-		// Возврат в мировые единицы.
-		const float worldT = mh.t / dLen;
-		if (worldT >= hit.t)
+		if (meshHit.t >= hit.t)
 		{
 			return false;
 		}
 
-		glm::vec3 nWorld = glm::normalize(
-			m_normalMatrix * m_mesh->InterpolatedNormal(mh.triangleIndex, mh.u, mh.v));
-		if (glm::dot(nWorld, ray.direction) > 0.f)
-		{
-			nWorld = -nWorld;
-		}
-
-		hit.t = worldT;
-		hit.point = ray.origin + ray.direction * worldT;
-		hit.normal = nWorld;
-		hit.material = m_materials[m_mesh->Triangles()[mh.triangleIndex].materialIndex];
+		FillHit(ray, meshHit, hit);
 		return true;
 	}
 
 private:
+	Ray CreateLocalRay(const Ray& worldRay) const
+	{
+		glm::vec3 origin = glm::vec3(m_invTransform * glm::vec4(worldRay.origin, 1.f));
+		glm::vec3 direction = glm::mat3(m_invTransform) * worldRay.direction;
+		return Ray{ origin, direction };
+	}
+
+	void FillHit(const Ray& worldRay, const MeshHit& meshHit, HitInfo& hit) const
+	{
+		glm::vec3 meshNormal = m_mesh->InterpolatedNormal(meshHit.triangleIndex, meshHit.u, meshHit.v);
+		glm::vec3 normal = glm::normalize(m_normalMatrix * meshNormal);
+		if (glm::dot(normal, worldRay.direction) > 0)
+		{
+			normal = -normal;
+		}
+
+		hit.t = meshHit.t;
+		hit.point = worldRay.At(meshHit.t);
+		hit.normal = normal;
+		hit.material = MaterialAt(meshHit.triangleIndex);
+	}
+
+	MaterialPtr MaterialAt(uint32_t triangleIndex) const
+	{
+		return m_materials[m_mesh->Triangles()[triangleIndex].materialIndex];
+	}
+
 	std::shared_ptr<const RayMesh> m_mesh;
 	std::vector<MaterialPtr> m_materials;
 	glm::mat4 m_transform;
