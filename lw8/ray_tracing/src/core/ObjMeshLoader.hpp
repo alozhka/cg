@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../shading/MaterialData.hpp"
-#include "RayMesh.hpp"
+#include "RayTracedMesh.hpp"
 
 #include <tiny_obj_loader.h>
 
@@ -20,7 +20,7 @@ class ObjMeshLoader
 public:
 	struct Loaded
 	{
-		std::shared_ptr<RayMesh> mesh;
+		std::shared_ptr<RayTracedMesh> mesh;
 		std::vector<MaterialPtr> materials;
 	};
 
@@ -88,7 +88,7 @@ private:
 		return out;
 	}
 
-	static std::shared_ptr<RayMesh> BuildMesh(const tinyobj::ObjReader& reader)
+	static std::shared_ptr<RayTracedMesh> BuildMesh(const tinyobj::ObjReader& reader)
 	{
 		const tinyobj::attrib_t& attrib = reader.GetAttrib();
 
@@ -105,7 +105,7 @@ private:
 			}
 		}
 
-		return std::make_shared<RayMesh>(std::move(positions), std::move(normals), std::move(triangles));
+		return std::make_shared<RayTracedMesh>(std::move(positions), std::move(normals), std::move(triangles));
 	}
 
 	static MeshTriangle MakeTriangle(

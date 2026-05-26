@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../core/RayMesh.hpp"
+#include "../core/RayTracedMesh.hpp"
 #include "../shading/MaterialData.hpp"
 
 #include <graphics/Drawable3D.hpp>
@@ -16,7 +16,7 @@
 class GpuMesh : public Drawable3D
 {
 public:
-	GpuMesh(const std::shared_ptr<RayMesh>& mesh, MaterialPtr material, const glm::vec3& position)
+	GpuMesh(const std::shared_ptr<RayTracedMesh>& mesh, MaterialPtr material, const glm::vec3& position)
 		: Drawable3D(position)
 		, m_material(std::move(material))
 		, m_mesh(BuildMesh(*mesh))
@@ -33,7 +33,7 @@ public:
 	}
 
 private:
-	static Mesh BuildMesh(const RayMesh& mesh)
+	static Mesh BuildMesh(const RayTracedMesh& mesh)
 	{
 		const auto& positions = mesh.Positions();
 		const auto& normals = mesh.Normals();

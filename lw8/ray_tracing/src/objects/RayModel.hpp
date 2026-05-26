@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../core/ISceneObject.hpp"
-#include "../core/RayMesh.hpp"
+#include "../core/RayTracedMesh.hpp"
 #include "../shading/MaterialData.hpp"
 
 #include <glm/geometric.hpp>
@@ -17,7 +17,7 @@ class RayModel : public ISceneObject
 {
 public:
 	RayModel(
-		std::shared_ptr<const RayMesh> mesh,
+		std::shared_ptr<const RayTracedMesh> mesh,
 		std::vector<MaterialPtr> materials,
 		const glm::mat4& transform = glm::mat4{ 1.f })
 		: m_mesh(std::move(mesh))
@@ -75,7 +75,7 @@ private:
 		return m_materials[m_mesh->Triangles()[triangleIndex].materialIndex];
 	}
 
-	std::shared_ptr<const RayMesh> m_mesh;
+	std::shared_ptr<const RayTracedMesh> m_mesh;
 	std::vector<MaterialPtr> m_materials;
 	glm::mat4 m_transform;
 	glm::mat4 m_invTransform;

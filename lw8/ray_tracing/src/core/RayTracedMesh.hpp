@@ -46,12 +46,12 @@ struct RayTriangleHit
 	Barycentric bary;
 };
 
-class RayMesh
+class RayTracedMesh
 {
 public:
-	RayMesh() = default;
+	RayTracedMesh() = default;
 
-	RayMesh(
+	RayTracedMesh(
 		std::vector<glm::vec3> positions,
 		std::vector<glm::vec3> normals,
 		std::vector<MeshTriangle> triangles)
