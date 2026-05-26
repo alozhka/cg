@@ -30,12 +30,15 @@ public:
 
 	bool Intersect(const Ray& ray, float tMin, float tMax, float& tNear, float& tFar) const
 	{
-		const glm::vec3 invDirection = 1.0f / ray.direction;
-		const glm::vec3 t0 = (m_min - ray.origin) * invDirection;
-		const glm::vec3 t1 = (m_max - ray.origin) * invDirection;
+		glm::vec3 invDirection = 1.0f / ray.direction;
+		glm::vec3 t0 = (m_min - ray.origin) * invDirection; // t = (min.x - o.x) / dir
+		glm::vec3 t1 = (m_max - ray.origin) * invDirection; // t = (max.x - o.x) / dir
 
-		tNear = std::max(tMin, glm::compMax(glm::min(t0, t1)));
-		tFar = std::min(tMax, glm::compMin(glm::max(t0, t1)));
+		glm::vec3 tNearAxis = glm::min(t0, t1);
+		glm::vec3 tFarAxis = glm::max(t0, t1);
+
+		tNear = std::max(tMin, glm::compMax(tNearAxis));
+		tFar = std::min(tMax, glm::compMin(tFarAxis));
 		return tNear <= tFar;
 	}
 
