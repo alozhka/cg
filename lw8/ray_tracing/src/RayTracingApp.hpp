@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/Scene.hpp"
+#include "gpu/GpuRayTracer.hpp"
 #include "objects/Quad.hpp"
 #include "render/FrameBuffer.hpp"
 #include "render/Renderer.hpp"
@@ -24,6 +25,7 @@ enum class RenderMode
 {
 	Raster = 0,
 	RayTracing = 1,
+	GpuRayTracing = 2,
 };
 
 class RayTracingApp final : public GraphicsApplication
@@ -79,7 +81,11 @@ protected:
 private:
 	void Draw(const glm::mat4& viewProjection)
 	{
-		if (m_renderMode == RenderMode::Raster || m_renderer.IsRendering())
+		if (m_renderMode == RenderMode::GpuRayTracing)
+		{
+			m_gpuTracer.Render(m_camera, viewProjection, m_quad);
+		}
+		else if (m_renderMode == RenderMode::Raster || m_renderer.IsRendering())
 		{
 			m_rasterShader.SetUniformMat4("uViewProjection", viewProjection);
 			m_rasterShader.SetUniformVec3("uCameraPos", m_camera.GetPosition());
@@ -110,9 +116,21 @@ private:
 				m_renderer.Render(m_frameBuffer, m_camera, m_scene, viewProjection);
 				m_renderMode = RenderMode::RayTracing;
 			}
-			else
+			else if (m_renderMode == RenderMode::RayTracing)
 			{
 				m_renderMode = RenderMode::Raster;
+			}
+		}
+
+		if (m_keys.WasJustPressed(GLFW_KEY_G))
+		{
+			if (m_renderMode == RenderMode::GpuRayTracing)
+			{
+				m_renderMode = RenderMode::Raster;
+			}
+			else if (m_renderMode == RenderMode::Raster)
+			{
+				m_renderMode = RenderMode::GpuRayTracing;
 			}
 		}
 	}
@@ -133,15 +151,19 @@ private:
 
 	void UpdateTitle()
 	{
-		std::string title = "Object scene. Mode: ";
+		std::string title = "Object scene. Mode:";
 
-		if (m_renderMode == RenderMode::Raster)
+		switch (m_renderMode)
 		{
+		case RenderMode::Raster:
 			title += " Raster.";
-		}
-		else
-		{
-			title += " Ray Tracing.";
+			break;
+		case RenderMode::RayTracing:
+			title += " Ray Tracing (CPU).";
+			break;
+		case RenderMode::GpuRayTracing:
+			title += " Ray Tracing (GPU).";
+			break;
 		}
 
 		if (m_renderer.IsRendering())
@@ -172,4 +194,6 @@ private:
 	Quad m_quad;
 	ShaderProgram m_quadShader;
 	ShaderProgram m_rasterShader;
+
+	GpuRayTracer m_gpuTracer;
 };
